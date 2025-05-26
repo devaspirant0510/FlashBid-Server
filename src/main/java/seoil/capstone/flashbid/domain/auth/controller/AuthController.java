@@ -1,5 +1,7 @@
 package seoil.capstone.flashbid.domain.auth.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +17,7 @@ import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.service.AccountService;
 import seoil.capstone.flashbid.global.common.AuthRestClient;
 import seoil.capstone.flashbid.global.core.provider.JwtProvider;
+import seoil.capstone.flashbid.global.common.enums.LoginType;
 import seoil.capstone.flashbid.global.model.KaKaoUserPayload;
 import seoil.capstone.flashbid.global.model.KakaoAuthResponse;
 import seoil.capstone.flashbid.global.model.KakaoUserResponse;
@@ -32,7 +35,7 @@ public class AuthController {
     //TODO : redis 연동한 rfr 로직
 
     @GetMapping("/callback/kakao")
-    public ResponseEntity<Account> kakaoAuthCallback(@RequestParam("code") String code) {
+    public ResponseEntity<Account> kakaoAuthCallback(@RequestParam("code") String code, HttpServletResponse response) {
         // 인증코드로 액세스토큰 발급
         KakaoAuthResponse s = restClient.requestKakaoAuth("http://localhost:8080/auth/callback/kakao", code);
         // id 토큰을 파싱하여 aud 추출( 카카오톡 유저별 고유 아이디 )
@@ -41,12 +44,14 @@ public class AuthController {
         String userUuid = kaKaoUserPayload.getAud();
         // 가입된 적이 있는지
         if (accountService.isRegisteredUser(userUuid)) {
-            // TODO : 계정 정지 등에 대한 에러 처리
+            // TODO : 계정 정지 등에 대한 분기 처리
             Account userByUuid = accountService.getUserByUuid(userUuid);
             AuthTokenDto token = authService.createAccessToken(userByUuid);
-            userByUuid.setEmail(token.getAccessToken());
-            userByUuid.setUuid(token.getRefreshToken());
             HttpHeaders headers = new HttpHeaders();
+            Cookie cookie  = new Cookie("refresh_token",token.getRefreshToken());
+            cookie.setPath("/");
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
             headers.add("Authorization","Bearer "+token.getAccessToken());
             ResponseEntity<Account> accountResponseEntity = new ResponseEntity<>(userByUuid, headers,HttpStatus.OK);
             return accountResponseEntity;
@@ -55,6 +60,7 @@ public class AuthController {
         KakaoUserResponse kakaoUserResponse = restClient.requestKakaoGetUserApi(s.getAccessToken());
         log.info(kakaoUserResponse.toString());
         String kakaoLinkedEmail = kakaoUserResponse.getKakaoAccount().getEmail();
-        return null ;//accountService.registerAccount(kakaoLinkedEmail,userUuid, LoginType.KAKAO);
+        // 서비스 자체 회원가입이 필요해서 필수정보만 넘겨주기
+        return new ResponseEntity<>(accountService.registerAccount(kakaoLinkedEmail,userUuid, LoginType.KAKAO),HttpStatus.CREATED);
     }
 }

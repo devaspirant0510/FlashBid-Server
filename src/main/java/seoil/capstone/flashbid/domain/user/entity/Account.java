@@ -2,9 +2,9 @@ package seoil.capstone.flashbid.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import seoil.capstone.flashbid.global.enums.LoginType;
-import seoil.capstone.flashbid.global.enums.UserStatus;
-import seoil.capstone.flashbid.global.enums.UserType;
+import seoil.capstone.flashbid.global.common.enums.LoginType;
+import seoil.capstone.flashbid.global.common.enums.UserStatus;
+import seoil.capstone.flashbid.global.common.enums.UserType;
 
 import java.time.LocalDateTime;
 
@@ -43,6 +43,9 @@ public class Account {
 
     @Column
     private String uuid;
+
+    @OneToOne
+    private Player player;
 
     public Account(LoginType loginType, UserStatus userStatus, UserType userType, String email, LocalDateTime createdAt, LocalDateTime deletedAt, boolean isVerified, String uuid) {
         this.loginType = loginType;
