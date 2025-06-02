@@ -8,6 +8,7 @@ import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.domain.user.repository.PlayerRepository;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
 import seoil.capstone.flashbid.global.common.enums.UserStatus;
+import seoil.capstone.flashbid.global.common.enums.UserType;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -39,9 +40,9 @@ public class AccountService {
         Account createAccount = Account.builder()
                 .email(email)
                 .uuid(uuid)
-                .createdAt(LocalDateTime.now())
                 .isVerified(false)
                 .loginType(loginType)
+                .userType(UserType.CUSTOMER)
                 .userStatus(UserStatus.UN_LINK)
                 .build();
         return accountRepository.save(createAccount);
@@ -54,7 +55,6 @@ public class AccountService {
                 .id(id)
                 .userName(userName)
                 .build();
-        account.setPlayer(player);
         accountRepository.save(account);
         return playerRepository.save(player);
     }
