@@ -7,13 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 
 import javax.crypto.SecretKey;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -76,7 +77,7 @@ public class JwtProvider {
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
         String userUid = claims.getSubject();
-        return new UsernamePasswordAuthenticationToken(userUid, null, new ArrayList<>());
+        return new UsernamePasswordAuthenticationToken(userUid, null, List.of(new SimpleGrantedAuthority(claims.get("role", String.class))));
     }
 
     public boolean validateToken(String token) {
