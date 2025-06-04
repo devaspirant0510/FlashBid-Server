@@ -19,6 +19,7 @@ import seoil.capstone.flashbid.global.core.BaseTimeEntity;
 @Entity(name = "file")
 public class FileEntity extends BaseTimeEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
