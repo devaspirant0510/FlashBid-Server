@@ -1,5 +1,6 @@
 package seoil.capstone.flashbid.domain.auction.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -7,6 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
+import seoil.capstone.flashbid.domain.auction.service.GoodsService;
+import seoil.capstone.flashbid.domain.user.entity.Account;
+import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
+import seoil.capstone.flashbid.global.common.response.ApiResult;
 
 import java.util.List;
 
@@ -16,10 +22,18 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/api/v1/goods")
 public class GoodsController {
+    private final GoodsService goodsService;
 
     @PostMapping
-    public String createGoods(@RequestParam("files") List<MultipartFile> files, @RequestParam("title") String title, @RequestParam("description") String description) {
-        return title+","+description;
-
+    @AuthUser
+    public ApiResult<GoodsDto> createGoods(
+            Account user,
+            @RequestParam("files") List<MultipartFile> files,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            HttpServletRequest request
+    ) {
+        GoodsDto goodsDto = goodsService.uploadGoods(user, files, title, description);
+        return ApiResult.created(goodsDto,request);
     }
 }
