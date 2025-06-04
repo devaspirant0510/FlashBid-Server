@@ -2,5 +2,5 @@ package seoil.capstone.flashbid.global.common.enums;
 
 
 public enum AuctionType {
-    REALTIME,BLIND
+    LIVE,BLIND
 }
