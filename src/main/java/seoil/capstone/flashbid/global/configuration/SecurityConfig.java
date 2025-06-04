@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfiguration()))
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화 (필요한 경우)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "auth/callback/*","auth/oauth2/*").permitAll()
+                        .requestMatchers("/login", "auth/callback/*","auth/oauth2/*","/uploads/**").permitAll()
                         .anyRequest().authenticated()
                 ) // 모든 요청 허용
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // jwt 파싱해서 유효한 토큰인지 검증하는 필터
