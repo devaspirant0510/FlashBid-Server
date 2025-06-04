@@ -28,11 +28,11 @@ public class DBTest {
         long ACCESS_TOKEN_EXPIRATION = 60 * 60 * 60 * 24* 100;
         SecretKey signedKey = hashProvier.getSignedKey("3bd56aea9642eff83cb0e2fb20d95b4e3bd56aea9642eff83cb0e2fb20d95b4e");
         String jwt = Jwts.builder()
-                .setSubject("1234")
+                .setSubject("b4ff0229451d8fc4f98b0c2a6545da33")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
-                .claim("id", "1234")
-                .claim("uid", 1234)
+                .claim("id", "1")
+                .claim("uid", "b4ff0229451d8fc4f98b0c2a6545da33")
                 .claim("email", "1234")
                 .claim("role", "1234")
                 .signWith(signedKey, SignatureAlgorithm.HS256)
