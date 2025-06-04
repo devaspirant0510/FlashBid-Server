@@ -1,15 +1,19 @@
 package seoil.capstone.flashbid.domain.auction.entity;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.*;
 import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 public class Goods {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id ;
 
     @Column
