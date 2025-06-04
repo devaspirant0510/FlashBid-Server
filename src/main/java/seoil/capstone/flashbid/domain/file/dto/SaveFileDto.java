@@ -11,4 +11,5 @@ import lombok.*;
 public class SaveFileDto {
     private String fileName;
     private String extension;
+    private String url;
 }
