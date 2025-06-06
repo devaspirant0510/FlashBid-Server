@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.user.controller.swagger.AccountSwagger;
 import seoil.capstone.flashbid.domain.user.dto.response.UserDto;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.entity.FollowEntity;
@@ -19,24 +20,27 @@ import java.util.List;
 @RequestMapping("/api/v1/profile")
 @RequiredArgsConstructor
 @Slf4j
-public class AccountController {
+public class AccountController implements AccountSwagger {
     private final AccountService accountService;
     private final UserService userService;
 
     @GetMapping
     @AuthUser
+    @Override
     public ApiResult<Account> getUserProfile(Account user, HttpServletRequest request) {
         return ApiResult.ok(user, request);
     }
 
     @GetMapping("/info")
     @AuthUser
+    @Override
     public ApiResult<UserDto> getUserProfileInfo(Account user, HttpServletRequest request) {
         return ApiResult.ok(userService.getUserProfile(user), request);
     }
 
     @PatchMapping("/follow/{id}")
     @AuthUser
+    @Override
     public ApiResult<FollowEntity> followUser(
             Account user,
             @PathVariable(name = "id") Long followUserId,
@@ -47,6 +51,7 @@ public class AccountController {
 
     @DeleteMapping("/unfollow/{id}")
     @AuthUser
+    @Override
     public ApiResult<Boolean> unFollowUser(
             Account user,
             @PathVariable(name = "id") Long unFollowUserId,
@@ -57,6 +62,7 @@ public class AccountController {
 
     @GetMapping("/my/feed")
     @AuthUser
+    @Override
     public ApiResult<List<FeedDto>> getAllMyFeed(
             Account user,
             HttpServletRequest request
@@ -65,6 +71,7 @@ public class AccountController {
     }
 
     @GetMapping("/{id}/feed")
+    @Override
     public ApiResult<List<FeedDto>> getAllUserFeed(
             @PathVariable(name = "id") Long userId,
             HttpServletRequest request
