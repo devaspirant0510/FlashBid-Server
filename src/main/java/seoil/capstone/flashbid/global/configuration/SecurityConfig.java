@@ -15,7 +15,6 @@ import seoil.capstone.flashbid.domain.auth.filter.JwtAuthenticationFilter;
 import seoil.capstone.flashbid.global.core.module.security.CustomAccessDeniedHandler;
 import seoil.capstone.flashbid.global.core.module.security.CustomAuthenticationEntryPoint;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -30,7 +29,17 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfiguration()))
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화 (필요한 경우)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "auth/callback/*","auth/oauth2/*").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/login",
+                                "auth/callback/*",
+                                "auth/oauth2/*",
+                                "/uploads/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/v3/api-docs/**",
+                                "/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 ) // 모든 요청 허용
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // jwt 파싱해서 유효한 토큰인지 검증하는 필터
@@ -49,11 +58,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfiguration() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // 허용할 프론트엔드 주소
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5175")); // 허용할 프론트엔드 주소
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
         configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키 및 인증 정보 포함 허용
-        configuration.setExposedHeaders(List.of("Authorization","jwt-token"));
+        configuration.setExposedHeaders(List.of("Authorization", "jwt-token"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
