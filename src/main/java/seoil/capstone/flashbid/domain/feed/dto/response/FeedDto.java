@@ -17,5 +17,7 @@ import java.util.List;
 public class FeedDto {
     private FeedEntity feed;
     private List<FileEntity> images;
+    private int commentCount;
+    private int likeCount;
 
 }
