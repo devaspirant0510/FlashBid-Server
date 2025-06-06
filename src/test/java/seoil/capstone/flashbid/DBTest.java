@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
-import seoil.capstone.flashbid.global.enums.LoginType;
-import seoil.capstone.flashbid.global.enums.UserStatus;
-import seoil.capstone.flashbid.global.enums.UserType;
+import seoil.capstone.flashbid.global.common.enums.LoginType;
+import seoil.capstone.flashbid.global.common.enums.UserStatus;
+import seoil.capstone.flashbid.global.common.enums.UserType;
 
 import java.time.LocalDateTime;
 
