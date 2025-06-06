@@ -62,15 +62,30 @@ public class FeedService {
     }
 
 
+    @Transactional
+    public FeedDto getQueryFeedDto(FeedEntity feed){
+        int commentCount = commentRepository.countByFeedId(feed.getId());
+        int likeCount = likeRepository.countByFeedId(feed.getId());
+        List<FileEntity> allFiles = fileService.getAllFiles(feed.getId(), FileType.FEED);
+        return new FeedDto(
+                feed,
+                allFiles,
+                commentCount,
+                likeCount
+
+        );
+
+    }
 
     @Transactional
     public FeedDto getFeedById(Long id) {
         FeedEntity feedEntity = fetchFeedById(id);
         int commentCount = commentRepository.countByFeedId(id);
         int likeCount = likeRepository.countByFeedId(id);
+        List<FileEntity> allFiles = fileService.getAllFiles(id, FileType.FEED);
         return new FeedDto(
                 feedEntity,
-                List.of(),
+                allFiles,
                 commentCount,
                 likeCount
         );
