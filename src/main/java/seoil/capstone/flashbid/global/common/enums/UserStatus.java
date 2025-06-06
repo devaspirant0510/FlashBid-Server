@@ -1,4 +1,4 @@
-package seoil.capstone.flashbid.global.enums;
+package seoil.capstone.flashbid.global.common.enums;
 
 public enum UserStatus {
     ACTIVE,

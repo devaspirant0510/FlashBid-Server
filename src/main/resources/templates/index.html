@@ -9,14 +9,23 @@
     </script>
 </head>
 <body>
+<script>
+    const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=6dd9ea5522b7f44e998e97e22ded8997&redirect_uri=http://localhost:8080/auth/callback/kakao&response_type=code`;
+</script>
 <button id="kakao-login">로그인</button>
+
+<a href="https://kauth.kakao.com/oauth/authorize?client_id=6dd9ea5522b7f44e998e97e22ded8997&redirect_uri=http://localhost:8080/auth/callback/kakao&response_type=code" className="kakaobtn">
+    찐 로그인
+
+</a>
 <script>
     const kbtn = document.querySelector("#kakao-login");
     kbtn.addEventListener("click",()=>{
         console.log("kakao")
-        Kakao.Auth.authorize({
+        const result = Kakao.Auth.authorize({
             redirectUri: 'http://localhost:8080/auth/callback/kakao'
         });
+        console.log(result);
 
     })
 

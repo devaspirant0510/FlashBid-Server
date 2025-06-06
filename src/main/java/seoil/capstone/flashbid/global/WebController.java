@@ -11,7 +11,6 @@ public class WebController {
         return "index";
     }
     @GetMapping("/")
-    @ResponseBody
     public String homepage(){
         return "home";
     }
