@@ -144,6 +144,6 @@ public class FeedService {
         return commentRepository.findAllByFeedIdAndReplyIsNull(feedId);
     }
     public List<CommentEntity> getAllCommentByReplyId(Long replyId){
-        return commentRepository.findAllByFeedIdAndReplyIsNull(replyId);
+        return commentRepository.findAllByReplyId(replyId);
     }
 }

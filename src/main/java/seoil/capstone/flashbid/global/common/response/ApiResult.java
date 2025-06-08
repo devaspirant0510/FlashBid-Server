@@ -29,11 +29,37 @@ public class ApiResult<T> {
                 .method(request.getMethod())
                 .path(request.getRequestURI())
                 .timestamp(LocalDateTime.now())
+                .message("성공")
+                .data(data)
+                .build();
+
+    }
+    public static <T> ApiResult<T> ok(T data, HttpServletRequest request,String message) {
+        return ApiResult.<T>builder()
+                .apiHeader(new ApiHeader(
+                        HttpStatus.OK
+                ))
+                .method(request.getMethod())
+                .path(request.getRequestURI())
+                .timestamp(LocalDateTime.now())
+                .message(message)
                 .data(data)
                 .build();
 
     }
 
+    public static <T> ApiResult<T> created(T data,HttpServletRequest request,String message){
+        return ApiResult.<T>builder()
+                .apiHeader(new ApiHeader(
+                        HttpStatus.CREATED
+                ))
+                .method(request.getMethod())
+                .path(request.getRequestURI())
+                .timestamp(LocalDateTime.now())
+                .message(message)
+                .data(data)
+                .build();
+    }
     public static <T> ApiResult<T> created(T data,HttpServletRequest request){
         return ApiResult.<T>builder()
                 .apiHeader(new ApiHeader(
@@ -42,6 +68,7 @@ public class ApiResult<T> {
                 .method(request.getMethod())
                 .path(request.getRequestURI())
                 .timestamp(LocalDateTime.now())
+                .message("생성됨")
                 .data(data)
                 .build();
     }

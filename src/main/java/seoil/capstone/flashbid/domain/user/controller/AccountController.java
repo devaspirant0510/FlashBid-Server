@@ -4,7 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.user.controller.swagger.AccountSwagger;
 import seoil.capstone.flashbid.domain.user.dto.response.UserDto;
 import seoil.capstone.flashbid.domain.user.entity.Account;
@@ -79,6 +81,22 @@ public class AccountController implements AccountSwagger {
         return ApiResult.ok(userService.getAllFeedByUserId(userId), request);
     }
 
+    @AuthUser
+    @Override
+    @GetMapping("/{id}")
+    public ApiResult<UserDto> getUserById(Account user,@PathVariable(name = "id") Long userId, HttpServletRequest request) {
+        return ApiResult.ok(userService.getUserById(userId),request);
+    }
+
+    @AuthUser
+    @PatchMapping("/image")
+    public ApiResult<FileEntity> updateProfileImage(
+            Account user,
+            @RequestParam("file") MultipartFile image,
+            HttpServletRequest request
+    ){
+        return ApiResult.ok(userService.uploadProfileImage(image,user),request);
+    }
 
 
 }
