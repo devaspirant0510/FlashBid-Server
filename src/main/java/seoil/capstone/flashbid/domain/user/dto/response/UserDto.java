@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 
 @Getter
@@ -16,4 +17,5 @@ public class UserDto {
     int followerCount;
     int followingCount;
     int feedCount;
+    FileEntity profileImage;
 }

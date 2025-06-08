@@ -74,4 +74,10 @@ public interface AccountSwagger {
             @Parameter(description = "유저 ID") @PathVariable("id") Long userId,
             HttpServletRequest request
     );
+
+    ApiResult<UserDto> getUserById(
+            @Parameter(hidden = true) Account user,
+            @Parameter(description = "유저 ID") Long userId,
+            HttpServletRequest request
+    );
 }
