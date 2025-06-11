@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import seoil.capstone.flashbid.domain.auth.dto.AuthTokenDto;
 import seoil.capstone.flashbid.domain.auth.dto.RegisterDto;
 import seoil.capstone.flashbid.domain.auth.service.AuthService;
-import seoil.capstone.flashbid.domain.user.dto.request.RegisterUserDto;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.service.AccountService;
 import seoil.capstone.flashbid.global.common.AuthRestClient;
@@ -20,6 +19,7 @@ import seoil.capstone.flashbid.global.core.provider.JwtProvider;
 import seoil.capstone.flashbid.global.model.*;
 
 import java.io.IOException;
+
 
 @Slf4j
 @RestController
@@ -41,10 +41,50 @@ public class AuthController {
     @GetMapping("/callback/naver")
     public ApiResult<Account> naverAuthCallback(
             @RequestParam("code") String code,
-            HttpServletRequest request
+            HttpServletRequest request,
+            HttpServletResponse response
     ) {
-        restClient.requestNaverAuth(code, "http://localhost:5173/login");
-        return null;
+        NaverOAuthTokenResponse naverAuth = restClient.requestNaverAuth(code, "http://172.27.226.250:5173/login");
+
+        // 2. 네이버 유저 정보 요청
+        NaverUserInfoResponse naverUserInfo =  restClient.requestNaverUser(naverAuth.getAccess_token());
+        String userUuid = naverUserInfo.getResponse().getId(); // 네이버 유저 고유 ID
+
+        // 3. 회원인지 확인
+        if (accountService.isRegisteredUser(userUuid)) {
+            Account userByUuid = accountService.getUserByUuid(userUuid);
+
+            // 4. 토큰 생성
+            AuthTokenDto token = authService.createAccessToken(userByUuid);
+
+            // 5. 쿠키에 저장 (JS에서 접근 가능하도록 보안 옵션 약하게)
+            Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
+            refreshCookie.setHttpOnly(false);
+            refreshCookie.setSecure(false);
+            refreshCookie.setMaxAge(60 * 60 * 24);
+            refreshCookie.setPath("/");
+            response.addCookie(refreshCookie);
+
+            Cookie accessCookie = new Cookie("access_token", token.getAccessToken());
+            accessCookie.setHttpOnly(false);
+            accessCookie.setSecure(false);
+            accessCookie.setMaxAge(60 * 60 * 24);
+            accessCookie.setPath("/");
+            response.addCookie(accessCookie);
+            response.addHeader("Authorization", "Bearer " + token.getAccessToken());
+
+            // 6. 응답 반환
+            return ApiResult.ok(userByUuid, request);
+        }
+
+        // 7. 회원이 아닌 경우 회원가입 처리
+        Account newAccount = accountService.registerAccount(
+                naverUserInfo.getResponse().getEmail(),
+                userUuid,
+                LoginType.FACEBOOK
+        );
+
+        return ApiResult.created(newAccount, request);
 
     }
 
@@ -54,7 +94,7 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        GoogleOAuthTokenResponse googleAuth = restClient.requestGoogleAuth(code, "http://localhost:5173/login");
+        GoogleOAuthTokenResponse googleAuth = restClient.requestGoogleAuth(code, "http://172.27.226.250:5173/login");
         GoogleUserInfoResponse googleUserInfoResponse = restClient.requestGoogleGetUser(googleAuth.getAccessToken());
         String userUuid = googleUserInfoResponse.getSub();
         if (accountService.isRegisteredUser(userUuid)) {
@@ -62,10 +102,17 @@ public class AuthController {
             Account userByUuid = accountService.getUserByUuid(userUuid);
             AuthTokenDto token = authService.createAccessToken(userByUuid);
             HttpHeaders headers = new HttpHeaders();
-            Cookie cookie = new Cookie("refresh_token", token.getRefreshToken());
-            cookie.setPath("/");
-            cookie.setHttpOnly(true);
-            response.addCookie(cookie);
+            Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
+            refreshCookie.setHttpOnly(false); // JS에서 읽을 수 있게
+            refreshCookie.setSecure(false);   // HTTPS 아니어도 허용
+            refreshCookie.setMaxAge(60 * 60 * 240); // 1일 (초 단위)
+            response.addCookie(refreshCookie);
+
+            Cookie accessCookie = new Cookie("access_token", token.getAccessToken());
+            accessCookie.setHttpOnly(false);
+            accessCookie.setSecure(false);
+            accessCookie.setMaxAge(60 * 60 * 240);
+            response.addCookie(accessCookie);
             response.addHeader("Authorization", "Bearer " + token.getAccessToken());
             return ApiResult.ok(userByUuid, request);
         }
@@ -76,7 +123,7 @@ public class AuthController {
     @GetMapping("/callback/kakao")
     public ApiResult<Account> kakaoAuthCallback(@RequestParam("code") String code, HttpServletRequest request, HttpServletResponse response) throws IOException {
         // 인증코드로 액세스토큰 발급
-        KakaoAuthResponse s = restClient.requestKakaoAuth("http://localhost:5173/login", code);
+        KakaoAuthResponse s = restClient.requestKakaoAuth("http://172.27.226.250:5173/login", code);
         // id 토큰을 파싱하여 aud 추출( 카카오톡 유저별 고유 아이디 )
         KaKaoUserPayload kaKaoUserPayload = jwtProvider.parsingJwtBody(s.getIdToken(), KaKaoUserPayload.class);
         // 가입한적이 있는 유저의 경우 유저정보 리턴
@@ -87,10 +134,17 @@ public class AuthController {
             Account userByUuid = accountService.getUserByUuid(userUuid);
             AuthTokenDto token = authService.createAccessToken(userByUuid);
             HttpHeaders headers = new HttpHeaders();
-            Cookie cookie = new Cookie("refresh_token", token.getRefreshToken());
-            cookie.setPath("/");
-            cookie.setHttpOnly(true);
-            response.addCookie(cookie);
+            Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
+            refreshCookie.setHttpOnly(false); // JS에서 읽을 수 있게
+            refreshCookie.setSecure(false);   // HTTPS 아니어도 허용
+            refreshCookie.setMaxAge(60 * 60 * 240); // 1일 (초 단위)
+            response.addCookie(refreshCookie);
+
+            Cookie accessCookie = new Cookie("access_token", token.getAccessToken());
+            accessCookie.setHttpOnly(false);
+            accessCookie.setSecure(false);
+            accessCookie.setMaxAge(60 * 60 * 24*10);
+            response.addCookie(accessCookie);
             response.addHeader("Authorization", "Bearer " + token.getAccessToken());
             return ApiResult.ok(userByUuid, request);
         }

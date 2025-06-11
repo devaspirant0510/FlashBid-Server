@@ -1,11 +1,14 @@
 package seoil.capstone.flashbid.domain.auction.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDto;
+import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
@@ -29,7 +32,7 @@ public class AuctionController {
     @PostMapping("/live")
     @AuthUser
     public ApiResult<Auction> createLiveAuction(
-            Account account,
+            @Parameter(hidden = true) Account account,
             @RequestParam("files") List<MultipartFile> files,
             @RequestPart("data") CreateAuctionRequestDto dto,
             HttpServletRequest request
@@ -40,10 +43,16 @@ public class AuctionController {
 
     @GetMapping("/{id}")
     public ApiResult<AuctionDto> getAuctionById(
-            @PathVariable(name = "id")Long auctionId,
+            @PathVariable(name = "id") Long auctionId,
             HttpServletRequest request
-    ){
-        return ApiResult.ok(auctionService.getAuctionById(auctionId),request);
+    ) {
+        return ApiResult.ok(auctionService.getAuctionById(auctionId), request);
+    }
+
+    @PostMapping("/participate")
+    @AuthUser
+    public ApiResult<?> participateAuction(Account user,@RequestBody ParticipateAuctionDto dto,HttpServletRequest request) {
+        return ApiResult.created(auctionService.participateUser(user,dto),request,"성공적으로 경매장에 참가하였습니다.");
     }
 
 
@@ -55,14 +64,14 @@ public class AuctionController {
             @RequestPart("data") CreateAuctionRequestDto dto,
             HttpServletRequest request
     ) {
-        Auction auction = auctionService.saveAuction(account, dto, files,AuctionType.BLIND);
+        Auction auction = auctionService.saveAuction(account, dto, files, AuctionType.BLIND);
         return ApiResult.created(auction, request);
     }
 
 
     @GetMapping("/test/all")
-    public ApiResult<List<AuctionDto>> getAllTestAuction(HttpServletRequest request){
-        return ApiResult.ok(auctionService.queryAllAuction(),request);
+    public ApiResult<List<AuctionDto>> getAllTestAuction(HttpServletRequest request) {
+        return ApiResult.ok(auctionService.queryAllAuction(), request);
     }
 
 
