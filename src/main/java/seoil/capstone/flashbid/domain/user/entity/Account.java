@@ -48,6 +48,9 @@ public class Account extends BaseTimeEntity {
     @Column
     private String description;
 
+    @Column
+    private String profileUrl;
+
     public Account(LoginType loginType, UserStatus userStatus, UserType userType, String email,  LocalDateTime deletedAt, boolean isVerified, String uuid) {
         this.loginType = loginType;
         this.userStatus = userStatus;

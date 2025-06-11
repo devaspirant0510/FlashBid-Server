@@ -17,6 +17,7 @@ import java.util.List;
 public class AuctionDto {
     private Auction auction;
     private List<FileEntity> images;
+    private int participateCount;
 
 
 }

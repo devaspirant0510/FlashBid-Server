@@ -28,7 +28,7 @@ public class JwtProvider {
     public String createAccessToken(String userUid, Account account) {
         log.info(jwtSecretKey);
         // 2시간
-        long ACCESS_TOKEN_EXPIRATION = 60 * 60 * 60 * 2;
+        long ACCESS_TOKEN_EXPIRATION = 60 * 60 * 60 * 24*10;
         SecretKey signedKey = hashUtils.getSignedKey(jwtSecretKey);
         log.info(Base64.getEncoder().encodeToString(signedKey.getEncoded()));
         String jwt = Jwts.builder()
@@ -37,6 +37,7 @@ public class JwtProvider {
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .claim("id", account.getId())
                 .claim("uid", account.getUuid())
+                .claim("nickname",account.getNickname())
                 .claim("email", account.getEmail())
                 .claim("role", account.getUserType())
                 .signWith(signedKey, SignatureAlgorithm.HS256)

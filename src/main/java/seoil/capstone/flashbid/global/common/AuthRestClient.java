@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import seoil.capstone.flashbid.global.model.NaverOAuthTokenResponse;
+import seoil.capstone.flashbid.global.model.NaverUserInfoResponse;
 import seoil.capstone.flashbid.global.model.*;
 
 @Component
@@ -25,7 +27,7 @@ public class AuthRestClient {
     @Value("${NAVER_SECRET_KEY}")
     private String naverClientSecret;
 
-    public Object requestNaverAuth(String code,String redirectUri){
+    public NaverOAuthTokenResponse requestNaverAuth(String code, String redirectUri){
         String url = "https://nid.naver.com/oauth2.0/token";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -58,11 +60,11 @@ public class AuthRestClient {
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<Object> response = restTemplate.exchange(
+        ResponseEntity<NaverOAuthTokenResponse> response = restTemplate.exchange(
                 url,
                 HttpMethod.POST,
                 requestEntity,
-                Object.class
+                NaverOAuthTokenResponse.class
         );
 
         log.info("네이버 OAuth 응답: {}", response);
@@ -147,5 +149,24 @@ public class AuthRestClient {
         log.info(response.toString());
         return response.getBody();
 
+    }
+    public NaverUserInfoResponse requestNaverUser(String accessToken) {
+        String requestUrl = "https://openapi.naver.com/v1/nid/me";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<NaverUserInfoResponse> response = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.GET,
+                requestEntity,
+                NaverUserInfoResponse.class
+        );
+
+        log.info("네이버 사용자 정보 응답: {}", response);
+
+        return response.getBody();
     }
 }
