@@ -54,6 +54,14 @@ public class FeedService {
                 0
         );
     }
+    @Transactional(readOnly = true)
+    public List<FeedDto> getHotFeed() {
+        List<FeedDto> feedDtoList = new ArrayList<>();
+        feedRepository.findTop4ByOrderByCreatedAtDesc().forEach(feed -> {
+            feedDtoList.add(getQueryFeedDto(feed));
+        });
+        return feedDtoList;
+    }
 
     public FeedEntity fetchFeedById(Long id){
         return feedRepository.findById(id).orElseThrow(

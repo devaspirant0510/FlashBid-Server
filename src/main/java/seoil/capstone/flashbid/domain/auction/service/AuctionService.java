@@ -12,6 +12,8 @@ import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.entity.AuctionParticipateEntity;
+import seoil.capstone.flashbid.domain.auction.entity.BiddingLogEntity;
+import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionParticipateRepository;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
@@ -33,6 +35,7 @@ public class AuctionService {
     private final GoodsService goodsService;
     private final AuctionRepository auctionRepository;
     private final AuctionParticipateRepository auctionParticipateRepository;
+    private final AuctionBidLogRepository auctionBidLogRepository;
 
     @Transactional
     public Auction saveAuction(Account user, CreateAuctionRequestDto dto, List<MultipartFile> images, AuctionType auctionType) {
@@ -58,20 +61,37 @@ public class AuctionService {
                 new ApiException(HttpStatus.NOT_FOUND, "", "")
         );
         List<FileEntity> allFiles = fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS);
+        BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByCreatedAtDesc(id);
         return new AuctionDto(
                 auction,
                 allFiles,
-                auctionParticipateRepository.countByAuctionId(id)
+                auctionParticipateRepository.countByAuctionId(id),
+                bidHistory!=null?bidHistory.getPrice():null
 
         );
+    }
+    public List<AuctionDto> getRecomendAuction(){
+        List<AuctionDto> auctionDtos = new ArrayList<>();
+        auctionRepository.findTop4ByOrderByCreatedAtDesc().forEach(auction->{
+            BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByCreatedAtDesc(auction.getId());
+            auctionDtos.add(new AuctionDto(auction, fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS),
+                    auctionParticipateRepository.countByAuctionId(auction.getId()),
+                    bidHistory!=null?bidHistory.getPrice():null
+            ));
+
+        });
+        return auctionDtos;
     }
 
     @Transactional
     public List<AuctionDto> queryAllAuction() {
         List<AuctionDto> auctionDtos = new ArrayList<>();
         auctionRepository.findAllByOrderByCreatedAtDesc().forEach(auction -> {
+
+            BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByCreatedAtDesc(auction.getId());
             auctionDtos.add(new AuctionDto(auction, fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS),
-                    auctionParticipateRepository.countByAuctionId(auction.getId())
+                    auctionParticipateRepository.countByAuctionId(auction.getId()),
+                    bidHistory!=null?bidHistory.getPrice():null
             ));
         });
         return auctionDtos;

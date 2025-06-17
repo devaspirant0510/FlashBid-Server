@@ -13,4 +13,5 @@ public class AuctionChatModel {
     private String nickname;
     private String profileUrl;
     private Long userId;
+    private AuctionBidModel bid;
 }
