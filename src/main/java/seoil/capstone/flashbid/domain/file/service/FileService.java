@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
+import seoil.capstone.flashbid.domain.file.repository.FileRepository;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
@@ -23,6 +24,12 @@ import java.util.List;
 @Slf4j
 public class FileService {
     private final String uploadDir = System.getProperty("user.home") + "/seungho/uploads/";
+    private final FileRepository repository;
+    private final FileRepository fileRepository;
+
+    public List<FileEntity> getAllFiles(Long domainId,FileType fileType){
+        return repository.findAllByFileIdAndFileType(domainId,fileType);
+    }
 
     public List<FileEntity> saveFileEntities(List<SaveFileDto> files, Long fileId, Account account,FileType fileType){
         List<FileEntity> fileEntities = new ArrayList<>();
@@ -34,11 +41,11 @@ public class FileService {
                             .extension(file.getExtension())
                             .fileId(fileId)
                             .userId(account)
-                            .fileType(FileType.FEED)
+                            .fileType(fileType)
                             .build()
             );
         }
-        return fileEntities;
+        return fileRepository.saveAll(fileEntities);
     }
 
     public List<SaveFileDto> saveImage(List<MultipartFile> files) {

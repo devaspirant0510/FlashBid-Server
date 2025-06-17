@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>채팅방</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>채팅방 💌</h2>
+
+<div id="chat">
+    <!-- 기존 채팅 내역을 서버에서 렌더링 -->
+
+</div>
+
+<input type="text" id="msg" placeholder="메시지를 입력하세요" />
+<button onclick="sendMessage()">보내기</button>
+
+<script>
+    let stompClient = null;
+    const auctionId = 1;
+
+    function connect() {
+        const socket = new WebSocket('ws://localhost:8080/ws'); // ws로 변경했어야 해! http 아님
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({
+            Authorization:"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiNGZmMDIyOTQ1MWQ4ZmM0Zjk4YjBjMmE2NTQ1ZGEzMyIsImlhdCI6MTc0OTQ4MTM5OSwiZXhwIjoxNzgxMDE3Mzk5LCJpZCI6IjEiLCJ1aWQiOiJiNGZmMDIyOTQ1MWQ4ZmM0Zjk4YjBjMmE2NTQ1ZGEzMyIsImVtYWlsIjoic2V1bmdobzAyMDUxMEBnbWFpbC5jb20iLCJyb2xlIjoidG9wIGdhcCJ9.hQVu0R5rxhOiJYHsdLqvkZ5bQMvOZifwKruQkvNa08Y"
+        }, function(frame) {
+            console.log('Connected: ' + frame);
+
+            stompClient.subscribe('/topic/public/' + auctionId, function(message) {
+                console.log(message)
+                console.log(JSON.parse(message.body))
+                appendMessage("A", message);
+            });
+        });
+    }
+
+    function sendMessage() {
+        const msgInput = document.getElementById('msg');
+        const message = msgInput.value;
+        stompClient.send("/app/chat/send/" + auctionId, {}, JSON.stringify({
+            contents:message,
+            nickname:"asdf",
+            profileUrl:"a",
+            userId:1
+
+        }));
+        msgInput.value = '';
+    }
+
+    function appendMessage(senderName, content) {
+        const chatDiv = document.getElementById('chat');
+        const msgElement = document.createElement('p');
+        msgElement.innerHTML = `<strong>${senderName}</strong>: ${content}`;
+        chatDiv.appendChild(msgElement);
+    }
+
+    connect();
+</script>
+</body>
+</html>

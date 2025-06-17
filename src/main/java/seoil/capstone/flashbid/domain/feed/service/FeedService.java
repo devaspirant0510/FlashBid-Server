@@ -54,6 +54,14 @@ public class FeedService {
                 0
         );
     }
+    @Transactional(readOnly = true)
+    public List<FeedDto> getHotFeed() {
+        List<FeedDto> feedDtoList = new ArrayList<>();
+        feedRepository.findTop4ByOrderByCreatedAtDesc().forEach(feed -> {
+            feedDtoList.add(getQueryFeedDto(feed));
+        });
+        return feedDtoList;
+    }
 
     public FeedEntity fetchFeedById(Long id){
         return feedRepository.findById(id).orElseThrow(
@@ -62,15 +70,30 @@ public class FeedService {
     }
 
 
+    @Transactional
+    public FeedDto getQueryFeedDto(FeedEntity feed){
+        int commentCount = commentRepository.countByFeedId(feed.getId());
+        int likeCount = likeRepository.countByFeedId(feed.getId());
+        List<FileEntity> allFiles = fileService.getAllFiles(feed.getId(), FileType.FEED);
+        return new FeedDto(
+                feed,
+                allFiles,
+                commentCount,
+                likeCount
+
+        );
+
+    }
 
     @Transactional
     public FeedDto getFeedById(Long id) {
         FeedEntity feedEntity = fetchFeedById(id);
         int commentCount = commentRepository.countByFeedId(id);
         int likeCount = likeRepository.countByFeedId(id);
+        List<FileEntity> allFiles = fileService.getAllFiles(id, FileType.FEED);
         return new FeedDto(
                 feedEntity,
-                List.of(),
+                allFiles,
                 commentCount,
                 likeCount
         );
@@ -129,6 +152,6 @@ public class FeedService {
         return commentRepository.findAllByFeedIdAndReplyIsNull(feedId);
     }
     public List<CommentEntity> getAllCommentByReplyId(Long replyId){
-        return commentRepository.findAllByFeedIdAndReplyIsNull(replyId);
+        return commentRepository.findAllByReplyId(replyId);
     }
 }

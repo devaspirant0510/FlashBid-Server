@@ -39,13 +39,19 @@ public class FeedController implements FeedSwagger {
         return ApiResult.created(feed, request);
     }
 
+    @GetMapping("/hot")
+    public ApiResult<List<FeedDto>> getHotFeed(HttpServletRequest request){
+        return ApiResult.ok(feedService.getHotFeed(),request,"성공");
+    }
     @GetMapping("/{id}")
     @Override
     public ApiResult<FeedDto> getFeedById(@PathVariable Long id, HttpServletRequest request) {
         return ApiResult.ok(feedService.getFeedById(id), request);
     }
 
+
     @GetMapping("/test-all")
+    @Override
     public ApiResult<List<FeedDto>> getTestFeedAll(HttpServletRequest request) {
         log.info("리스트 조회x");
         return ApiResult.ok(feedService.getTestAllFeed(), request);
@@ -53,6 +59,7 @@ public class FeedController implements FeedSwagger {
 
     @PatchMapping("/{id}/like")
     @AuthUser
+    @Override
     public ApiResult<LikeEntity> likePost(
             Account user,
             @PathVariable(name = "id") Long postId,
@@ -63,6 +70,7 @@ public class FeedController implements FeedSwagger {
 
     @DeleteMapping("/{id}/unlike")
     @AuthUser
+    @Override
     public ApiResult<Boolean> unLikePost(
             Account user,
             @PathVariable(name = "id") Long postId,
@@ -73,6 +81,7 @@ public class FeedController implements FeedSwagger {
 
     @PostMapping("/comment")
     @AuthUser
+    @Override
     public ApiResult<CommentEntity> createComment(
             Account user,
             HttpServletRequest request,
@@ -82,6 +91,7 @@ public class FeedController implements FeedSwagger {
     }
 
     @GetMapping("/comment/{id}/root")
+    @Override
     public ApiResult<List<CommentEntity>> getAllRootComment(
             @PathVariable(name = "id") Long feedId,
             HttpServletRequest request
@@ -90,6 +100,7 @@ public class FeedController implements FeedSwagger {
     }
 
     @GetMapping("/comment/reply/{id}")
+    @Override
     public ApiResult<List<CommentEntity>> getAllCommentByReply(
             @PathVariable(name = "id") Long replyId,
             HttpServletRequest request
