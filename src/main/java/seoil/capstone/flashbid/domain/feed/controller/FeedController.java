@@ -39,11 +39,16 @@ public class FeedController implements FeedSwagger {
         return ApiResult.created(feed, request);
     }
 
+    @GetMapping("/hot")
+    public ApiResult<List<FeedDto>> getHotFeed(HttpServletRequest request){
+        return ApiResult.ok(feedService.getHotFeed(),request,"성공");
+    }
     @GetMapping("/{id}")
     @Override
     public ApiResult<FeedDto> getFeedById(@PathVariable Long id, HttpServletRequest request) {
         return ApiResult.ok(feedService.getFeedById(id), request);
     }
+
 
     @GetMapping("/test-all")
     @Override

@@ -38,6 +38,7 @@ public class JwtProvider {
                 .claim("id", account.getId())
                 .claim("uid", account.getUuid())
                 .claim("nickname",account.getNickname())
+                .claim("profileUrl",account.getProfileUrl())
                 .claim("email", account.getEmail())
                 .claim("role", account.getUserType())
                 .signWith(signedKey, SignatureAlgorithm.HS256)

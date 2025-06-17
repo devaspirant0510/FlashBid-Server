@@ -1,6 +1,5 @@
 package seoil.capstone.flashbid.domain.auction.controller;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +40,11 @@ public class AuctionController {
         return ApiResult.created(auction, request);
     }
 
+    @GetMapping("/hot")
+    public ApiResult<List<AuctionDto>> getAllRecommendAuction(HttpServletRequest request) {
+        return ApiResult.ok(auctionService.getRecomendAuction(), request, "hot 옥션 조회 성공");
+    }
+
     @GetMapping("/{id}")
     public ApiResult<AuctionDto> getAuctionById(
             @PathVariable(name = "id") Long auctionId,
@@ -51,8 +55,8 @@ public class AuctionController {
 
     @PostMapping("/participate")
     @AuthUser
-    public ApiResult<?> participateAuction(Account user,@RequestBody ParticipateAuctionDto dto,HttpServletRequest request) {
-        return ApiResult.created(auctionService.participateUser(user,dto),request,"성공적으로 경매장에 참가하였습니다.");
+    public ApiResult<?> participateAuction(Account user, @RequestBody ParticipateAuctionDto dto, HttpServletRequest request) {
+        return ApiResult.created(auctionService.participateUser(user, dto), request, "성공적으로 경매장에 참가하였습니다.");
     }
 
 
