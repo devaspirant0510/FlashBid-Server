@@ -34,7 +34,7 @@ public class AccountService {
                 .uuid(uuid)
                 .isVerified(false)
                 .loginType(loginType)
-                .userType(UserType.CUSTOMER)
+                .userType(UserType.UN_REGISTER)
                 .userStatus(UserStatus.UN_LINK)
                 .build();
         return accountRepository.save(createAccount);

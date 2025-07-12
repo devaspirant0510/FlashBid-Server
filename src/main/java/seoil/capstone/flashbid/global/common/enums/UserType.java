@@ -3,5 +3,6 @@ package seoil.capstone.flashbid.global.common.enums;
 public enum UserType {
     CUSTOMER,
     SELLER,
-    ADMIN
+    ADMIN,
+    UN_REGISTER,
 }

@@ -14,4 +14,8 @@ public class WebController {
     public String homepage(){
         return "home";
     }
+    @GetMapping("/chat")
+    public String chatTestPage(){
+        return "chat";
+    }
 }

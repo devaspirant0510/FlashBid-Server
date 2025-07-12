@@ -41,7 +41,7 @@ public class FileService {
                             .extension(file.getExtension())
                             .fileId(fileId)
                             .userId(account)
-                            .fileType(FileType.FEED)
+                            .fileType(fileType)
                             .build()
             );
         }

@@ -1,21 +1,23 @@
 package seoil.capstone.flashbid.global.configuration;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
+import seoil.capstone.flashbid.global.core.interceptor.LoggingInterceptor;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+    private final LoggingInterceptor loggingInterceptor;
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173","http://127.0.0.1:5173","http://localhost:5175","http://127.0.0.1:5175")
+                .allowedOrigins("http://localhost:5173","http://127.0.0.1:5173","http://localhost:5175","http://127.0.0.1:5175","http://172.27.226.250:5173")
                 .allowedMethods("GET","POST","PUT","DELETE","PATCH")
                 .allowedHeaders("*")
+                .allowCredentials(true  )
                 .exposedHeaders("Authorization","jwt-token")
                 .allowCredentials(true);
     }
@@ -29,5 +31,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(loggingInterceptor);
     }
 }
