@@ -25,12 +25,15 @@ public class DBTest {
     private HashProvider hashProvier;
     @Test
     public void insertUserData() {
-        long ACCESS_TOKEN_EXPIRATION = 60 * 60 * 60 * 24* 100;
+        long expirationMillis = 1000L * 60 * 60 * 24 * 365; //
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + expirationMillis);
+
         SecretKey signedKey = hashProvier.getSignedKey("3bd56aea9642eff83cb0e2fb20d95b4e3bd56aea9642eff83cb0e2fb20d95b4e");
         String jwt = Jwts.builder()
                 .setSubject("b4ff0229451d8fc4f98b0c2a6545da33")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
+                .setIssuedAt(now)
+                .setExpiration(exp)
                 .claim("id", "1")
                 .claim("uid", "b4ff0229451d8fc4f98b0c2a6545da33")
                 .claim("email", "1234")
