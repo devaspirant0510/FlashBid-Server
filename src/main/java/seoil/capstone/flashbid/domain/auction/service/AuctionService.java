@@ -11,17 +11,13 @@ import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
 import seoil.capstone.flashbid.domain.auction.entity.*;
-import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
-import seoil.capstone.flashbid.domain.auction.repository.AuctionParticipateRepository;
-import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
+import seoil.capstone.flashbid.domain.auction.repository.*;
 import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
 import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.service.FileService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.common.enums.AuctionType;
-import seoil.capstone.flashbid.domain.auction.repository.DeliveryInfoRepository;
-import seoil.capstone.flashbid.domain.auction.repository.TradingAreaRepository;
 import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
@@ -45,16 +41,19 @@ public class AuctionService {
 
     private final DeliveryInfoRepository deliveryInfoRepository;
     private final TradingAreaRepository tradingAreaRepository;
+    private final ConfirmedBidsRepository confirmedBidsRepository;
 
     public ConfirmedBidsEntity confirmedBidsEntity(Account account, Long auctionId, Long biddingLogId) {
-        Goods goods = getAuctionById(auctionId).getGoods();
+        Auction auction = getAuctionById(auctionId);
         BiddingLogEntity bidding = auctionBidLogRepository.findById(biddingLogId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
         ConfirmedBidsEntity build = ConfirmedBidsEntity.builder()
                 .bidder(account)
-                .goods(goods)
                 .biddingLog(bidding)
+                .auction(auction)
+                .seller(auction.getUser())
                 .build();
         build.setCreatedAt(LocalDateTime.now());
+        confirmedBidsRepository.save(build);
         return build;
 
     }
