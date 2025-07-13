@@ -10,21 +10,26 @@ import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDt
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
-import seoil.capstone.flashbid.domain.auction.entity.Auction;
-import seoil.capstone.flashbid.domain.auction.entity.AuctionParticipateEntity;
-import seoil.capstone.flashbid.domain.auction.entity.BiddingLogEntity;
+import seoil.capstone.flashbid.domain.auction.entity.*;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionParticipateRepository;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
+import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
+import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.service.FileService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.common.enums.AuctionType;
+import seoil.capstone.flashbid.domain.auction.repository.DeliveryInfoRepository;
+import seoil.capstone.flashbid.domain.auction.repository.TradingAreaRepository;
+import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -36,10 +41,32 @@ public class AuctionService {
     private final AuctionRepository auctionRepository;
     private final AuctionParticipateRepository auctionParticipateRepository;
     private final AuctionBidLogRepository auctionBidLogRepository;
+    private final CategoryRepository categoryRepository;
+
+    private final DeliveryInfoRepository deliveryInfoRepository;
+    private final TradingAreaRepository tradingAreaRepository;
+
+    public ConfirmedBidsEntity confirmedBidsEntity(Account account, Long auctionId, Long biddingLogId) {
+        Goods goods = getAuctionById(auctionId).getGoods();
+        BiddingLogEntity bidding = auctionBidLogRepository.findById(biddingLogId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
+        ConfirmedBidsEntity build = ConfirmedBidsEntity.builder()
+                .bidder(account)
+                .goods(goods)
+                .biddingLog(bidding)
+                .build();
+        build.setCreatedAt(LocalDateTime.now());
+        return build;
+
+    }
+
+    public Auction getAuctionById(Long auctionId) {
+        return auctionRepository.findById(auctionId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
+    }
 
     @Transactional
     public Auction saveAuction(Account user, CreateAuctionRequestDto dto, List<MultipartFile> images, AuctionType auctionType) {
         GoodsDto goodsDto = goodsService.uploadGoods(user, images, dto.getTitle(), dto.getDescription());
+        CategoryEntity category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(()-> new ApiException(HttpStatus.NOT_FOUND, "", ""));
         Auction auction = Auction.builder()
                 .count(0)
                 .bidUnit(dto.getBidUnit())
@@ -48,15 +75,36 @@ public class AuctionService {
                 .startTime(dto.getStartTime())
                 .startPrice(dto.getStartPrice())
                 .goods(goodsDto.getGoods())
+                .category(category)
                 .user(user)
                 .viewCount(0)
                 .build();
 
-        return auctionRepository.save(auction);
+        Auction savedAuction = auctionRepository.save(auction);
+
+        if (dto.getDeliveryType() == DeliveryType.PARCEL && dto.getDeliveryInfo() != null) {
+            DeliveryInfoEntity deliveryInfo = DeliveryInfoEntity.builder()
+                    .deliveryFee(dto.getDeliveryInfo().getDeliveryFee())
+                    .build();
+            DeliveryInfoEntity save = deliveryInfoRepository.saveAndFlush(deliveryInfo);
+            log.info("saved {}",save);
+            savedAuction.setDeliveryInfo(save);
+        } else if (dto.getDeliveryType() == DeliveryType.DIRECT && dto.getTradingArea() != null) {
+            TradingAreaEntity tradingArea = TradingAreaEntity.builder()
+                    .latitude(dto.getTradingArea().getLatitude())
+                    .longitude(dto.getTradingArea().getLongitude())
+                    .radius(dto.getTradingArea().getRadius())
+                    .address(dto.getTradingArea().getAddress())
+                    .build();
+            TradingAreaEntity save = tradingAreaRepository.saveAndFlush(tradingArea);
+            savedAuction.setTradingArea(save);
+        }
+
+        return savedAuction;
     }
 
     @Transactional
-    public AuctionDto getAuctionById(Long id) {
+    public AuctionDto getAuctionByIdDto(Long id) {
         Auction auction = auctionRepository.findById(id).orElseThrow(() ->
                 new ApiException(HttpStatus.NOT_FOUND, "", "")
         );
@@ -66,17 +114,18 @@ public class AuctionService {
                 auction,
                 allFiles,
                 auctionParticipateRepository.countByAuctionId(id),
-                bidHistory!=null?bidHistory.getPrice():null
+                bidHistory != null ? bidHistory.getPrice() : null
 
         );
     }
-    public List<AuctionDto> getRecomendAuction(){
+
+    public List<AuctionDto> getRecomendAuction() {
         List<AuctionDto> auctionDtos = new ArrayList<>();
-        auctionRepository.findTop4ByOrderByCreatedAtDesc().forEach(auction->{
+        auctionRepository.findTop4ByOrderByCreatedAtDesc().forEach(auction -> {
             BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByCreatedAtDesc(auction.getId());
             auctionDtos.add(new AuctionDto(auction, fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS),
                     auctionParticipateRepository.countByAuctionId(auction.getId()),
-                    bidHistory!=null?bidHistory.getPrice():null
+                    bidHistory != null ? bidHistory.getPrice() : null
             ));
 
         });
@@ -91,7 +140,7 @@ public class AuctionService {
             BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByCreatedAtDesc(auction.getId());
             auctionDtos.add(new AuctionDto(auction, fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS),
                     auctionParticipateRepository.countByAuctionId(auction.getId()),
-                    bidHistory!=null?bidHistory.getPrice():null
+                    bidHistory != null ? bidHistory.getPrice() : null
             ));
         });
         return auctionDtos;

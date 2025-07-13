@@ -1,4 +1,4 @@
-package seoil.capstone.flashbid.domain.auction.entity;
+package seoil.capstone.flashbid.domain.category.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

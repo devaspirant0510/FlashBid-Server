@@ -17,9 +17,12 @@ import java.time.LocalDateTime;
 public class CreateAuctionRequestDto {
     private String title;
     private String description;
+    private Long categoryId;
     private Integer startPrice;
     private Integer bidUnit;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private DeliveryType deliveryType;
+    private DeliveryInfoRequestDto deliveryInfo;
+    private TradingAreaRequestDto tradingArea;
 }
