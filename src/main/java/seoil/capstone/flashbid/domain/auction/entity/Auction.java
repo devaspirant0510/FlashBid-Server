@@ -3,6 +3,7 @@ package seoil.capstone.flashbid.domain.auction.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.common.enums.AuctionType;
 import seoil.capstone.flashbid.global.core.BaseTimeEntity;
@@ -47,6 +48,14 @@ public class Auction extends BaseTimeEntity {
     @Enumerated
     private AuctionType auctionType;
 
+
+    @ManyToOne
+    private CategoryEntity category;
+
+    @OneToOne
+    private DeliveryInfoEntity deliveryInfo;
+    @OneToOne
+    private TradingAreaEntity tradingArea;
 
 
 }
