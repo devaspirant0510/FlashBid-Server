@@ -1,8 +1,6 @@
 package seoil.capstone.flashbid.domain.auction.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.core.BaseTimeEntity;
@@ -14,13 +12,14 @@ import seoil.capstone.flashbid.global.core.BaseTimeOnlyCreated;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Entity(name = "confirm_bids")
 public class ConfirmedBidsEntity extends BaseTimeOnlyCreated {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Goods goods;
+    @OneToOne
+    private Auction auction;
 
     @ManyToOne
     private Account bidder;

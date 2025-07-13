@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.user.controller.swagger.AccountSwagger;
@@ -89,6 +90,7 @@ public class AccountController implements AccountSwagger {
     }
 
     @AuthUser
+    @Override
     @PatchMapping("/image")
     public ApiResult<FileEntity> updateProfileImage(
             Account user,
@@ -96,6 +98,20 @@ public class AccountController implements AccountSwagger {
             HttpServletRequest request
     ){
         return ApiResult.ok(userService.uploadProfileImage(image,user),request);
+    }
+
+    @AuthUser
+    @GetMapping("/purchases")
+    @Override
+    public ApiResult<List<ConfirmedBidsEntity>> getPurchaseHistory(Account user, HttpServletRequest request) {
+        return ApiResult.ok(userService.getPurchaseHistory(user), request);
+    }
+
+    @AuthUser
+    @GetMapping("/sales")
+    @Override
+    public ApiResult<List<ConfirmedBidsEntity>> getSalesHistory(Account user, HttpServletRequest request) {
+        return ApiResult.ok(userService.getSalesHistory(user), request);
     }
 
 

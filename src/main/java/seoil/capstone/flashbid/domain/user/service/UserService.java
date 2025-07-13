@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
+import seoil.capstone.flashbid.domain.auction.repository.ConfirmedBidsRepository;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.feed.repository.FeedRepository;
 import seoil.capstone.flashbid.domain.feed.service.FeedService;
@@ -33,6 +35,8 @@ public class UserService {
     private final FeedRepository feedRepository;
     private final FeedService feedService;
     private final FileService fileService;
+    private final ConfirmedBidsRepository confirmedBidsRepository;
+
     public UserDto getUserById(Long userId){
         Account account = accountRepository.findById(userId).orElseThrow(() ->
                 new ApiException(HttpStatus.NOT_FOUND, "", ""));
@@ -95,5 +99,15 @@ public class UserService {
         FileEntity fileEntity = fileService.saveFileEntities(fileService.saveImage(List.of(file)), user.getId(), user, FileType.PROFILE).get(0);
         user.setProfileUrl(fileEntity.getUrl());
         return fileEntity;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ConfirmedBidsEntity> getPurchaseHistory(Account user) {
+        return confirmedBidsRepository.findAllByBidder_Id(user.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ConfirmedBidsEntity> getSalesHistory(Account user) {
+        return confirmedBidsRepository.findAllBySeller_Id(user.getId());
     }
 }
