@@ -45,11 +45,19 @@ public class FeedService {
                 .viewCount(0)
                 .build();
         FeedEntity savedEntity = feedRepository.save(feedEntity);
-        List<SaveFileDto> saveFileDtos = fileService.saveImage(files);
-        List<FileEntity> saveFileEntities = fileService.saveFileEntities(saveFileDtos, feedEntity.getId(), account, FileType.FEED);
+        if(files!=null){
+            List<SaveFileDto> saveFileDtos = fileService.saveImage(files);
+            List<FileEntity> saveFileEntities = fileService.saveFileEntities(saveFileDtos, feedEntity.getId(), account, FileType.FEED);
+            return new FeedDto(
+                    savedEntity,
+                    saveFileEntities,
+                    0,
+                    0
+            );
+        }
         return new FeedDto(
                 savedEntity,
-                saveFileEntities,
+                null,
                 0,
                 0
         );

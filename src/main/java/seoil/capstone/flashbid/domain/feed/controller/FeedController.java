@@ -31,7 +31,7 @@ public class FeedController implements FeedSwagger {
     @Override
     public ApiResult<FeedDto> createFeed(
             Account account,
-            @RequestParam("files") List<MultipartFile> files,
+            @RequestParam(value = "files",required = false) List<MultipartFile> files,
             @RequestPart CreateFeedDto data,
             HttpServletRequest request
     ) {

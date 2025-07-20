@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import seoil.capstone.flashbid.domain.auth.dto.AuthTokenDto;
 import seoil.capstone.flashbid.domain.auth.dto.RegisterDto;
+import seoil.capstone.flashbid.domain.auth.dto.RegisterEmailDto;
 import seoil.capstone.flashbid.domain.auth.service.AuthService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.service.AccountService;
@@ -32,19 +33,26 @@ public class AuthController {
     private final AuthService authService;
 
 
-    @PostMapping("/register")
+    @PostMapping("/register/oauth")
     public ApiResult<Account> registerService(@RequestBody RegisterDto dto,HttpServletRequest request){
         //TODO : 가입 여부 확인
         return ApiResult.ok(authService.registerUser(dto),request);
+    }
+    @PostMapping("/register/email")
+    public ApiResult<Account> registerEmail(@RequestBody RegisterEmailDto dto, HttpServletRequest request){
+        return ApiResult.ok(authService.registerUserWithEmail(dto),request);
+
     }
 
     @GetMapping("/callback/naver")
     public ApiResult<Account> naverAuthCallback(
             @RequestParam("code") String code,
+            @RequestParam("redirect") String redirect,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        NaverOAuthTokenResponse naverAuth = restClient.requestNaverAuth(code, "http://172.27.226.250:5173/login");
+
+        NaverOAuthTokenResponse naverAuth = restClient.requestNaverAuth(code, redirect+"/login");
 
         // 2. 네이버 유저 정보 요청
         NaverUserInfoResponse naverUserInfo =  restClient.requestNaverUser(naverAuth.getAccess_token());
@@ -91,10 +99,11 @@ public class AuthController {
     @GetMapping("/callback/google")
     public ApiResult<Account> gooogleAuthCallback(
             @RequestParam("code") String code,
+            @RequestParam("redirect") String redirect,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        GoogleOAuthTokenResponse googleAuth = restClient.requestGoogleAuth(code, "http://172.27.226.250:5173/login");
+        GoogleOAuthTokenResponse googleAuth = restClient.requestGoogleAuth(code, redirect+"/login");
         GoogleUserInfoResponse googleUserInfoResponse = restClient.requestGoogleGetUser(googleAuth.getAccessToken());
         String userUuid = googleUserInfoResponse.getSub();
         if (accountService.isRegisteredUser(userUuid)) {
@@ -121,9 +130,12 @@ public class AuthController {
 
 
     @GetMapping("/callback/kakao")
-    public ApiResult<Account> kakaoAuthCallback(@RequestParam("code") String code, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ApiResult<Account> kakaoAuthCallback(
+            @RequestParam("code") String code,
+            @RequestParam("redirect") String redirect,
+            HttpServletRequest request, HttpServletResponse response) throws IOException {
         // 인증코드로 액세스토큰 발급
-        KakaoAuthResponse s = restClient.requestKakaoAuth("http://172.27.226.250:5173/login", code);
+        KakaoAuthResponse s = restClient.requestKakaoAuth(redirect+"/login", code);
         // id 토큰을 파싱하여 aud 추출( 카카오톡 유저별 고유 아이디 )
         KaKaoUserPayload kaKaoUserPayload = jwtProvider.parsingJwtBody(s.getIdToken(), KaKaoUserPayload.class);
         // 가입한적이 있는 유저의 경우 유저정보 리턴
