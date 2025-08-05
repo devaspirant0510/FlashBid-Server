@@ -30,7 +30,16 @@ jobs:
           java-version: '17'      
       - name: Build with Gradle
         run: ./gradlew build
-
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: build/libs/*.jar
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+    
   cd:
     name: Run CD (배포)
     #if: github.event_name == 'pull_request'  
@@ -38,6 +47,33 @@ jobs:
     needs: ci
 
     steps:
-      - name: Deploy Step
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: .
+
+      - name: Set up SSH
         run: |
-          echo "🚀 CD 실행 중!"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_KEY }}" > ~/.ssh/aws_key.pem
+          chmod 600 ~/.ssh/aws_key.pem
+          ssh-keyscan -H ${{ secrets.AWS_URL }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to AWS EC2
+        run: |
+          JAR_NAME=$(ls *.jar | head -n 1)
+          echo "✅ JAR 파일: $JAR_NAME"
+
+          echo "🚀 EC2에 JAR 업로드 중..."
+          scp -i ~/.ssh/aws_key.pem "$JAR_NAME" ubuntu@${{ secrets.AWS_URL }}:/home/ubuntu/
+
+          echo "🔁 EC2에서 JAR 실행 중..."
+          ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_URL }} << EOF
+            pkill -f "$JAR_NAME" || true
+            nohup java -jar /home/ubuntu/$JAR_NAME > app.log 2>&1 &
+            echo "✅ 서버에서 앱 실행됨!"
+          EOF
