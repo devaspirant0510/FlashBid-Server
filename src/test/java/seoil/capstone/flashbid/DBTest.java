@@ -17,13 +17,13 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 
-@SpringBootTest
+//@SpringBootTest
 public class DBTest {
-    @Autowired
-    private  AccountRepository accountRepository;
-    @Autowired
-    private HashProvider hashProvier;
-    @Test
+//    @Autowired
+//    private  AccountRepository accountRepository;
+//    @Autowired
+//    private HashProvider hashProvier;
+//    @Test
     public void insertUserData() {
 //        long expirationMillis = 1000L * 60 * 60 * 24 * 365; //
 //        Date now = new Date();
