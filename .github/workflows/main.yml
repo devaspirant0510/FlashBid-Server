@@ -22,11 +22,11 @@ jobs:
       - name: Run CI Tasks
         run: |
           echo "✅ CI 실행 중! (빌드, 테스트 등등)"
-      - name: Create env.properties file
+      - name: Create application.yml file
         run: |
-          mkdir -p src/main/resources/properties
-          echo "${{ secrets.ENV }}" > src/main/resources/properties/.env.properties
-          
+          mkdir -p src/main/resources
+          echo "${{ secrets.YML }}" > src/main/resources/application.yml
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
