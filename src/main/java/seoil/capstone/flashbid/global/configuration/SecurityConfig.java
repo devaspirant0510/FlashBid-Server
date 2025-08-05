@@ -36,8 +36,9 @@ public class SecurityConfig {
                                 "/ws/**",
                                 "/api/v1/auction/hot",
                                 "/api/v1/feed/hot",
-                                "auth/callback/*",
-                                "auth/oauth2/*",
+                                "/auth/callback/*",
+                                "/auth/oauth2/*",
+                                "/auth/register/*",
                                 "/uploads/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -62,8 +63,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfiguration() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5175", "http://172.27.226.250:5173")); // 허용할 프론트엔드 주소
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5175", "http://172.27.226.250:5173","http://localhost:63342","http://172.27.183.188:5173")); // 허용할 프론트엔드 주소
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH")); // 허용할 HTTP 메서드
         configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키 및 인증 정보 포함 허용
         configuration.setExposedHeaders(List.of("Authorization", "jwt-token"));
