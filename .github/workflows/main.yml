@@ -5,9 +5,10 @@ on:
     branches:
       - 'feat/**'   
       - main
+      - dev
   pull_request:
     branches:
-      - dev         
+      - dev1         
 
 jobs:
   ci:
