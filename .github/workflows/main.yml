@@ -30,6 +30,16 @@ jobs:
           java-version: '17'      
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: build/libs/*.jar  
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifact
+
 
   cd:
     name: Run CD (배포)
