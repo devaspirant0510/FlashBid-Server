@@ -21,7 +21,14 @@ jobs:
       - name: Run CI Tasks
         run: |
           echo "✅ CI 실행 중! (빌드, 테스트 등등)"
-
+          
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'  
+          java-version: '17'      
+      - name: Build with Gradle
+        run: ./gradlew build
 
   cd:
     name: Run CD (배포)
