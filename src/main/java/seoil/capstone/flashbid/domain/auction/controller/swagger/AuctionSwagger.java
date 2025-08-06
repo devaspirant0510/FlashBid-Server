@@ -4,11 +4,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import seoil.capstone.flashbid.domain.auction.projection.AuctionParticipantsProjection;
+import seoil.capstone.flashbid.domain.auction.projection.BidLoggingChartProjection;
+import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
 import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDto;
 import seoil.capstone.flashbid.domain.auction.dto.request.CreateConfirmRequestDto;
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
@@ -20,7 +25,7 @@ import seoil.capstone.flashbid.global.common.response.ApiResult;
 import java.util.List;
 
 @Tag(name = "Auction API", description = "경매 관련 API")
-public interface AuctoinSwagger {
+public interface AuctionSwagger {
     @Operation(summary = "경매 낙찰", description = "경매를 낙찰합니다.")
     ApiResult<ConfirmedBidsEntity> confirmBids(
             @Parameter(description = "경매 ID") @PathVariable("id") Long auctionId,
@@ -63,4 +68,16 @@ public interface AuctoinSwagger {
 
     @Operation(summary = "테스트용 모든 경매 조회", description = "테스트용으로 모든 경매 목록을 조회합니다.")
     ApiResult<?> getAllTestAuction(HttpServletRequest request);
+
+    @Operation(summary = "경매 내역 조회", description = "테스트용으로 모든 경매 목록을 조회합니다.")
+    ApiResult<List<BidLoggingProjection>> getBidHistoryByAuctionId(Long auctionId, HttpServletRequest request, Pageable pageable);
+
+    @Operation(summary = "경매 내역 조회", description = "테스트용으로 모든 경매 목록을 조회합니다.")
+    ApiResult<Page<List<BidLoggingProjection>>> getBidHistoryByAuctionIdWithPage(Long auctionId, HttpServletRequest request, Pageable pageable);
+
+    @Operation(summary = "경매 내역 차트 조회", description = "테스트용으로 모든 경매 목록을 조회합니다.")
+    ApiResult<List<BidLoggingChartProjection>> getBidHistoryByAuctionIdWithChart(Long auctionId, HttpServletRequest request);
+
+    @Operation(summary = "경매 참가자 목록 조회", description = "해당 경매 참가자 목록을 조회 합니다.")
+    ApiResult<Page<AuctionParticipantsProjection>> getAuctionParticipantsByAuctionId(Long auctionId, HttpServletRequest request, Pageable pageable);
 }

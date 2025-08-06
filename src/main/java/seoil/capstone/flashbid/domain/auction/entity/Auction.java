@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(callSuper = false)
 public class Auction extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,6 +55,7 @@ public class Auction extends BaseTimeEntity {
 
     @OneToOne
     private DeliveryInfoEntity deliveryInfo;
+
     @OneToOne
     private TradingAreaEntity tradingArea;
 
