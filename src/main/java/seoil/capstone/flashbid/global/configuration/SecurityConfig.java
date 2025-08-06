@@ -63,7 +63,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfiguration() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5175", "http://172.27.226.250:5173", "http://localhost:63342", "http://172.27.183.188:5173", "https://imaginative-sfogliatella-d7e149.netlify.app/", "https://unknown-auction.store")); // 허용할 프론트엔드 주소
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5175", "http://172.27.226.250:5173", "http://localhost:63342", "http://172.27.183.188:5173", "https://imaginative-sfogliatella-d7e149.netlify.app/", "https://unknown-auction.shop")); // 허용할 프론트엔드 주소
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // 허용할 HTTP 메서드
         configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키 및 인증 정보 포함 허용
