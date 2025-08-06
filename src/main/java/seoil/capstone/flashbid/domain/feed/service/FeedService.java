@@ -45,13 +45,23 @@ public class FeedService {
                 .viewCount(0)
                 .build();
         FeedEntity savedEntity = feedRepository.save(feedEntity);
-        List<SaveFileDto> saveFileDtos = fileService.saveImage(files);
-        List<FileEntity> saveFileEntities = fileService.saveFileEntities(saveFileDtos, feedEntity.getId(), account, FileType.FEED);
+        if(files!=null){
+            List<SaveFileDto> saveFileDtos = fileService.saveImage(files);
+            List<FileEntity> saveFileEntities = fileService.saveFileEntities(saveFileDtos, feedEntity.getId(), account, FileType.FEED);
+            return new FeedDto(
+                    savedEntity,
+                    saveFileEntities,
+                    0,
+                    0,
+                    false
+            );
+        }
         return new FeedDto(
                 savedEntity,
-                saveFileEntities,
+                null,
                 0,
-                0
+                0,
+                false
         );
     }
     @Transactional(readOnly = true)
@@ -79,7 +89,8 @@ public class FeedService {
                 feed,
                 allFiles,
                 commentCount,
-                likeCount
+                likeCount,
+                false
 
         );
 
@@ -91,15 +102,22 @@ public class FeedService {
         int commentCount = commentRepository.countByFeedId(id);
         int likeCount = likeRepository.countByFeedId(id);
         List<FileEntity> allFiles = fileService.getAllFiles(id, FileType.FEED);
+        boolean isLiked = likeRepository.existsByFeedIdAndAccountId(id,9l);
         return new FeedDto(
                 feedEntity,
                 allFiles,
                 commentCount,
-                likeCount
+                likeCount,
+                isLiked
         );
     }
 
-    public List<FeedDto> getTestAllFeed() {
+    public List<FeedDto> getTestAllFeed(Account account) {
+        Long userId = null;
+        if(account!=null){
+            userId = account.getId();
+
+        }
         List<FeedDto> feedDtoList = new ArrayList<>();
 
         feedRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).forEach(feed -> {

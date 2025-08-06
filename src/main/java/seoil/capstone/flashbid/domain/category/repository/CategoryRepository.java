@@ -1,7 +1,7 @@
-package seoil.capstone.flashbid.domain.auction.repository;
+package seoil.capstone.flashbid.domain.category.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import seoil.capstone.flashbid.domain.auction.entity.CategoryEntity;
+import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
 
 import java.util.List;
 
