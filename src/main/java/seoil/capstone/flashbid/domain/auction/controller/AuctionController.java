@@ -10,6 +10,7 @@ import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDt
 import seoil.capstone.flashbid.domain.auction.dto.request.CreateConfirmRequestDto;
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
+import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
@@ -62,7 +63,7 @@ public class AuctionController implements AuctoinSwagger {
 
     @Override
     @GetMapping("/{id}")
-    public ApiResult<AuctionDto> getAuctionById(
+    public ApiResult<AuctionInfoDto> getAuctionById(
             @PathVariable(name = "id") Long auctionId,
             HttpServletRequest request
     ) {

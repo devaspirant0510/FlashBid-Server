@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDto;
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
+import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
 import seoil.capstone.flashbid.domain.auction.entity.*;
 import seoil.capstone.flashbid.domain.auction.repository.*;
@@ -25,7 +26,6 @@ import seoil.capstone.flashbid.global.common.error.ApiException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -103,16 +103,18 @@ public class AuctionService {
     }
 
     @Transactional
-    public AuctionDto getAuctionByIdDto(Long id) {
+    public AuctionInfoDto getAuctionByIdDto(Long id) {
         Auction auction = auctionRepository.findById(id).orElseThrow(() ->
                 new ApiException(HttpStatus.NOT_FOUND, "", "")
         );
         List<FileEntity> allFiles = fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS);
         BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByCreatedAtDesc(id);
-        return new AuctionDto(
+        Long biddingCount = auctionBidLogRepository.countByAuctionId(id);
+        return new AuctionInfoDto(
                 auction,
                 allFiles,
                 auctionParticipateRepository.countByAuctionId(id),
+                biddingCount,
                 bidHistory != null ? bidHistory.getPrice() : null
 
         );
