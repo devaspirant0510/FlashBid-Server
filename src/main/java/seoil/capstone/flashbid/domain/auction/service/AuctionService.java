@@ -67,7 +67,7 @@ public class AuctionService {
 
     @Transactional
     public Auction saveAuction(Account user, CreateAuctionRequestDto dto, List<MultipartFile> images, AuctionType auctionType) {
-        GoodsDto goodsDto = goodsService.uploadGoods(user, images, dto.getTitle(), dto.getDescription());
+        GoodsDto goodsDto = goodsService.uploadGoods(user, images, dto.getTitle(), dto.getDescription(),dto.getDeliveryType());
         CategoryEntity category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(()-> new ApiException(HttpStatus.NOT_FOUND, "", ""));
         Auction auction = Auction.builder()
                 .count(0)
@@ -118,8 +118,7 @@ public class AuctionService {
                 allFiles,
                 auctionParticipateRepository.countByAuctionId(id),
                 biddingCount,
-                bidHistory != null ? bidHistory.getPrice() : null
-
+                bidHistory
         );
     }
 
