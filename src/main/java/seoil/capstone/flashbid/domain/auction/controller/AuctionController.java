@@ -60,6 +60,7 @@ public class AuctionController implements AuctionSwagger {
             @RequestPart("data") CreateAuctionRequestDto dto,
             HttpServletRequest request
     ) {
+        log.info(dto.toString());
         Auction auction = auctionService.saveAuction(account, dto, files, AuctionType.LIVE);
         return ApiResult.created(auction, request);
     }
