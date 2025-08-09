@@ -19,5 +19,6 @@ public class FeedDto {
     private List<FileEntity> images;
     private int commentCount;
     private int likeCount;
+    private boolean isLiked;
 
 }

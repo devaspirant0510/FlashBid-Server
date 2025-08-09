@@ -3,9 +3,11 @@ package seoil.capstone.flashbid.domain.auction.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import seoil.capstone.flashbid.domain.auction.controller.swagger.AuctoinSwagger;
+import seoil.capstone.flashbid.domain.auction.controller.swagger.AuctionSwagger;
 import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDto;
 import seoil.capstone.flashbid.domain.auction.dto.request.CreateConfirmRequestDto;
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
@@ -13,6 +15,11 @@ import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
+import seoil.capstone.flashbid.domain.auction.projection.AuctionParticipantsProjection;
+import seoil.capstone.flashbid.domain.auction.projection.BidLoggingChartProjection;
+import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
+import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
+import seoil.capstone.flashbid.domain.auction.repository.AuctionParticipateRepository;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
@@ -26,8 +33,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/auction")
 @Slf4j
-public class AuctionController implements AuctoinSwagger {
+public class AuctionController implements AuctionSwagger {
     private final AuctionService auctionService;
+    private final AuctionParticipateRepository auctionParticipateRepository;
+    private final AuctionBidLogRepository auctionBidLogRepository;
 
     @Override
     @PostMapping("/confirm/{id}")
@@ -94,5 +103,38 @@ public class AuctionController implements AuctoinSwagger {
     @GetMapping("/test/all")
     public ApiResult<List<AuctionDto>> getAllTestAuction(HttpServletRequest request) {
         return ApiResult.ok(auctionService.queryAllAuction(), request);
+    }
+
+    @Override
+    @GetMapping("/bid-history/{id}")
+    public ApiResult<List<BidLoggingProjection>> getBidHistoryByAuctionId(
+            @PathVariable("id")
+            Long auctionId,
+            HttpServletRequest request,
+            Pageable pageable
+    ) {
+        return ApiResult.ok(auctionService.findAllBidLogForAccountId(auctionId, pageable), request);
+    }
+
+    @Override
+    @GetMapping("/bid-history/{id}/page")
+    public ApiResult<Page<List<BidLoggingProjection>>> getBidHistoryByAuctionIdWithPage(@PathVariable(name = "id") Long auctionId, HttpServletRequest request, Pageable pageable) {
+        return ApiResult.ok(auctionBidLogRepository.findAllBidLogHistoryByAuctionIdWithPage(auctionId, pageable), request);
+    }
+
+    @Override
+    @GetMapping("/bid-history/chart/{id}")
+    public ApiResult<List<BidLoggingChartProjection>> getBidHistoryByAuctionIdWithChart(
+            @PathVariable("id")
+            Long auctionId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(auctionService.findAllBidLogChartData(auctionId), request);
+    }
+
+    @Override
+    @GetMapping("/auction/{id}/participant-user")
+    public ApiResult<Page<AuctionParticipantsProjection>> getAuctionParticipantsByAuctionId(@PathVariable("id") Long auctionId, HttpServletRequest request, Pageable pageable) {
+        return ApiResult.ok(auctionParticipateRepository.findAllByAuctionId(auctionId, pageable), request);
     }
 }

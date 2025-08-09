@@ -2,10 +2,13 @@ package seoil.capstone.flashbid.domain.auction.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import seoil.capstone.flashbid.domain.auction.projection.BidLoggingChartProjection;
+import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
 import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDto;
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
@@ -158,5 +161,13 @@ public class AuctionService {
                 .participant(user)
                 .build();
         return auctionParticipateRepository.save(participate);
+    }
+    public List<BidLoggingProjection> findAllBidLogForAccountId(Long auctionId, Pageable pageable) {
+        return auctionBidLogRepository.findAllBidLogHistoryByAuctionId(auctionId,pageable);
+    }
+
+    public List<BidLoggingChartProjection> findAllBidLogChartData(Long auctionId){
+        return auctionBidLogRepository.findAllByAuctionIdOrderByCreatedAtAsc(auctionId);
+
     }
 }

@@ -5,20 +5,18 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import seoil.capstone.flashbid.domain.user.entity.Account;
+import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
+import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
-import seoil.capstone.flashbid.global.common.enums.LoginType;
-import seoil.capstone.flashbid.global.common.enums.UserStatus;
-import seoil.capstone.flashbid.global.common.enums.UserType;
 import seoil.capstone.flashbid.global.core.provider.HashProvider;
 
 import javax.crypto.SecretKey;
-import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 
 //@SpringBootTest
 public class DBTest {
+
 //    @Autowired
 //    private  AccountRepository accountRepository;
 //    @Autowired
