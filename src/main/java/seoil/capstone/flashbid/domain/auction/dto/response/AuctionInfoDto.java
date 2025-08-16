@@ -1,6 +1,7 @@
 package seoil.capstone.flashbid.domain.auction.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,4 +22,7 @@ public class AuctionInfoDto {
     private Integer participateCount;
     private Long biddingCount;
     private BiddingLogEntity lastBiddingLog;
+    private Long wishListCount;
+    @JsonProperty("isWishListed")
+    private boolean isWishListed;
 }

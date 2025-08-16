@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface AuctionChatRepository extends JpaRepository<AuctionChatEntity,Long> {
     List<AuctionChatEntity> findAllByAuctionId(Long auctionId);
+    Long countByAuctionId(Long auctionId);
 }

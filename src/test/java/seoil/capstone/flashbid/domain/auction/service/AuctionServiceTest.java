@@ -78,7 +78,7 @@ class AuctionServiceTest {
     }
 
     @Test
-    void getAuctionByIdDto() {
+    void getAuctionInfoByIdToDto() {
     }
 
     @Test

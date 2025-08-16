@@ -47,7 +47,7 @@ public interface AuctionBidLogRepository extends JpaRepository<BiddingLogEntity,
                 WHERE b.auction.id = :auctionId
                 ORDER BY b.createdAt DESC
             """,
-    countQuery = "select count(id) from bidding_log ")
+    countQuery = "select count(b.id) from bidding_log b where b.auction.id =:auctionId ")
     Page<List<BidLoggingProjection>> findAllBidLogHistoryByAuctionIdWithPage(@Param("auctionId") Long auctionId, Pageable pageable);
 
     List<BidLoggingChartProjection> findAllByAuctionIdOrderByCreatedAtAsc(Long auctionId);
