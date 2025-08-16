@@ -4,6 +4,8 @@ import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import seoil.capstone.flashbid.domain.auth.dto.AuthTokenDto;
@@ -58,6 +60,7 @@ public class AuthService {
         Account account = accountRepository.findByUuid(dto.getUid()).orElseThrow(() ->
                 new ApiException(HttpStatus.NOT_FOUND, "", ""));
         account.setNickname(dto.getNickname());
+        account.setUserType(UserType.CUSTOMER);
         return account;
     }
 
@@ -66,6 +69,10 @@ public class AuthService {
         if (accountRepository.existsByEmail(dto.getEmail())) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "400E00A22", "이미 가입된 이메일 입니다.");
         }
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodePassword = passwordEncoder.encode(dto.getPassword());
+        System.out.println(encodePassword);
+
         Account createAccount = Account.builder()
                 .userType(UserType.CUSTOMER)
                 .userStatus(UserStatus.ACTIVE)
@@ -73,6 +80,7 @@ public class AuthService {
                 .loginType(LoginType.EMAIL)
                 .isVerified(false)
                 .nickname(dto.getNickname())
+                .password(encodePassword)
                 .email(dto.getEmail())
                 .build();
         accountRepository.save(createAccount);
