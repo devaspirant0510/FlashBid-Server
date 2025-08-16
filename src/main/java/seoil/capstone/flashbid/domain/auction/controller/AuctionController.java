@@ -71,13 +71,23 @@ public class AuctionController implements AuctionSwagger {
         return ApiResult.ok(auctionService.getRecomendAuction(), request, "hot 옥션 조회 성공");
     }
 
-    @Override
-    @GetMapping("/{id}")
-    public ApiResult<AuctionInfoDto> getAuctionById(
-            @PathVariable(name = "id") Long auctionId,
+    @GetMapping("/recommend/{id}")
+    public ApiResult<List<AuctionDto>> getRecommendAuctionById(
+            @PathVariable("id") Long auctionId,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId), request);
+        return ApiResult.ok(auctionService.getRecommendAuction(auctionId), request, "추천 경매 조회 성공");
+    }
+
+    @Override
+    @GetMapping("/{id}")
+    @AuthUser
+    public ApiResult<AuctionInfoDto> getAuctionById(
+            @PathVariable(name = "id") Long auctionId,
+            Account user,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId,user.getId()), request);
     }
 
     @Override

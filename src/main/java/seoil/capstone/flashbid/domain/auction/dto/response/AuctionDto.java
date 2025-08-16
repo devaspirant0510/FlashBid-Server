@@ -19,6 +19,7 @@ public class AuctionDto {
     private Auction auction;
     private List<FileEntity> images;
     private Integer participateCount;
+    private Long biddingCount;
     private Long currentPrice;
     private Long chatMessagingCount;
     private Long wishListCount;
