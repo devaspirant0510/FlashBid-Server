@@ -7,14 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import seoil.capstone.flashbid.domain.auction.projection.BidLoggingChartProjection;
-import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
 import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDto;
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
 import seoil.capstone.flashbid.domain.auction.entity.*;
+import seoil.capstone.flashbid.domain.auction.projection.BidLoggingChartProjection;
+import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
 import seoil.capstone.flashbid.domain.auction.repository.*;
 import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
 import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
@@ -45,6 +45,9 @@ public class AuctionService {
     private final DeliveryInfoRepository deliveryInfoRepository;
     private final TradingAreaRepository tradingAreaRepository;
     private final ConfirmedBidsRepository confirmedBidsRepository;
+    private final AuctionChatRepository auctionChatRepository;
+    private final AuctionWishListRepository auctionWishListRepository;
+    private final AuctionWishListCountRepository auctionWishListCountRepository;
 
     public ConfirmedBidsEntity confirmedBidsEntity(Account account, Long auctionId, Long biddingLogId) {
         Auction auction = getAuctionById(auctionId);
@@ -67,8 +70,8 @@ public class AuctionService {
 
     @Transactional
     public Auction saveAuction(Account user, CreateAuctionRequestDto dto, List<MultipartFile> images, AuctionType auctionType) {
-        GoodsDto goodsDto = goodsService.uploadGoods(user, images, dto.getTitle(), dto.getDescription(),dto.getDeliveryType());
-        CategoryEntity category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(()-> new ApiException(HttpStatus.NOT_FOUND, "", ""));
+        GoodsDto goodsDto = goodsService.uploadGoods(user, images, dto.getTitle(), dto.getDescription(), dto.getDeliveryType());
+        CategoryEntity category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
         Auction auction = Auction.builder()
                 .count(0)
                 .bidUnit(dto.getBidUnit())
@@ -89,7 +92,7 @@ public class AuctionService {
                     .deliveryFee(dto.getDeliveryInfo().getDeliveryFee())
                     .build();
             DeliveryInfoEntity save = deliveryInfoRepository.saveAndFlush(deliveryInfo);
-            log.info("saved {}",save);
+            log.info("saved {}", save);
             savedAuction.setDeliveryInfo(save);
         } else if (dto.getDeliveryType() == DeliveryType.DIRECT && dto.getTradingArea() != null) {
             TradingAreaEntity tradingArea = TradingAreaEntity.builder()
@@ -106,29 +109,46 @@ public class AuctionService {
     }
 
     @Transactional
-    public AuctionInfoDto getAuctionByIdDto(Long id) {
+    public AuctionInfoDto getAuctionInfoByIdToDto(Long id) {
         Auction auction = auctionRepository.findById(id).orElseThrow(() ->
                 new ApiException(HttpStatus.NOT_FOUND, "", "")
         );
         List<FileEntity> allFiles = fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS);
         BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByCreatedAtDesc(id);
         Long biddingCount = auctionBidLogRepository.countByAuctionId(id);
+        // 찜 목록 카운트
+        AuctionWishListCountEntity wishListCountEntity = auctionWishListCountRepository.findById(id)
+                .orElse(AuctionWishListCountEntity.builder().count(0L).build());
+        Long wishListCount = wishListCountEntity.getCount();
+        // 찜 여부 확인
+        boolean isWishListed = auctionWishListRepository.existsByUserIdAndAuctionId(auction.getUser().getId(), id);
         return new AuctionInfoDto(
                 auction,
                 allFiles,
                 auctionParticipateRepository.countByAuctionId(id),
                 biddingCount,
-                bidHistory
+                bidHistory,
+                wishListCount,
+                isWishListed
         );
     }
+
 
     public List<AuctionDto> getRecomendAuction() {
         List<AuctionDto> auctionDtos = new ArrayList<>();
         auctionRepository.findTop4ByOrderByCreatedAtDesc().forEach(auction -> {
             BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByCreatedAtDesc(auction.getId());
+            Long chatCount = auctionChatRepository.countByAuctionId(auction.getId());
+            // 찜 목록 카운트
+            AuctionWishListCountEntity wishListCountEntity = auctionWishListCountRepository.findById(auction.getId())
+                    .orElse(AuctionWishListCountEntity.builder().count(0L).build());
+            Long wishListCount = wishListCountEntity.getCount();
+            // 경매 DTO 생성
             auctionDtos.add(new AuctionDto(auction, fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS),
                     auctionParticipateRepository.countByAuctionId(auction.getId()),
-                    bidHistory != null ? bidHistory.getPrice() : null
+                    bidHistory != null ? bidHistory.getPrice() : null,
+                    chatCount,
+                    wishListCount
             ));
 
         });
@@ -141,9 +161,16 @@ public class AuctionService {
         auctionRepository.findAllByOrderByCreatedAtDesc().forEach(auction -> {
 
             BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByCreatedAtDesc(auction.getId());
+            Long chatCount = auctionChatRepository.countByAuctionId(auction.getId());
+            // 찜 목록 카운트
+            AuctionWishListCountEntity wishListCountEntity = auctionWishListCountRepository.findById(auction.getId())
+                    .orElse(AuctionWishListCountEntity.builder().count(0L).build());
+            Long wishListCount = wishListCountEntity.getCount();
             auctionDtos.add(new AuctionDto(auction, fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS),
                     auctionParticipateRepository.countByAuctionId(auction.getId()),
-                    bidHistory != null ? bidHistory.getPrice() : null
+                    bidHistory != null ? bidHistory.getPrice() : null,
+                    chatCount,
+                    wishListCount
             ));
         });
         return auctionDtos;
@@ -161,12 +188,61 @@ public class AuctionService {
                 .build();
         return auctionParticipateRepository.save(participate);
     }
+
     public List<BidLoggingProjection> findAllBidLogForAccountId(Long auctionId, Pageable pageable) {
-        return auctionBidLogRepository.findAllBidLogHistoryByAuctionId(auctionId,pageable);
+        return auctionBidLogRepository.findAllBidLogHistoryByAuctionId(auctionId, pageable);
     }
 
-    public List<BidLoggingChartProjection> findAllBidLogChartData(Long auctionId){
+    public List<BidLoggingChartProjection> findAllBidLogChartData(Long auctionId) {
         return auctionBidLogRepository.findAllByAuctionIdOrderByCreatedAtAsc(auctionId);
+    }
+
+    // 좋아요 로직 구현
+    @Transactional
+    public AuctionWishListEntity addWishList(Account user, Long auctionId) {
+        // 경매가 존재하는지 확인
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Auction not found", "해당 경매를 찾을 수 없습니다."));
+        // 이미 찜한 경매인지 확인
+        boolean isAddedWishList = auctionWishListRepository.existsByUserIdAndAuctionId(user.getId(), auction.getId());
+        if (isAddedWishList) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "이미 찜한 경매입니다.", "이미 찜한 경매입니다.");
+        }
+        // 찜 목록에 추가
+        AuctionWishListEntity wishList = AuctionWishListEntity.builder()
+                .user(user)
+                .auction(auction)
+                .build();
+        AuctionWishListEntity savedWishList = auctionWishListRepository.save(wishList);
+        AuctionWishListCountEntity countEntity = auctionWishListCountRepository.findById(auctionId).orElse(null);
+        // 찜 카운트 업데이트
+        if (countEntity != null) {
+            countEntity.setCount(countEntity.getCount() + 1);
+            auctionWishListCountRepository.save(countEntity);
+
+        } else {
+            // 찜 카운트가 없으면 새로 생성
+            AuctionWishListCountEntity newCountEntity = AuctionWishListCountEntity.builder()
+                    .auction(auction)
+                    .count(1L)
+                    .build();
+            auctionWishListCountRepository.save(newCountEntity);
+        }
+        return savedWishList;
 
     }
+
+    // 좋아요 취소 로직 구현
+    @Transactional
+    public void removeWishList(Account user, Long auctionId) {
+        // 경매가 존재하는지 확인
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Auction not found", "해당 경매를 찾을 수 없습니다."));
+        // 찜 목록에서 제거
+        auctionWishListRepository.findByUserIdAndAuctionId(user.getId(), auction.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "WishList not found", "찜 목록에 해당 경매가 없습니다."));
+        auctionWishListRepository.deleteByUserIdAndAuctionId(user.getId(), auction.getId());
+
+    }
+
 }

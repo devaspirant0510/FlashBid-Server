@@ -1,6 +1,7 @@
 package seoil.capstone.flashbid.domain.auction.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,8 @@ public class AuctionDto {
     private List<FileEntity> images;
     private Integer participateCount;
     private Long currentPrice;
+    private Long chatMessagingCount;
+    private Long wishListCount;
 
 
 }

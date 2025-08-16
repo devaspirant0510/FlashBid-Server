@@ -77,7 +77,7 @@ public class AuctionController implements AuctionSwagger {
             @PathVariable(name = "id") Long auctionId,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(auctionService.getAuctionByIdDto(auctionId), request);
+        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId), request);
     }
 
     @Override
@@ -137,5 +137,26 @@ public class AuctionController implements AuctionSwagger {
     @GetMapping("/auction/{id}/participant-user")
     public ApiResult<Page<AuctionParticipantsProjection>> getAuctionParticipantsByAuctionId(@PathVariable("id") Long auctionId, HttpServletRequest request, Pageable pageable) {
         return ApiResult.ok(auctionParticipateRepository.findAllByAuctionId(auctionId, pageable), request);
+    }
+
+    @Override
+    public ApiResult<List<AuctionDto>> getRecommendAuction(Long currentAuctionId, HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    @AuthUser
+    @PatchMapping("/wishlist/{id}")
+    public ApiResult<Boolean> wishAuction(Account user, @PathVariable("id") Long auctionId, HttpServletRequest request) {
+        auctionService.addWishList(user, auctionId);
+        return ApiResult.ok(true, request, "경매 찜하기 성공");
+    }
+
+    @Override
+    @AuthUser
+    @DeleteMapping("/wishlist/{id}")
+    public ApiResult<Boolean> cancelWishAuction(Account user, @PathVariable("id") Long auctionId, HttpServletRequest request) {
+        auctionService.removeWishList(user, auctionId);
+        return ApiResult.ok(true, request, "경매 찜하기 취소 성공");
     }
 }
