@@ -45,17 +45,20 @@ public class Account extends BaseTimeEntity {
     @Column
     private String nickname;
 
+    @Column String password;
+
     @Column
     private String description;
 
     @Column
     private String profileUrl;
 
-    public Account(LoginType loginType, UserStatus userStatus, UserType userType, String email,  LocalDateTime deletedAt, boolean isVerified, String uuid) {
+    public Account(LoginType loginType, UserStatus userStatus, UserType userType, String email,String password,  LocalDateTime deletedAt, boolean isVerified, String uuid) {
         this.loginType = loginType;
         this.userStatus = userStatus;
         this.userType = userType;
         this.email = email;
+        this.password = password;
         this.deletedAt = deletedAt;
         this.isVerified = isVerified;
         this.uuid = uuid;

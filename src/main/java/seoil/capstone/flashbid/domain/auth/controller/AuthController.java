@@ -6,12 +6,19 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import seoil.capstone.flashbid.domain.auth.dto.AuthTokenDto;
+import seoil.capstone.flashbid.domain.auth.dto.EmailAuthLoginDto;
 import seoil.capstone.flashbid.domain.auth.dto.RegisterDto;
 import seoil.capstone.flashbid.domain.auth.dto.RegisterEmailDto;
 import seoil.capstone.flashbid.domain.auth.service.AuthService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
+import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.domain.user.service.AccountService;
 import seoil.capstone.flashbid.global.common.AuthRestClient;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
@@ -31,7 +38,54 @@ public class AuthController {
     private final AccountService accountService;
     private final JwtProvider jwtProvider;
     private final AuthService authService;
+    private final AuthenticationManager authenticationManager;
+    private final AccountRepository accountRepository;
 
+    // 가입된 이메일이 있는지 확인
+    @GetMapping("/register/email/check")
+    public ApiResult<Boolean> checkEmail(@RequestParam("email") String email, HttpServletRequest request) {
+        boolean isRegistered = accountService.isRegisteredEmail(email);
+        return ApiResult.ok(isRegistered, request);
+    }
+    // 닉네임 중복 확인
+    @GetMapping("/register/nickname/check")
+    public ApiResult<Boolean> checkNickname(@RequestParam("nickname") String nickname, HttpServletRequest request) {
+        boolean isRegistered = accountService.isRegisteredNickname(nickname);
+        return ApiResult.ok(isRegistered, request);
+    }
+    @PostMapping("/login")
+    public ApiResult<Account> login(@RequestBody EmailAuthLoginDto dto, HttpServletRequest request, HttpServletResponse response) {
+        //  이메일+패스워드 인증
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
+        );
+
+        //  인증 성공 → SecurityContext 저장
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        log.info(authentication.getName());
+        Account account = accountRepository.findByEmail(authentication.getName()).orElseThrow();
+        String accessToken = jwtProvider.createAccessToken(account.getUuid(), account);
+
+
+//        // 쿠키에 저장
+//        Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
+//        refreshCookie.setHttpOnly(false);
+//        refreshCookie.setSecure(false);
+//        refreshCookie.setMaxAge(60 * 60 * 24);
+//        refreshCookie.setPath("/");
+//        response.addCookie(refreshCookie);
+//
+        Cookie accessCookie = new Cookie("access_token", accessToken);
+        accessCookie.setHttpOnly(false);
+        accessCookie.setSecure(false);
+        accessCookie.setMaxAge(60 * 60 * 24);
+        accessCookie.setPath("/");
+        response.addCookie(accessCookie);
+        response.addHeader("Authorization", "Bearer " + accessToken);
+
+        return ApiResult.ok(account, request);
+    }
 
     @PostMapping("/register/oauth")
     public ApiResult<Account> registerService(@RequestBody RegisterDto dto,HttpServletRequest request){
@@ -125,7 +179,7 @@ public class AuthController {
             response.addHeader("Authorization", "Bearer " + token.getAccessToken());
             return ApiResult.ok(userByUuid, request);
         }
-        return ApiResult.created(accountService.registerAccount(googleUserInfoResponse.getEmail(), userUuid, LoginType.KAKAO), request);
+        return ApiResult.created(accountService.registerAccount(googleUserInfoResponse.getEmail(), userUuid, LoginType.GOOGLE), request);
     }
 
 

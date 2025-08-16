@@ -3,9 +3,13 @@ package seoil.capstone.flashbid.global.configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -14,6 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import seoil.capstone.flashbid.domain.auth.filter.JwtAuthenticationFilter;
 import seoil.capstone.flashbid.global.core.module.security.CustomAccessDeniedHandler;
 import seoil.capstone.flashbid.global.core.module.security.CustomAuthenticationEntryPoint;
+import seoil.capstone.flashbid.global.core.module.security.CustomUserDetailService;
 
 import java.util.List;
 
@@ -22,6 +27,17 @@ import java.util.List;
 public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomUserDetailService customUserDetailService;
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
@@ -36,9 +52,8 @@ public class SecurityConfig {
                                 "/ws/**",
                                 "/api/v1/auction/hot",
                                 "/api/v1/feed/hot",
-                                "/auth/callback/*",
-                                "/auth/oauth2/*",
-                                "/auth/register/*",
+                                "/auth/login",
+                                "/auth/**",
                                 "/uploads/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
