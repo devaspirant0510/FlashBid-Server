@@ -49,6 +49,7 @@ public interface AuctionSwagger {
     @Operation(summary = "경매 상세 조회", description = "경매 ID로 경매 상세 정보를 조회합니다.")
     ApiResult<?> getAuctionById(
             @Parameter(description = "경매 ID") @PathVariable(name = "id") Long auctionId,
+            Account user,
             HttpServletRequest request
     );
 

@@ -8,6 +8,7 @@ import java.util.List;
 public interface AuctionRepository extends JpaRepository<Auction,Long> {
     List<Auction> findAllByOrderByCreatedAtDesc();
     List<Auction> findTop4ByOrderByCreatedAtDesc();
+    List<Auction> findAllByIdNot(Long id);
 
 
 }
