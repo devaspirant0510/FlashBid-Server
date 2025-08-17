@@ -69,7 +69,10 @@ public interface AuctionSwagger {
     );
 
     @Operation(summary = "테스트용 모든 경매 조회", description = "테스트용으로 모든 경매 목록을 조회합니다.")
-    ApiResult<?> getAllTestAuction(HttpServletRequest request);
+    ApiResult<?> getAllTestBlindAuction(HttpServletRequest request);
+
+    @Operation(summary = "테스트용 모든 경매 조회", description = "테스트용으로 모든 경매 목록을 조회합니다.")
+    ApiResult<?> getAllTestLiveAuction(HttpServletRequest request);
 
     @Operation(summary = "경매 내역 조회", description = "테스트용으로 모든 경매 목록을 조회합니다.")
     ApiResult<List<BidLoggingProjection>> getBidHistoryByAuctionId(Long auctionId, HttpServletRequest request, Pageable pageable);
