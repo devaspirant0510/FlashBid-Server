@@ -111,9 +111,14 @@ public class AuctionController implements AuctionSwagger {
     }
 
     @Override
-    @GetMapping("/test/all")
-    public ApiResult<List<AuctionDto>> getAllTestAuction(HttpServletRequest request) {
-        return ApiResult.ok(auctionService.queryAllAuction(), request);
+    @GetMapping("/test/all/live")
+    public ApiResult<List<AuctionDto>> getAllTestLiveAuction(HttpServletRequest request) {
+        return ApiResult.ok(auctionService.queryAllAuction(AuctionType.LIVE), request);
+    }
+    @Override
+    @GetMapping("/test/all/blind")
+    public ApiResult<List<AuctionDto>> getAllTestBlindAuction(HttpServletRequest request) {
+        return ApiResult.ok(auctionService.queryAllAuction(AuctionType.BLIND), request);
     }
 
     @Override
