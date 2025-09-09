@@ -5,12 +5,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.user.controller.swagger.AccountSwagger;
 import seoil.capstone.flashbid.domain.user.dto.response.UserDto;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.entity.FollowEntity;
+import seoil.capstone.flashbid.domain.user.projection.AccountStatusInfoProjection;
+import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.domain.user.service.AccountService;
 import seoil.capstone.flashbid.domain.user.service.UserService;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
@@ -22,15 +25,24 @@ import java.util.List;
 @RequestMapping("/api/v1/profile")
 @RequiredArgsConstructor
 @Slf4j
-public class AccountController implements AccountSwagger {
+public class    AccountController implements AccountSwagger {
     private final AccountService accountService;
     private final UserService userService;
+    private final AccountRepository accountRepository;
 
     @GetMapping
     @AuthUser
     @Override
     public ApiResult<Account> getUserProfile(Account user, HttpServletRequest request) {
         return ApiResult.ok(user, request);
+    }
+
+    @GetMapping("/status/{id}")
+    public ApiResult<AccountStatusInfoProjection> getAccountStatusInfo(
+            @PathVariable(name = "id") Long userId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(accountRepository.findAccountStatusInfoById(userId), request);
     }
 
     @GetMapping("/info")
@@ -89,6 +101,7 @@ public class AccountController implements AccountSwagger {
     }
 
     @AuthUser
+    @Override
     @PatchMapping("/image")
     public ApiResult<FileEntity> updateProfileImage(
             Account user,
@@ -96,6 +109,20 @@ public class AccountController implements AccountSwagger {
             HttpServletRequest request
     ){
         return ApiResult.ok(userService.uploadProfileImage(image,user),request);
+    }
+
+    @AuthUser
+    @GetMapping("/purchases")
+    @Override
+    public ApiResult<List<ConfirmedBidsEntity>> getPurchaseHistory(Account user, HttpServletRequest request) {
+        return ApiResult.ok(userService.getPurchaseHistory(user), request);
+    }
+
+    @AuthUser
+    @GetMapping("/sales")
+    @Override
+    public ApiResult<List<ConfirmedBidsEntity>> getSalesHistory(Account user, HttpServletRequest request) {
+        return ApiResult.ok(userService.getSalesHistory(user), request);
     }
 
 

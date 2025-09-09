@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import seoil.capstone.flashbid.domain.auction.entity.AuctionChatEntity;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionChatRepository;
+import seoil.capstone.flashbid.domain.auction.controller.swagger.AuctionChatSwagger;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 
 import java.util.List;
@@ -18,10 +19,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/v1/auction/chat")
-public class AuctionChatController {
+public class AuctionChatController implements AuctionChatSwagger {
     private final AuctionChatRepository auctionChatRepository;
 
 
+    @Override
     @GetMapping("/{id}")
     public ApiResult<List<AuctionChatEntity>> getAllChatList(
             @PathVariable(name = "id") Long auctionId,

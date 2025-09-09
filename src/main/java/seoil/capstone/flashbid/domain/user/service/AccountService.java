@@ -14,6 +14,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AccountService {
     private final AccountRepository accountRepository;
+    // 이메일로 가입한 유저의 이메일을 디비에서 조회하여 가입한적이 있는지 확인
+    public boolean isRegisteredEmail(String email) {
+        return accountRepository.existsByEmail(email);
+    }
+    // 닉네임으로 가입한 유저의 닉네임을 디비에서 조회하여 가입한적이 있는지 확인
+    public boolean isRegisteredNickname(String nickname) {
+        return accountRepository.existsByNickname(nickname);
+    }
 
     // OAuth 로 로그인된 유저의 UUID 를 디비에서 조회하여 가입한적이 있는지 확인
     public boolean isRegisteredUser(String uuid) {

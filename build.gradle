@@ -12,7 +12,9 @@ java {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
-
+tasks.jar {
+	enabled = false
+}
 repositories {
 	mavenCentral()
 }
@@ -46,6 +48,10 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	// H2
+	implementation 'com.h2database:h2'
+	testImplementation 'com.h2database:h2'
 
 }
 

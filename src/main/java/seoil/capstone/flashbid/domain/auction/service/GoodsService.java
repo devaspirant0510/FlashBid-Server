@@ -39,12 +39,12 @@ public class GoodsService {
     }
 
     @Transactional
-    public GoodsDto uploadGoods(Account account, List<MultipartFile> files, String title, String description) {
+    public GoodsDto uploadGoods(Account account, List<MultipartFile> files, String title, String description,DeliveryType deliveryType) {
         Goods createGoods = Goods
                 .builder()
                 .description(description)
                 .title(title)
-                .deliveryType(DeliveryType.DIRECT)
+                .deliveryType(deliveryType)
                 .build();
         Goods savedGoods = goodsRepository.save(createGoods);
         List<SaveFileDto> saveFileDtos = fileService.saveImage(files);

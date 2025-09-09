@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import seoil.capstone.flashbid.global.core.BaseTimeEntity;
 
 
 @Getter
@@ -14,15 +13,17 @@ import seoil.capstone.flashbid.global.core.BaseTimeEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity(name = "category")
-public class CategoryEntity  extends BaseTimeEntity {
+@Entity(name = "AuctionWishlistCount")
+@Table(name = "auction_wishlist_count")
+public class AuctionWishListCountEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String name;
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private Auction auction;
 
-    @ManyToOne
-    private CategoryEntity root;
+    private Long count;
+
 }

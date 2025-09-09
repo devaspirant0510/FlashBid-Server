@@ -11,7 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
 import seoil.capstone.flashbid.domain.auction.service.GoodsService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
+import seoil.capstone.flashbid.domain.auction.controller.swagger.GoodsSwagger;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
+import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 
 import java.util.List;
@@ -21,9 +23,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/v1/goods")
-public class GoodsController {
+public class GoodsController implements GoodsSwagger {
     private final GoodsService goodsService;
 
+    @Override
     @PostMapping
     @AuthUser
     public ApiResult<GoodsDto> createGoods(
@@ -33,7 +36,7 @@ public class GoodsController {
             @RequestParam("description") String description,
             HttpServletRequest request
     ) {
-        GoodsDto goodsDto = goodsService.uploadGoods(user, files, title, description);
+        GoodsDto goodsDto = goodsService.uploadGoods(user, files, title, description, DeliveryType.DIRECT);
         return ApiResult.created(goodsDto,request);
     }
 }

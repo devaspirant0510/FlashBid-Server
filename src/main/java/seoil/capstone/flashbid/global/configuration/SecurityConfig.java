@@ -3,9 +3,13 @@ package seoil.capstone.flashbid.global.configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -14,6 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import seoil.capstone.flashbid.domain.auth.filter.JwtAuthenticationFilter;
 import seoil.capstone.flashbid.global.core.module.security.CustomAccessDeniedHandler;
 import seoil.capstone.flashbid.global.core.module.security.CustomAuthenticationEntryPoint;
+import seoil.capstone.flashbid.global.core.module.security.CustomUserDetailService;
 
 import java.util.List;
 
@@ -22,6 +27,17 @@ import java.util.List;
 public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomUserDetailService customUserDetailService;
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
@@ -36,8 +52,8 @@ public class SecurityConfig {
                                 "/ws/**",
                                 "/api/v1/auction/hot",
                                 "/api/v1/feed/hot",
-                                "auth/callback/*",
-                                "auth/oauth2/*",
+                                "/auth/login",
+                                "/auth/**",
                                 "/uploads/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -62,8 +78,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfiguration() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5175", "http://172.27.226.250:5173")); // 허용할 프론트엔드 주소
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5175", "http://172.27.226.250:5173", "http://localhost:63342", "http://172.27.183.188:5173", "https://imaginative-sfogliatella-d7e149.netlify.app/", "https://unknown-auction.shop")); // 허용할 프론트엔드 주소
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // 허용할 HTTP 메서드
         configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키 및 인증 정보 포함 허용
         configuration.setExposedHeaders(List.of("Authorization", "jwt-token"));

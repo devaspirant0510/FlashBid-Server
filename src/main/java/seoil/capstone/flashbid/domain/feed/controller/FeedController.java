@@ -31,7 +31,7 @@ public class FeedController implements FeedSwagger {
     @Override
     public ApiResult<FeedDto> createFeed(
             Account account,
-            @RequestParam("files") List<MultipartFile> files,
+            @RequestParam(value = "files",required = false) List<MultipartFile> files,
             @RequestPart CreateFeedDto data,
             HttpServletRequest request
     ) {
@@ -50,11 +50,13 @@ public class FeedController implements FeedSwagger {
     }
 
 
+
     @GetMapping("/test-all")
+    @AuthUser
     @Override
-    public ApiResult<List<FeedDto>> getTestFeedAll(HttpServletRequest request) {
+    public ApiResult<List<FeedDto>> getTestFeedAll(Account account,HttpServletRequest request) {
         log.info("리스트 조회x");
-        return ApiResult.ok(feedService.getTestAllFeed(), request);
+        return ApiResult.ok(feedService.getTestAllFeed(account), request);
     }
 
     @PatchMapping("/{id}/like")

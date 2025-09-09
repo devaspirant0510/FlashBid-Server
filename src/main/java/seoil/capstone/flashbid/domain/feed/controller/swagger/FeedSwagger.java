@@ -44,7 +44,7 @@ public interface FeedSwagger {
     ApiResult<FeedDto> getFeedById(@PathVariable Long id, HttpServletRequest request);
 
     @Operation(summary = "피드 전체 테스트 조회", description = "모든 피드를 테스트용으로 조회합니다.")
-    ApiResult<List<FeedDto>> getTestFeedAll(HttpServletRequest request);
+    ApiResult<List<FeedDto>> getTestFeedAll(Account account, HttpServletRequest request);
 
     @Operation(summary = "피드 좋아요", description = "사용자가 해당 피드에 좋아요를 누릅니다.")
     @ApiResponses({
