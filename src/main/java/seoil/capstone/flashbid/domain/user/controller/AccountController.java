@@ -3,6 +3,7 @@ package seoil.capstone.flashbid.domain.user.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
@@ -19,6 +20,7 @@ import seoil.capstone.flashbid.domain.user.service.UserService;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -125,5 +127,15 @@ public class    AccountController implements AccountSwagger {
         return ApiResult.ok(userService.getSalesHistory(user), request);
     }
 
+    @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResult<Void> updateUserProfile(
+            @PathVariable Long userId,
+            @RequestPart(value = "nickname", required = false) String nickname,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
+            HttpServletRequest request) throws IOException { // HttpServletRequest 파라미터 추가
+
+        accountService.updateUserProfile(userId, nickname, profileImage);
+        return ApiResult.ok(null, request, "프로필이 성공적으로 업데이트되었습니다.");
+    }
 
 }
