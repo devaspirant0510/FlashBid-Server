@@ -10,6 +10,7 @@ import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.user.controller.swagger.AccountSwagger;
+import seoil.capstone.flashbid.domain.user.dto.response.FollowUserDto;
 import seoil.capstone.flashbid.domain.user.dto.response.UserDto;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.entity.FollowEntity;
@@ -136,6 +137,18 @@ public class    AccountController implements AccountSwagger {
 
         accountService.updateUserProfile(userId, nickname, profileImage);
         return ApiResult.ok(null, request, "프로필이 성공적으로 업데이트되었습니다.");
+    }
+
+    @AuthUser
+    @GetMapping("/{userId}/followers")
+    public ApiResult<List<FollowUserDto>> getFollowerList(@PathVariable Long userId, HttpServletRequest request) {
+        return ApiResult.ok(userService.getFollowerList(userId), request);
+    }
+
+    @AuthUser
+    @GetMapping("/{userId}/followings")
+    public ApiResult<List<FollowUserDto>> getFollowingList(@PathVariable Long userId, HttpServletRequest request) {
+        return ApiResult.ok(userService.getFollowingList(userId), request);
     }
 
 }

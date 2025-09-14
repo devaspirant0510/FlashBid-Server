@@ -14,6 +14,7 @@ import seoil.capstone.flashbid.domain.feed.service.FeedService;
 import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.service.FileService;
+import seoil.capstone.flashbid.domain.user.dto.response.FollowUserDto;
 import seoil.capstone.flashbid.domain.user.dto.response.UserDto;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.entity.FollowEntity;
@@ -24,6 +25,7 @@ import seoil.capstone.flashbid.global.common.error.ApiException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -45,8 +47,8 @@ public class UserService {
 
     @Transactional
     public UserDto getUserProfile(Account user) {
-        int follower = followRepository.countByFollowerId(user.getId());
-        int following = followRepository.countByFollowingId(user.getId());
+        int follower = followRepository.countByFollowingId(user.getId());
+        int following = followRepository.countByFollowerId(user.getId());
         int feedCount = feedRepository.countByUserId(user.getId());
 
         List<FileEntity> allFiles = fileService.getAllFiles(user.getId(), FileType.PROFILE);
@@ -109,5 +111,19 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<ConfirmedBidsEntity> getSalesHistory(Account user) {
         return confirmedBidsRepository.findAllBySeller_Id(user.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<FollowUserDto> getFollowerList(Long userId) {
+        return followRepository.findAllByFollowingId(userId).stream()
+                .map(followEntity -> FollowUserDto.from(followEntity.getFollower()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<FollowUserDto> getFollowingList(Long userId) {
+        return followRepository.findAllByFollowerId(userId).stream()
+                .map(followEntity -> FollowUserDto.from(followEntity.getFollowing()))
+                .collect(Collectors.toList());
     }
 }

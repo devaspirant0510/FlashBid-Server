@@ -52,7 +52,6 @@ public class SecurityConfig {
                                 "/ws/**",
                                 "/api/v1/auction/hot",
                                 "/api/v1/feed/hot",
-                                "/api/v1/profile/**",
                                 "/auth/login",
                                 "/auth/**",
                                 "/uploads/**",
