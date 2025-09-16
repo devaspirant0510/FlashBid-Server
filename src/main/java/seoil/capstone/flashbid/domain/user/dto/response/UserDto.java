@@ -18,4 +18,8 @@ public class UserDto {
     int followingCount;
     int feedCount;
     FileEntity profileImage;
+
+    public static UserDto from(Account account) {
+        return new UserDto(account, 0, 0, 0, null);
+    }
 }
