@@ -3,12 +3,15 @@ package seoil.capstone.flashbid.domain.user.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
+import seoil.capstone.flashbid.domain.payment.entity.PointHistoryEntity;
+import seoil.capstone.flashbid.domain.payment.service.PaymentService;
 import seoil.capstone.flashbid.domain.user.controller.swagger.AccountSwagger;
 import seoil.capstone.flashbid.domain.user.dto.response.FollowUserDto;
 import seoil.capstone.flashbid.domain.user.dto.response.UserDto;
@@ -32,6 +35,7 @@ public class    AccountController implements AccountSwagger {
     private final AccountService accountService;
     private final UserService userService;
     private final AccountRepository accountRepository;
+    private final PaymentService paymentService;
 
     @GetMapping
     @AuthUser
@@ -149,6 +153,17 @@ public class    AccountController implements AccountSwagger {
     @GetMapping("/{userId}/followings")
     public ApiResult<List<FollowUserDto>> getFollowingList(@PathVariable Long userId, HttpServletRequest request) {
         return ApiResult.ok(userService.getFollowingList(userId), request);
+    }
+
+    @AuthUser
+    @GetMapping("/my/point-history")
+    public ApiResult<Slice<PointHistoryEntity>> getMyPointHistory(
+            Account user,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(paymentService.getPointHistoryList(user, page, size), request);
     }
 
 }
