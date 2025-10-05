@@ -19,7 +19,6 @@ public interface GoodsSwagger {
             @Parameter(hidden = true) Account user,
             @Parameter(description = "이미지 파일") @RequestParam("files") List<MultipartFile> files,
             @Parameter(description = "상품 제목") @RequestParam("title") String title,
-            @Parameter(description = "상품 설명") @RequestParam("description") String description,
-            HttpServletRequest request
+            @Parameter(description = "상품 설명") @RequestParam("description") String description
     );
 }

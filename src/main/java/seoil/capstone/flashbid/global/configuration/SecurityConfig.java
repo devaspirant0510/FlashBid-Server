@@ -15,10 +15,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import seoil.capstone.flashbid.domain.auth.filter.JwtAuthenticationFilter;
-import seoil.capstone.flashbid.global.core.module.security.CustomAccessDeniedHandler;
-import seoil.capstone.flashbid.global.core.module.security.CustomAuthenticationEntryPoint;
-import seoil.capstone.flashbid.global.core.module.security.CustomUserDetailService;
+import seoil.capstone.flashbid.global.core.security.JwtAuthenticationFilter;
+import seoil.capstone.flashbid.global.core.security.CustomAccessDeniedHandler;
+import seoil.capstone.flashbid.global.core.security.CustomAuthenticationEntryPoint;
+import seoil.capstone.flashbid.global.core.security.CustomUserDetailService;
 
 import java.util.List;
 

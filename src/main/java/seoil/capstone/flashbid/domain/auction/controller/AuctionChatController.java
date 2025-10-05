@@ -29,6 +29,6 @@ public class AuctionChatController implements AuctionChatSwagger {
             @PathVariable(name = "id") Long auctionId,
             HttpServletRequest request
     ){
-        return  ApiResult.ok(auctionChatRepository.findAllByAuctionId(auctionId),request,"채팅 내역 조회 성공");
+        return  ApiResult.ok(auctionChatRepository.findAllByAuctionId(auctionId),"채팅 내역 조회 성공");
     }
 }

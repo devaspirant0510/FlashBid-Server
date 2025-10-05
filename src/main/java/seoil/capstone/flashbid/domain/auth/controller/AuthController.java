@@ -1,12 +1,12 @@
 package seoil.capstone.flashbid.domain.auth.controller;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,7 +22,9 @@ import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.domain.user.service.AccountService;
 import seoil.capstone.flashbid.global.common.AuthRestClient;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
+import seoil.capstone.flashbid.global.common.error.TokenUnAuthorized;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
+import seoil.capstone.flashbid.global.core.provider.CookieProvider;
 import seoil.capstone.flashbid.global.core.provider.JwtProvider;
 import seoil.capstone.flashbid.global.model.*;
 
@@ -40,19 +42,38 @@ public class AuthController {
     private final AuthService authService;
     private final AuthenticationManager authenticationManager;
     private final AccountRepository accountRepository;
+    private final CookieProvider cookieProvider;
 
     // 가입된 이메일이 있는지 확인
     @GetMapping("/register/email/check")
     public ApiResult<Boolean> checkEmail(@RequestParam("email") String email, HttpServletRequest request) {
         boolean isRegistered = accountService.isRegisteredEmail(email);
-        return ApiResult.ok(isRegistered, request);
+        return ApiResult.ok(isRegistered);
     }
     // 닉네임 중복 확인
     @GetMapping("/register/nickname/check")
     public ApiResult<Boolean> checkNickname(@RequestParam("nickname") String nickname, HttpServletRequest request) {
         boolean isRegistered = accountService.isRegisteredNickname(nickname);
-        return ApiResult.ok(isRegistered, request);
+        return ApiResult.ok(isRegistered);
     }
+    @PostMapping("/token")
+    public ApiResult<String> reissueToken(@CookieValue(value = "refresh_token", required = false) String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        if (refreshToken == null || !jwtProvider.validateToken(refreshToken)) {
+            throw new TokenUnAuthorized("토큰 인증 실패", "리프레시 토큰이 유효하지 않습니다.", "TOKEN_UNAUTHORIZED");
+        }
+        Claims claims = jwtProvider.parseClaims(refreshToken);
+        String uid = claims.getSubject();
+        Account account = accountService.getUserByUuid(uid);
+        AuthTokenDto token = authService.createAccessToken(account);
+
+        String reGenRefreshToken = jwtProvider.createRefreshToken(uid, claims.getExpiration().getTime());
+        // rtr 리프레시 토큰 업데이트
+        response.addCookie(
+                cookieProvider.generateCookie("refresh_token", reGenRefreshToken, 60 * 60 * 24)
+        );
+        return ApiResult.ok(token.getAccessToken());
+    }
+
     @PostMapping("/login")
     public ApiResult<Account> login(@RequestBody EmailAuthLoginDto dto, HttpServletRequest request, HttpServletResponse response) {
         //  이메일+패스워드 인증
@@ -76,25 +97,24 @@ public class AuthController {
 //        refreshCookie.setPath("/");
 //        response.addCookie(refreshCookie);
 //
-        Cookie accessCookie = new Cookie("access_token", accessToken);
+        Cookie accessCookie = new Cookie("accessToken", accessToken);
         accessCookie.setHttpOnly(false);
         accessCookie.setSecure(false);
         accessCookie.setMaxAge(60 * 60 * 24);
         accessCookie.setPath("/");
         response.addCookie(accessCookie);
-        response.addHeader("Authorization", "Bearer " + accessToken);
 
-        return ApiResult.ok(account, request);
+        return ApiResult.ok(account);
     }
 
     @PostMapping("/register/oauth")
     public ApiResult<Account> registerService(@RequestBody RegisterDto dto,HttpServletRequest request){
         //TODO : 가입 여부 확인
-        return ApiResult.ok(authService.registerUser(dto),request);
+        return ApiResult.ok(authService.registerUser(dto));
     }
     @PostMapping("/register/email")
     public ApiResult<Account> registerEmail(@RequestBody RegisterEmailDto dto, HttpServletRequest request){
-        return ApiResult.ok(authService.registerUserWithEmail(dto),request);
+        return ApiResult.ok(authService.registerUserWithEmail(dto));
 
     }
 
@@ -119,24 +139,16 @@ public class AuthController {
             // 4. 토큰 생성
             AuthTokenDto token = authService.createAccessToken(userByUuid);
 
-            // 5. 쿠키에 저장 (JS에서 접근 가능하도록 보안 옵션 약하게)
+            // 5. 쿠키에 저장 ()
             Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
-            refreshCookie.setHttpOnly(false);
+            refreshCookie.setHttpOnly(true);
             refreshCookie.setSecure(false);
             refreshCookie.setMaxAge(60 * 60 * 24);
             refreshCookie.setPath("/");
             response.addCookie(refreshCookie);
 
-            Cookie accessCookie = new Cookie("access_token", token.getAccessToken());
-            accessCookie.setHttpOnly(false);
-            accessCookie.setSecure(false);
-            accessCookie.setMaxAge(60 * 60 * 24);
-            accessCookie.setPath("/");
-            response.addCookie(accessCookie);
-            response.addHeader("Authorization", "Bearer " + token.getAccessToken());
-
             // 6. 응답 반환
-            return ApiResult.ok(userByUuid, request);
+            return ApiResult.ok(userByUuid);
         }
 
         // 7. 회원이 아닌 경우 회원가입 처리
@@ -146,7 +158,7 @@ public class AuthController {
                 LoginType.FACEBOOK
         );
 
-        return ApiResult.created(newAccount, request);
+        return ApiResult.created(newAccount);
 
     }
 
@@ -166,20 +178,16 @@ public class AuthController {
             AuthTokenDto token = authService.createAccessToken(userByUuid);
             HttpHeaders headers = new HttpHeaders();
             Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
-            refreshCookie.setHttpOnly(false); // JS에서 읽을 수 있게
+            refreshCookie.setHttpOnly(true); // JS에서 읽을 수 있게 x
             refreshCookie.setSecure(false);   // HTTPS 아니어도 허용
+            refreshCookie.setPath("/");
             refreshCookie.setMaxAge(60 * 60 * 240); // 1일 (초 단위)
             response.addCookie(refreshCookie);
 
-            Cookie accessCookie = new Cookie("access_token", token.getAccessToken());
-            accessCookie.setHttpOnly(false);
-            accessCookie.setSecure(false);
-            accessCookie.setMaxAge(60 * 60 * 240);
-            response.addCookie(accessCookie);
             response.addHeader("Authorization", "Bearer " + token.getAccessToken());
-            return ApiResult.ok(userByUuid, request);
+            return ApiResult.ok(userByUuid);
         }
-        return ApiResult.created(accountService.registerAccount(googleUserInfoResponse.getEmail(), userUuid, LoginType.GOOGLE), request);
+        return ApiResult.created(accountService.registerAccount(googleUserInfoResponse.getEmail(), userUuid, LoginType.GOOGLE));
     }
 
 
@@ -201,18 +209,13 @@ public class AuthController {
             AuthTokenDto token = authService.createAccessToken(userByUuid);
             HttpHeaders headers = new HttpHeaders();
             Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
-            refreshCookie.setHttpOnly(false); // JS에서 읽을 수 있게
+            refreshCookie.setHttpOnly(true); // JS에서 읽을 수 있게 x
             refreshCookie.setSecure(false);   // HTTPS 아니어도 허용
+            refreshCookie.setPath("/");
             refreshCookie.setMaxAge(60 * 60 * 240); // 1일 (초 단위)
             response.addCookie(refreshCookie);
 
-            Cookie accessCookie = new Cookie("access_token", token.getAccessToken());
-            accessCookie.setHttpOnly(false);
-            accessCookie.setSecure(false);
-            accessCookie.setMaxAge(60 * 60 * 24*10);
-            response.addCookie(accessCookie);
-            response.addHeader("Authorization", "Bearer " + token.getAccessToken());
-            return ApiResult.ok(userByUuid, request);
+            return ApiResult.ok(userByUuid);
         }
         // 가입된 적이 없다면 기본적인 정보 가져와서 계정 생성
         KakaoUserResponse kakaoUserResponse = restClient.requestKakaoGetUserApi(s.getAccessToken());
@@ -220,6 +223,6 @@ public class AuthController {
         String kakaoLinkedEmail = kakaoUserResponse.getKakaoAccount().getEmail();
 
         // 서비스 자체 회원가입이 필요해서 필수정보만 넘겨주기
-        return ApiResult.created(accountService.registerAccount(kakaoLinkedEmail, userUuid, LoginType.KAKAO), request);
+        return ApiResult.created(accountService.registerAccount(kakaoLinkedEmail, userUuid, LoginType.KAKAO));
     }
 }

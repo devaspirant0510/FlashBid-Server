@@ -26,6 +26,6 @@ public class FileController implements FileSwagger {
     @PostMapping("/api/files/upload")
     public ApiResult<List<SaveFileDto>> uploadFile(@RequestParam("files") List<MultipartFile> files, HttpServletRequest request) {
 
-        return ApiResult.created(fileService.saveImage(files),request);
+        return ApiResult.created(fileService.saveImage(files));
     }
 }

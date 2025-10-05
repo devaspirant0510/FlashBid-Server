@@ -29,7 +29,7 @@ public class PaymentController {
             @RequestBody PaymentSuccessDto dto,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(paymentService.processPaymentSuccess(account, dto), request);
+        return ApiResult.ok(paymentService.processPaymentSuccess(account, dto));
 
     }
 }

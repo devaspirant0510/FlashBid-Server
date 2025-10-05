@@ -1,4 +1,4 @@
-package seoil.capstone.flashbid.global.core.module.security;
+package seoil.capstone.flashbid.global.core.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import seoil.capstone.flashbid.global.common.response.ApiError;
+import seoil.capstone.flashbid.global.common.response.ErrorDetails;
 import seoil.capstone.flashbid.global.common.response.ApiHeader;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 
@@ -23,18 +23,24 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     private final ObjectMapper objectMapper;
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-
-        ApiResult<Object> result = ApiResult.builder()
-                .apiHeader(new ApiHeader(HttpStatus.UNAUTHORIZED))
-                .error(new ApiError("401E00", "인증이 필요합니다"))
-                .path(request.getRequestURI())
-                .message(authException.getMessage())
-                .timestamp(LocalDateTime.now())
-                .data(null)
-                .build();
-
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(result));
+        ErrorDetails errorDetails = new ErrorDetails(
+                null,
+                "Unauthorized",
+                401,
+                "인증되지 않은 사용자입니다. 로그인후 이용해주세요.",
+                request.getRequestURI()
+        );
+        ApiResult<?> unauthorized =
+                ApiResult.builder()
+                        .status(401)
+                        .message("Unauthorized")
+                        .error(errorDetails)
+                        .success(false)
+                        .timestamp(LocalDateTime.now())
+                        .build();
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        response.getWriter().write(objectMapper.writeValueAsString(unauthorized));
     }
 }

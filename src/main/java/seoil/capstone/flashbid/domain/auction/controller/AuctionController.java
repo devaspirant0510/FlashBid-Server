@@ -48,7 +48,7 @@ public class AuctionController implements AuctionSwagger {
             HttpServletRequest request
     ) {
         ConfirmedBidsEntity confirmedBidsEntity = auctionService.confirmedBidsEntity(user, dto.getAuctionId(), dto.getBiddingLogId());
-        return ApiResult.ok(confirmedBidsEntity, request);
+        return ApiResult.ok(confirmedBidsEntity);
     }
 
     @Override
@@ -62,13 +62,13 @@ public class AuctionController implements AuctionSwagger {
     ) {
         log.info(dto.toString());
         Auction auction = auctionService.saveAuction(account, dto, files, AuctionType.LIVE);
-        return ApiResult.created(auction, request);
+        return ApiResult.created(auction);
     }
 
     @Override
     @GetMapping("/hot")
     public ApiResult<List<AuctionDto>> getAllRecommendAuction(HttpServletRequest request) {
-        return ApiResult.ok(auctionService.getRecomendAuction(), request, "hot 옥션 조회 성공");
+        return ApiResult.ok(auctionService.getRecomendAuction(),  "hot 옥션 조회 성공");
     }
 
     @GetMapping("/recommend/{id}")
@@ -76,7 +76,7 @@ public class AuctionController implements AuctionSwagger {
             @PathVariable("id") Long auctionId,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(auctionService.getRecommendAuction(auctionId), request, "추천 경매 조회 성공");
+        return ApiResult.ok(auctionService.getRecommendAuction(auctionId), "추천 경매 조회 성공");
     }
 
     @Override
@@ -87,14 +87,14 @@ public class AuctionController implements AuctionSwagger {
             Account user,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId,user.getId()), request);
+        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId,user.getId()));
     }
 
     @Override
     @PostMapping("/participate")
     @AuthUser
     public ApiResult<?> participateAuction(Account user, @RequestBody ParticipateAuctionDto dto, HttpServletRequest request) {
-        return ApiResult.created(auctionService.participateUser(user, dto), request, "성공적으로 경매장에 참가하였습니다.");
+        return ApiResult.created(auctionService.participateUser(user, dto), "성공적으로 경매장에 참가하였습니다.");
     }
 
     @Override
@@ -107,18 +107,18 @@ public class AuctionController implements AuctionSwagger {
             HttpServletRequest request
     ) {
         Auction auction = auctionService.saveAuction(account, dto, files, AuctionType.BLIND);
-        return ApiResult.created(auction, request);
+        return ApiResult.created(auction);
     }
 
     @Override
     @GetMapping("/test/all/live")
     public ApiResult<List<AuctionDto>> getAllTestLiveAuction(HttpServletRequest request) {
-        return ApiResult.ok(auctionService.queryAllAuction(AuctionType.LIVE), request);
+        return ApiResult.ok(auctionService.queryAllAuction(AuctionType.LIVE));
     }
     @Override
     @GetMapping("/test/all/blind")
     public ApiResult<List<AuctionDto>> getAllTestBlindAuction(HttpServletRequest request) {
-        return ApiResult.ok(auctionService.queryAllAuction(AuctionType.BLIND), request);
+        return ApiResult.ok(auctionService.queryAllAuction(AuctionType.BLIND));
     }
 
     @Override
@@ -129,13 +129,13 @@ public class AuctionController implements AuctionSwagger {
             HttpServletRequest request,
             Pageable pageable
     ) {
-        return ApiResult.ok(auctionService.findAllBidLogForAccountId(auctionId, pageable), request);
+        return ApiResult.ok(auctionService.findAllBidLogForAccountId(auctionId, pageable));
     }
 
     @Override
     @GetMapping("/bid-history/{id}/page")
     public ApiResult<Page<List<BidLoggingProjection>>> getBidHistoryByAuctionIdWithPage(@PathVariable(name = "id") Long auctionId, HttpServletRequest request, Pageable pageable) {
-        return ApiResult.ok(auctionBidLogRepository.findAllBidLogHistoryByAuctionIdWithPage(auctionId, pageable), request);
+        return ApiResult.ok(auctionBidLogRepository.findAllBidLogHistoryByAuctionIdWithPage(auctionId, pageable));
     }
 
     @Override
@@ -145,13 +145,13 @@ public class AuctionController implements AuctionSwagger {
             Long auctionId,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(auctionService.findAllBidLogChartData(auctionId), request);
+        return ApiResult.ok(auctionService.findAllBidLogChartData(auctionId));
     }
 
     @Override
     @GetMapping("/auction/{id}/participant-user")
     public ApiResult<Page<AuctionParticipantsProjection>> getAuctionParticipantsByAuctionId(@PathVariable("id") Long auctionId, HttpServletRequest request, Pageable pageable) {
-        return ApiResult.ok(auctionParticipateRepository.findAllByAuctionId(auctionId, pageable), request);
+        return ApiResult.ok(auctionParticipateRepository.findAllByAuctionId(auctionId, pageable));
     }
 
     @Override
@@ -164,7 +164,7 @@ public class AuctionController implements AuctionSwagger {
     @PatchMapping("/wishlist/{id}")
     public ApiResult<Boolean> wishAuction(Account user, @PathVariable("id") Long auctionId, HttpServletRequest request) {
         auctionService.addWishList(user, auctionId);
-        return ApiResult.ok(true, request, "경매 찜하기 성공");
+        return ApiResult.ok(true, "경매 찜하기 성공");
     }
 
     @Override
@@ -172,6 +172,6 @@ public class AuctionController implements AuctionSwagger {
     @DeleteMapping("/wishlist/{id}")
     public ApiResult<Boolean> cancelWishAuction(Account user, @PathVariable("id") Long auctionId, HttpServletRequest request) {
         auctionService.removeWishList(user, auctionId);
-        return ApiResult.ok(true, request, "경매 찜하기 취소 성공");
+        return ApiResult.ok(true, "경매 찜하기 취소 성공");
     }
 }

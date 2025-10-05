@@ -33,10 +33,9 @@ public class GoodsController implements GoodsSwagger {
             Account user,
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam("title") String title,
-            @RequestParam("description") String description,
-            HttpServletRequest request
+            @RequestParam("description") String description
     ) {
         GoodsDto goodsDto = goodsService.uploadGoods(user, files, title, description, DeliveryType.DIRECT);
-        return ApiResult.created(goodsDto,request);
+        return ApiResult.created(goodsDto);
     }
 }
