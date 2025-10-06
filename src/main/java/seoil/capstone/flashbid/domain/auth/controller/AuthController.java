@@ -208,12 +208,22 @@ public class AuthController {
             Account userByUuid = accountService.getUserByUuid(userUuid);
             AuthTokenDto token = authService.createAccessToken(userByUuid);
             HttpHeaders headers = new HttpHeaders();
-            Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
+          /*  Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
             refreshCookie.setHttpOnly(true); // JS에서 읽을 수 있게 x
             refreshCookie.setSecure(true);   // HTTPS 아니어도 허용
             refreshCookie.setPath("/");
-            refreshCookie.setMaxAge(60 * 60 * 240); // 1일 (초 단위)
-            response.addCookie(refreshCookie);
+            refreshCookie.setMaxAge(60 * 60 * 240); // 1일 (초 단위)*/
+            ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", token.getRefreshToken())
+            .httpOnly(true)
+            .secure(true)       // HTTPS에서만 전송
+            .path("/")
+            .maxAge(60 * 60 * 24) // 1일
+            .sameSite("None")   // SameSite=None 설정!
+            .build();
+
+    // 👇 헤더에 바로 추가
+    response.addHeader("Set-Cookie", refreshCookie.toString());
+            //response.addCookie(refreshCookie);
 
             return ApiResult.ok(userByUuid);
         }
