@@ -217,7 +217,6 @@ public class AuthController {
             .httpOnly(true)
             .secure(true)       // HTTPS에서만 전송
             .path("/")
-                .domain("unknown-auction.shop") 
             .maxAge(60 * 60 * 24) // 1일
             .sameSite("None")   // SameSite=None 설정!
             .build();
