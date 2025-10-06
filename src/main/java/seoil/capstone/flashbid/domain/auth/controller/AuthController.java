@@ -179,7 +179,7 @@ public class AuthController {
             HttpHeaders headers = new HttpHeaders();
             Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
             refreshCookie.setHttpOnly(true); // JS에서 읽을 수 있게 x
-            refreshCookie.setSecure(false);   // HTTPS 아니어도 허용
+            refreshCookie.setSecure(true);   // HTTPS 아니어도 허용
             refreshCookie.setPath("/");
             refreshCookie.setMaxAge(60 * 60 * 240); // 1일 (초 단위)
             response.addCookie(refreshCookie);
@@ -210,7 +210,7 @@ public class AuthController {
             HttpHeaders headers = new HttpHeaders();
             Cookie refreshCookie = new Cookie("refresh_token", token.getRefreshToken());
             refreshCookie.setHttpOnly(true); // JS에서 읽을 수 있게 x
-            refreshCookie.setSecure(false);   // HTTPS 아니어도 허용
+            refreshCookie.setSecure(true);   // HTTPS 아니어도 허용
             refreshCookie.setPath("/");
             refreshCookie.setMaxAge(60 * 60 * 240); // 1일 (초 단위)
             response.addCookie(refreshCookie);
