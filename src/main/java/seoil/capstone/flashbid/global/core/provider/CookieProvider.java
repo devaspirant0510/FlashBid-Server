@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class CookieProvider {
-    @Value("${MODE}")
-    private String mode;
+   // @Value("${MODE}")
+ //   private String mode;
 
     public Cookie generateCookie(String key, String value, int time) {
         Cookie cookie = new Cookie(key, value);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setSecure(mode.equals("PROD"));
+      //  cookie.setSecure(mode.equals("PROD"));
         cookie.setMaxAge(time);
         return cookie;
     }
