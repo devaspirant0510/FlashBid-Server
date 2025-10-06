@@ -41,7 +41,7 @@ public class    AccountController implements AccountSwagger {
     @AuthUser
     @Override
     public ApiResult<Account> getUserProfile(Account user, HttpServletRequest request) {
-        return ApiResult.ok(user, request);
+        return ApiResult.ok(user);
     }
 
     @GetMapping("/status/{id}")
@@ -49,14 +49,14 @@ public class    AccountController implements AccountSwagger {
             @PathVariable(name = "id") Long userId,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(accountRepository.findAccountStatusInfoById(userId), request);
+        return ApiResult.ok(accountRepository.findAccountStatusInfoById(userId));
     }
 
     @GetMapping("/info")
     @AuthUser
     @Override
     public ApiResult<UserDto> getUserProfileInfo(Account user, HttpServletRequest request) {
-        return ApiResult.ok(userService.getUserProfile(user), request);
+        return ApiResult.ok(userService.getUserProfile(user));
     }
 
     @PatchMapping("/follow/{id}")
@@ -67,7 +67,7 @@ public class    AccountController implements AccountSwagger {
             @PathVariable(name = "id") Long followUserId,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(userService.followUser(user, followUserId), request);
+        return ApiResult.ok(userService.followUser(user, followUserId));
     }
 
     @DeleteMapping("/unfollow/{id}")
@@ -78,7 +78,7 @@ public class    AccountController implements AccountSwagger {
             @PathVariable(name = "id") Long unFollowUserId,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(userService.unFollowUser(user, unFollowUserId), request);
+        return ApiResult.ok(userService.unFollowUser(user, unFollowUserId));
     }
 
     @GetMapping("/my/feed")
@@ -88,7 +88,7 @@ public class    AccountController implements AccountSwagger {
             Account user,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(userService.getAllFeedByUserId(user.getId()), request);
+        return ApiResult.ok(userService.getAllFeedByUserId(user.getId()));
     }
 
     @GetMapping("/{id}/feed")
@@ -97,14 +97,14 @@ public class    AccountController implements AccountSwagger {
             @PathVariable(name = "id") Long userId,
             HttpServletRequest request
     ){
-        return ApiResult.ok(userService.getAllFeedByUserId(userId), request);
+        return ApiResult.ok(userService.getAllFeedByUserId(userId));
     }
 
     @AuthUser
     @Override
     @GetMapping("/{id}")
     public ApiResult<UserDto> getUserById(Account user,@PathVariable(name = "id") Long userId, HttpServletRequest request) {
-        return ApiResult.ok(userService.getUserById(userId),request);
+        return ApiResult.ok(userService.getUserById(userId));
     }
 
     @AuthUser
@@ -115,21 +115,21 @@ public class    AccountController implements AccountSwagger {
             @RequestParam("file") MultipartFile image,
             HttpServletRequest request
     ){
-        return ApiResult.ok(userService.uploadProfileImage(image,user),request);
+        return ApiResult.ok(userService.uploadProfileImage(image,user));
     }
 
     @AuthUser
     @GetMapping("/purchases")
     @Override
     public ApiResult<List<ConfirmedBidsEntity>> getPurchaseHistory(Account user, HttpServletRequest request) {
-        return ApiResult.ok(userService.getPurchaseHistory(user), request);
+        return ApiResult.ok(userService.getPurchaseHistory(user));
     }
 
     @AuthUser
     @GetMapping("/sales")
     @Override
     public ApiResult<List<ConfirmedBidsEntity>> getSalesHistory(Account user, HttpServletRequest request) {
-        return ApiResult.ok(userService.getSalesHistory(user), request);
+        return ApiResult.ok(userService.getSalesHistory(user));
     }
 
     @PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -140,19 +140,19 @@ public class    AccountController implements AccountSwagger {
             HttpServletRequest request) throws IOException { // HttpServletRequest 파라미터 추가
 
         accountService.updateUserProfile(userId, nickname, profileImage);
-        return ApiResult.ok(null, request, "프로필이 성공적으로 업데이트되었습니다.");
+        return ApiResult.ok(null, "프로필이 성공적으로 업데이트되었습니다.");
     }
 
     @AuthUser
     @GetMapping("/{userId}/followers")
     public ApiResult<List<FollowUserDto>> getFollowerList(@PathVariable Long userId, HttpServletRequest request) {
-        return ApiResult.ok(userService.getFollowerList(userId), request);
+        return ApiResult.ok(userService.getFollowerList(userId));
     }
 
     @AuthUser
     @GetMapping("/{userId}/followings")
     public ApiResult<List<FollowUserDto>> getFollowingList(@PathVariable Long userId, HttpServletRequest request) {
-        return ApiResult.ok(userService.getFollowingList(userId), request);
+        return ApiResult.ok(userService.getFollowingList(userId));
     }
 
     @AuthUser
@@ -163,7 +163,7 @@ public class    AccountController implements AccountSwagger {
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(paymentService.getPointHistoryList(user, page, size), request);
+        return ApiResult.ok(paymentService.getPointHistoryList(user, page, size));
     }
 
 }

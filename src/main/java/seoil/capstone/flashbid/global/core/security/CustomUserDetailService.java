@@ -1,4 +1,4 @@
-package seoil.capstone.flashbid.global.core.module.security;
+package seoil.capstone.flashbid.global.core.security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

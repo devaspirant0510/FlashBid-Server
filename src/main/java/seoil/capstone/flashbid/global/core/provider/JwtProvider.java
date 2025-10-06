@@ -27,19 +27,18 @@ public class JwtProvider {
     // 액세스토큰 생성
     public String createAccessToken(String userUid, Account account) {
         log.info(jwtSecretKey);
-        // 2시간
-        long ACCESS_TOKEN_EXPIRATION = 60 * 60 * 60 * 24*10;
+        // 30분
+        long ACCESS_TOKEN_EXPIRATION = 1000L * 60 * 30  ;
         SecretKey signedKey = hashUtils.getSignedKey(jwtSecretKey);
         log.info(Base64.getEncoder().encodeToString(signedKey.getEncoded()));
         String jwt = Jwts.builder()
                 .setSubject(userUid)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
-                .claim("id", account.getId())
-                .claim("uid", account.getUuid())
-                .claim("nickname",account.getNickname())
-                .claim("profileUrl",account.getProfileUrl())
+                .claim("nickname", account.getNickname())
+                .claim("profileUrl", account.getProfileUrl())
                 .claim("email", account.getEmail())
+                .claim("id",account.getId())
                 .claim("role", account.getUserType())
                 .signWith(signedKey, SignatureAlgorithm.HS256)
                 .compact();
@@ -48,8 +47,20 @@ public class JwtProvider {
     }
 
     // 리프레시토큰 생성 헤더에 핵심 uid 정보만 기입
+    public String createRefreshToken(String uid, long expiration) {
+        SecretKey signedKey = hashUtils.getSignedKey(jwtSecretKey);
+        String jwt = Jwts.builder()
+                .setSubject(uid)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(expiration))
+                .signWith(signedKey, SignatureAlgorithm.HS256)
+                .compact();
+        return jwt;
+    }
+
+    // 리프레시토큰 생성 헤더에 핵심 uid 정보만 기입
     public String createRefreshToken(String uid) {
-        long REFRESH_TOKEN_EXPIRATION = 1 * 60 * 60 * 24 * 14;// 2주
+        long REFRESH_TOKEN_EXPIRATION = 60 * 60 * 24 * 14 * 1000L;// 2주
         SecretKey signedKey = hashUtils.getSignedKey(jwtSecretKey);
         String jwt = Jwts.builder()
                 .setSubject(uid)

@@ -36,17 +36,17 @@ public class FeedController implements FeedSwagger {
             HttpServletRequest request
     ) {
         FeedDto feed = feedService.createFeed(account, files, data);
-        return ApiResult.created(feed, request);
+        return ApiResult.created(feed);
     }
 
     @GetMapping("/hot")
     public ApiResult<List<FeedDto>> getHotFeed(HttpServletRequest request){
-        return ApiResult.ok(feedService.getHotFeed(),request,"성공");
+        return ApiResult.ok(feedService.getHotFeed(),"성공");
     }
     @GetMapping("/{id}")
     @Override
     public ApiResult<FeedDto> getFeedById(@PathVariable Long id, HttpServletRequest request) {
-        return ApiResult.ok(feedService.getFeedById(id), request);
+        return ApiResult.ok(feedService.getFeedById(id));
     }
 
 
@@ -56,7 +56,7 @@ public class FeedController implements FeedSwagger {
     @Override
     public ApiResult<List<FeedDto>> getTestFeedAll(Account account,HttpServletRequest request) {
         log.info("리스트 조회x");
-        return ApiResult.ok(feedService.getTestAllFeed(account), request);
+        return ApiResult.ok(feedService.getTestAllFeed(account));
     }
 
     @PatchMapping("/{id}/like")
@@ -67,7 +67,7 @@ public class FeedController implements FeedSwagger {
             @PathVariable(name = "id") Long postId,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(feedService.likePost(user, postId), request);
+        return ApiResult.ok(feedService.likePost(user, postId));
     }
 
     @DeleteMapping("/{id}/unlike")
@@ -78,7 +78,7 @@ public class FeedController implements FeedSwagger {
             @PathVariable(name = "id") Long postId,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(feedService.unLikePost(user, postId), request);
+        return ApiResult.ok(feedService.unLikePost(user, postId));
     }
 
     @PostMapping("/comment")
@@ -89,7 +89,7 @@ public class FeedController implements FeedSwagger {
             HttpServletRequest request,
             @RequestBody CreateCommentDto dto
     ) {
-        return ApiResult.created(feedService.createComent(user, dto.getFeedId(), dto), request);
+        return ApiResult.created(feedService.createComent(user, dto.getFeedId(), dto));
     }
 
     @GetMapping("/comment/{id}/root")
@@ -98,7 +98,7 @@ public class FeedController implements FeedSwagger {
             @PathVariable(name = "id") Long feedId,
             HttpServletRequest request
     ){
-        return ApiResult.ok(feedService.getAllRootComment(feedId),request);
+        return ApiResult.ok(feedService.getAllRootComment(feedId));
     }
 
     @GetMapping("/comment/reply/{id}")
@@ -107,7 +107,7 @@ public class FeedController implements FeedSwagger {
             @PathVariable(name = "id") Long replyId,
             HttpServletRequest request
     ){
-        return ApiResult.ok(feedService.getAllCommentByReplyId(replyId),request);
+        return ApiResult.ok(feedService.getAllCommentByReplyId(replyId));
     }
 
 }

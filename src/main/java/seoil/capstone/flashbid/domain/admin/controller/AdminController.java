@@ -32,12 +32,12 @@ public class AdminController implements AdminSwagger {
     public ApiResult<List<CategoryAuctionChartProjection>> getCategoryCountForAuction(
             HttpServletRequest request
     ){
-        return ApiResult.ok(adminService.getChartForCategoryCount(),request);
+        return ApiResult.ok(adminService.getChartForCategoryCount());
     }
     @GetMapping("/chart/bidlog-info")
     public ApiResult<List<BidInfoProjection>> getBiddingLogInfoList(
             HttpServletRequest request
     ) {
-        return ApiResult.ok(adminService.getBiddingLogInfoList(), request);
+        return ApiResult.ok(adminService.getBiddingLogInfoList());
     }
 }
