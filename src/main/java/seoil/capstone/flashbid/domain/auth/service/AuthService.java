@@ -46,7 +46,7 @@ public class AuthService {
         return accountRepository.findByUuid(uuid).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
     }
 
-    public AuthTokenDto createAccessToken(Account account) {
+    public AuthTokenDto createJwtToken(Account account) {
         String accessToken = jwtProvider.createAccessToken(account.getUuid(), account);
         String refreshToken = jwtProvider.createRefreshToken(account.getUuid());
         return new AuthTokenDto(
