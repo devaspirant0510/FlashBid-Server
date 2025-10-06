@@ -18,7 +18,7 @@ public class CookieProvider {
         Cookie cookie = new Cookie(key, value);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-      //  cookie.setSecure(mode.equals("PROD"));
+        cookie.setSecure(true);
         cookie.setMaxAge(time);
         return cookie;
     }
