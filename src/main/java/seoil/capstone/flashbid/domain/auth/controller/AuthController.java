@@ -1,5 +1,5 @@
 package seoil.capstone.flashbid.domain.auth.controller;
-
+import org.springframework.http.ResponseCookie;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
