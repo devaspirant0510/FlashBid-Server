@@ -61,3 +61,10 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+tasks.processResources {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	// .env.properties를 항상 포함하도록 설정
+	from("src/main/resources/properties/.env.properties") {
+		into("properties")
+	}
+}
