@@ -24,9 +24,9 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-#    properties:
-#      hibernate:
-#        format_sql: true
+    properties:
+      hibernate:
+        format_sql: true
   web:
     resources:
       static-locations: file:/Users/kotlinandnode/seungho/uploads/
