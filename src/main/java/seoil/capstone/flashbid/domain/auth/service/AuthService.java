@@ -35,9 +35,7 @@ public class AuthService {
 
         return null;
 
-    }
-
-    public Account authoriztionTokenWithUser(String token) {
+    public Account authorizationTokenWithUser(String token) {
         log.info(token);
         if (!jwtProvider.validateToken(token)) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "토큰 인증 실패", "");

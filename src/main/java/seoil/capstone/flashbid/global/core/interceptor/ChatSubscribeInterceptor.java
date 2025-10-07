@@ -34,7 +34,7 @@ public class ChatSubscribeInterceptor implements ChannelInterceptor {
             String authorization = accessor.getFirstNativeHeader("Authorization");
             String token = authorization.substring(7);
             System.out.println("token = " + token);
-            currentUser = authService.authoriztionTokenWithUser(token);
+            currentUser = authService.authorizationTokenWithUser(token);
         }
         if(StompCommand.SUBSCRIBE.equals(accessor.getCommand())){
 
