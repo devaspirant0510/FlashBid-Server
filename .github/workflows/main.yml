@@ -27,10 +27,6 @@ jobs:
         run: |
           mkdir -p src/main/resources/properties
           echo "${{ secrets.ENV }}" > src/main/resources/properties/.env.properties
-      - name: Create application.yml file
-        run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.YML }}" > src/main/resources/application.yml
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
