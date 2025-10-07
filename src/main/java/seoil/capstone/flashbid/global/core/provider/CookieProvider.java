@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class CookieProvider {
     public static final String REFRESH_TOKEN = "refresh_token";
     private final JwtProvider jwtProvider;
-    @Value("${MODE}:production")
+    @Value("${MODE:production}")
     private String mode;
 
     @Deprecated
