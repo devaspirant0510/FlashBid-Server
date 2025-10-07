@@ -1,6 +1,5 @@
 package seoil.capstone.flashbid.domain.auth.service;
 
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import seoil.capstone.flashbid.domain.auth.dto.AuthTokenDto;
 import seoil.capstone.flashbid.domain.auth.dto.RegisterDto;
 import seoil.capstone.flashbid.domain.auth.dto.RegisterEmailDto;
+import seoil.capstone.flashbid.domain.auth.repository.EmailOtpRedisRepository;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
@@ -18,6 +18,8 @@ import seoil.capstone.flashbid.global.common.enums.UserStatus;
 import seoil.capstone.flashbid.global.common.enums.UserType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
 import seoil.capstone.flashbid.global.core.provider.JwtProvider;
+import seoil.capstone.flashbid.infrastructure.mail.EmailTemplate;
+import seoil.capstone.flashbid.infrastructure.mail.MailService;
 
 import java.util.UUID;
 
@@ -27,13 +29,9 @@ import java.util.UUID;
 public class AuthService {
     private final JwtProvider jwtProvider;
     private final AccountRepository accountRepository;
-
-    public Object makeCookie(String accessToken, String refreshToken) {
-        Cookie accessCookie = new Cookie("access_token", accessToken);
-
-        Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
-
-        return null;
+    private final EmailOtpRedisRepository emailOtpRedisRepository;
+    private final EmailTemplate emailTemplate;
+    private final MailService mailService;
 
     public Account authorizationTokenWithUser(String token) {
         log.info(token);
@@ -85,8 +83,19 @@ public class AuthService {
         return createAccount;
     }
 
+    public void authorizeOtpCode(String email) {
+        String otpCode = emailOtpRedisRepository.generateOtp(email);
+        mailService.sendHtmlMailAsync(
+                email,
+                "[Unknown Auction] 이메일 인증 코드",
+                emailTemplate.getVerificationEmailTemplate(otpCode)
+        );
+    }
 
-    public void reGenRefreshToken() {
-
+    public boolean verifyOtpCode(String email, String otp) {
+        if(!emailOtpRedisRepository.validateOtp(email, otp)){
+            throw new ApiException(HttpStatus.BAD_REQUEST, "인증코드 인증 실패", "인증 코드가 올바르지 않거나 만료되었습니다.");
+        }
+        return true;
     }
 }
