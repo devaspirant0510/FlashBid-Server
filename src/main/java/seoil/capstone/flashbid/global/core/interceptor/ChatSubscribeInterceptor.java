@@ -2,7 +2,6 @@ package seoil.capstone.flashbid.global.core.interceptor;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionParticipateRepository;
 import seoil.capstone.flashbid.domain.auth.service.AuthService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
-import seoil.capstone.flashbid.global.common.error.ApiException;
 import seoil.capstone.flashbid.global.core.provider.JwtProvider;
 
 @Component
@@ -34,7 +32,7 @@ public class ChatSubscribeInterceptor implements ChannelInterceptor {
             String authorization = accessor.getFirstNativeHeader("Authorization");
             String token = authorization.substring(7);
             System.out.println("token = " + token);
-            currentUser = authService.authoriztionTokenWithUser(token);
+            currentUser = authService.authorizationTokenWithUser(token);
         }
         if(StompCommand.SUBSCRIBE.equals(accessor.getCommand())){
 

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class CookieProvider {
     public static final String REFRESH_TOKEN = "refresh_token";
     private final JwtProvider jwtProvider;
-    @Value("${MODE}:production")
+    @Value("${MODE:production}")
     private String mode;
 
     @Deprecated
@@ -30,6 +30,7 @@ public class CookieProvider {
 
     public ResponseCookie generateRefreshTokenCookie(String refreshToken) {
         boolean isProd = mode.equals("production");
+        log.info("123mode: {}, isProd: {}", mode, isProd);
         Claims claims = jwtProvider.parseClaims(refreshToken);
         // 만료시간 - 현재시간 = 쿠키 만료시간
         long exp = claims.getExpiration().getTime()/1000;

@@ -13,16 +13,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import seoil.capstone.flashbid.domain.auth.dto.AuthTokenDto;
-import seoil.capstone.flashbid.domain.auth.dto.EmailAuthLoginDto;
-import seoil.capstone.flashbid.domain.auth.dto.RegisterDto;
-import seoil.capstone.flashbid.domain.auth.dto.RegisterEmailDto;
+import seoil.capstone.flashbid.domain.auth.dto.*;
 import seoil.capstone.flashbid.domain.auth.service.AuthService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.domain.user.service.AccountService;
 import seoil.capstone.flashbid.global.common.AuthRestClient;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
+import seoil.capstone.flashbid.global.common.error.ApiException;
 import seoil.capstone.flashbid.global.common.error.TokenUnAuthorized;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 import seoil.capstone.flashbid.global.core.provider.CookieProvider;
@@ -59,6 +57,24 @@ public class AuthController {
         return ApiResult.ok(isRegistered);
     }
 
+    @PostMapping("/email/otp")
+    public ApiResult<Boolean> sendEmailOtp(@RequestBody AuthorizeEmailDto dto) {
+        if (accountService.isRegisteredEmail(dto.getEmail())) {
+            return ApiResult.ok(false,"이미 가입된 이메일입니다.");
+        }
+        authService.authorizeOtpCode(dto.getEmail());
+        return ApiResult.ok(true,"이메일로 인증번호를 발송했습니다.");
+    }
+
+    @PostMapping("/email/otp/verify")
+    public ApiResult<Boolean> verifyEmailOtp(@RequestBody VerifyEmailOtpDto dto) {
+        boolean isValid = authService.verifyOtpCode(dto.getEmail(), dto.getOtp());
+        if (!isValid) {
+            return ApiResult.ok(false, "인증번호가 올바르지 않습니다.");
+        }
+        return ApiResult.ok(true, "인증이 완료되었습니다.");
+    }
+
     @PostMapping("/token")
     public ApiResult<String> reissueToken(@CookieValue(value = "refresh_token", required = false) String refreshToken, HttpServletRequest request, HttpServletResponse response) {
         if (refreshToken == null || !jwtProvider.validateToken(refreshToken)) {
@@ -78,7 +94,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ApiResult<Account> login(@RequestBody EmailAuthLoginDto dto, HttpServletRequest request, HttpServletResponse response) {
+    public ApiResult<Account> login(@RequestBody EmailAuthLoginDto dto, HttpServletResponse response) {
         //  이메일+패스워드 인증
 
         Authentication authentication = authenticationManager.authenticate(
