@@ -30,6 +30,7 @@ public class CookieProvider {
 
     public ResponseCookie generateRefreshTokenCookie(String refreshToken) {
         boolean isProd = mode.equals("production");
+        log.info("123mode: {}, isProd: {}", mode, isProd);
         Claims claims = jwtProvider.parseClaims(refreshToken);
         // 만료시간 - 현재시간 = 쿠키 만료시간
         long exp = claims.getExpiration().getTime()/1000;

@@ -65,6 +65,7 @@ public class AuthController {
         authService.authorizeOtpCode(dto.getEmail());
         return ApiResult.ok(true,"이메일로 인증번호를 발송했습니다.");
     }
+
     @PostMapping("/email/otp/verify")
     public ApiResult<Boolean> verifyEmailOtp(@RequestBody VerifyEmailOtpDto dto) {
         boolean isValid = authService.verifyOtpCode(dto.getEmail(), dto.getOtp());
@@ -93,7 +94,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ApiResult<Account> login(@RequestBody EmailAuthLoginDto dto, HttpServletRequest request, HttpServletResponse response) {
+    public ApiResult<Account> login(@RequestBody EmailAuthLoginDto dto, HttpServletResponse response) {
         //  이메일+패스워드 인증
 
         Authentication authentication = authenticationManager.authenticate(
