@@ -3,6 +3,8 @@ package seoil.capstone.flashbid.domain.auction.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 
 @Getter
@@ -22,7 +24,8 @@ public class Goods {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private DeliveryType deliveryType;
 
 }

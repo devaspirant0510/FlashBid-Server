@@ -162,7 +162,7 @@ public class AuctionService {
     @Transactional
     public List<AuctionDto> queryAllAuction(AuctionType auctionType) {
         List<AuctionDto> auctionDtos = new ArrayList<>();
-        auctionRepository.findAllByAuctionTypeOrderByCreatedAtDesc(auctionType).forEach(auction -> {
+        auctionRepository.findAllByAuctionTypeAndEndTimeAfterOrderByCreatedAtDesc(auctionType,LocalDateTime.now()).forEach(auction -> {
 
             BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByCreatedAtDesc(auction.getId());
             Long chatCount = auctionChatRepository.countByAuctionId(auction.getId());

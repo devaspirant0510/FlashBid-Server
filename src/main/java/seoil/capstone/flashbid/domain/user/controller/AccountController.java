@@ -13,6 +13,7 @@ import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.payment.entity.PointHistoryEntity;
 import seoil.capstone.flashbid.domain.payment.service.PaymentService;
 import seoil.capstone.flashbid.domain.user.controller.swagger.AccountSwagger;
+import seoil.capstone.flashbid.domain.user.dto.response.AccountDto;
 import seoil.capstone.flashbid.domain.user.dto.response.FollowUserDto;
 import seoil.capstone.flashbid.domain.user.dto.response.UserDto;
 import seoil.capstone.flashbid.domain.user.entity.Account;
@@ -164,6 +165,20 @@ public class    AccountController implements AccountSwagger {
             HttpServletRequest request
     ) {
         return ApiResult.ok(paymentService.getPointHistoryList(user, page, size));
+    }
+
+    @AuthUser
+    @GetMapping("/my")
+    public ApiResult<AccountDto> getMyAccountInfo(
+            Account user
+    ) {
+        return ApiResult.ok(new AccountDto(
+                user.getId(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getProfileUrl(),
+                user.getPoint()
+        ),"내 정보 조회 성공");
     }
 
 }

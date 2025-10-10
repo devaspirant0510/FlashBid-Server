@@ -174,4 +174,10 @@ public class AuctionController implements AuctionSwagger {
         auctionService.removeWishList(user, auctionId);
         return ApiResult.ok(true, "경매 찜하기 취소 성공");
     }
+
+    @PostMapping("/{id}/payment")
+    public void paymentAuctionBid(){
+
+    }
+
 }
