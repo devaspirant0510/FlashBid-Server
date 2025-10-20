@@ -13,6 +13,7 @@ import seoil.capstone.flashbid.domain.auction.dto.model.AuctionChatModel;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.auction.projection.UserMaxBidProjection;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
+import seoil.capstone.flashbid.domain.dm.service.DMService;
 import seoil.capstone.flashbid.domain.payment.projection.UserPaymentProjection;
 import seoil.capstone.flashbid.domain.payment.service.PaymentService;
 import seoil.capstone.flashbid.global.common.enums.AuctionStatus;
@@ -26,6 +27,7 @@ public class AuctionExpiredHandler {
     private final AuctionService auctionService;
     private final SimpMessagingTemplate messagingTemplate;
     private final PaymentService paymentService;
+    private final DMService dmService;
 
 
     @EventListener
@@ -37,6 +39,13 @@ public class AuctionExpiredHandler {
 
         // 미 낙찰자 사용된 포인트 환불
         List<UserMaxBidProjection> topBiddersPaymentsByAuctionId = auctionService.getMaxBidPerUserByAuctionId(event.auctionId());
+
+        dmService.createDMRoomWithAuctionInfo(
+                confirmedBidsEntity.getSeller(),           // 판매자
+                confirmedBidsEntity.getBidder(),                      // 구매자(낙찰자)
+                confirmedBidsEntity.getAuction().getGoods().getTitle() + " 거래 채팅방",
+                confirmedBidsEntity.getAuction().getId()                     // 경매 ID
+        );
 
         int rank = 0;
         for (UserMaxBidProjection payment : topBiddersPaymentsByAuctionId) {
