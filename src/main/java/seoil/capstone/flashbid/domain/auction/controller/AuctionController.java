@@ -21,6 +21,7 @@ import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionParticipateRepository;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
+import seoil.capstone.flashbid.domain.payment.dto.BidDto;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
 import seoil.capstone.flashbid.global.common.enums.AuctionType;
@@ -175,9 +176,22 @@ public class AuctionController implements AuctionSwagger {
         return ApiResult.ok(true, "경매 찜하기 취소 성공");
     }
 
-    @PostMapping("/{id}/payment")
-    public void paymentAuctionBid(){
+    @PostMapping("/payment")
+    @AuthUser
+    public void paymentAuctionBid(Account user, @RequestBody BidDto dto){
+        auctionService.paymentAuctionBid(user, dto);
 
+    }
+
+    @GetMapping("/confirmed/{id}")
+    public ApiResult<ConfirmedBidsEntity> getConfirmedBids(@PathVariable("id") Long auctionId){
+        ConfirmedBidsEntity confirmedBidsEntity = auctionService.getConfirmedBids(auctionId);
+        return ApiResult.ok(confirmedBidsEntity, confirmedBidsEntity!=null?"낙찰 정보 조회 성공":"낙찰 정보 없음");
+    }
+    @PatchMapping("/views/{id}")
+    public ApiResult<Boolean> updateAuctionViews(@PathVariable("id") Long auctionId) {
+        auctionService.updateAuctionViews(auctionId);
+        return ApiResult.ok(true, "경매 조회수 증가 성공");
     }
 
 }
