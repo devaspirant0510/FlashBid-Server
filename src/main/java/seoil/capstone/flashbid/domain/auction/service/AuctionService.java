@@ -18,6 +18,7 @@ import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
 import seoil.capstone.flashbid.domain.auction.repository.*;
 import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
 import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
+import seoil.capstone.flashbid.domain.dm.service.DMService;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.service.FileService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
@@ -50,9 +51,13 @@ public class AuctionService {
     private final AuctionWishListRepository auctionWishListRepository;
     private final AuctionWishListCountRepository auctionWishListCountRepository;
 
+    private final DMService dmService;
+
     public ConfirmedBidsEntity confirmedBidsEntity(Account account, Long auctionId, Long biddingLogId) {
         Auction auction = getAuctionById(auctionId);
-        BiddingLogEntity bidding = auctionBidLogRepository.findById(biddingLogId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
+        BiddingLogEntity bidding = auctionBidLogRepository.findById(biddingLogId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
+
         ConfirmedBidsEntity build = ConfirmedBidsEntity.builder()
                 .bidder(account)
                 .biddingLog(bidding)
@@ -61,8 +66,16 @@ public class AuctionService {
                 .build();
         build.setCreatedAt(LocalDateTime.now());
         confirmedBidsRepository.save(build);
-        return build;
 
+        // ✅ 수정: 경매 정보를 포함한 채팅방 생성
+        dmService.createDMRoomWithAuctionInfo(
+                auction.getUser(),           // 판매자
+                account,                      // 구매자(낙찰자)
+                auction.getGoods().getTitle() + " 거래 채팅방",
+                auctionId                     // 경매 ID
+        );
+
+        return build;
     }
 
     public Auction getAuctionById(Long auctionId) {

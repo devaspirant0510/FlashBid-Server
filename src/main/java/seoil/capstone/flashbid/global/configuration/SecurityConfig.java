@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/api/v1/admin/**",
                                 "/v3/api-docs/**",
+                                "/api/dm/**",
                                 "/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 ) // 모든 요청 허용
