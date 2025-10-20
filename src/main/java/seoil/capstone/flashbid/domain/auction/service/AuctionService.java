@@ -74,7 +74,6 @@ public class AuctionService {
         build.setCreatedAt(LocalDateTime.now());
         confirmedBidsRepository.save(build);
 
-        // ✅ 수정: 경매 정보를 포함한 채팅방 생성
         dmService.createDMRoomWithAuctionInfo(
                 auction.getUser(),           // 판매자
                 account,                      // 구매자(낙찰자)
