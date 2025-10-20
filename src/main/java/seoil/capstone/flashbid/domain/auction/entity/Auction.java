@@ -50,11 +50,13 @@ public class Auction extends BaseTimeEntity {
     private int count;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "auction_type", nullable = false, length = 20)
+
     private AuctionType auctionType;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "auction_status", nullable = false, length = 20)
+
     private AuctionStatus auctionStatus;
 
     @ManyToOne

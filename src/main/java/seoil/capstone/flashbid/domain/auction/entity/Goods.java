@@ -25,7 +25,8 @@ public class Goods {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "delivery_type", nullable = false, length = 20)
+
     private DeliveryType deliveryType;
 
 }

@@ -32,7 +32,7 @@ public class AuctionExpiredHandler {
     public void handleAuctionExpired(AuctionExpiredEvent event) {
         log.info("Auction expired event received:");
         log.info(event.toString());
-//        ConfirmedBidsEntity confirmedBidsEntity = auctionService.endAuction(event.auctionId());
+        ConfirmedBidsEntity confirmedBidsEntity = auctionService.endAuction(event.auctionId());
         // TODO : 실시간으로 경매 완료 처리
 
         // 미 낙찰자 사용된 포인트 환불

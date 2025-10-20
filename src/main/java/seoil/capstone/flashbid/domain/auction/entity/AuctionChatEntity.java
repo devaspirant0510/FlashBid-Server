@@ -42,7 +42,7 @@ public class AuctionChatEntity {
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "chat_type", nullable = false, length = 20)
     private ChatType chatType;
 
     @ManyToOne

@@ -28,8 +28,7 @@ public class DMRoom extends BaseTimeEntity {
 
     // 방의 종류: AUCTION (경매 관련) 또는 GENERAL (일반 채팅)
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(nullable = false)
+    @Column(name = "room_type", nullable = false, length = 20)
     @Builder.Default
     private RoomType roomType = RoomType.AFTER;
 
