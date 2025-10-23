@@ -14,7 +14,9 @@ import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.auction.projection.UserMaxBidProjection;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
 import seoil.capstone.flashbid.domain.dm.service.DMService;
+import seoil.capstone.flashbid.domain.payment.entity.PointHistoryEntity;
 import seoil.capstone.flashbid.domain.payment.projection.UserPaymentProjection;
+import seoil.capstone.flashbid.domain.payment.repository.PointHistoryRepository;
 import seoil.capstone.flashbid.domain.payment.service.PaymentService;
 import seoil.capstone.flashbid.global.common.enums.AuctionStatus;
 
@@ -28,6 +30,7 @@ public class AuctionExpiredHandler {
     private final SimpMessagingTemplate messagingTemplate;
     private final PaymentService paymentService;
     private final DMService dmService;
+    private final PointHistoryRepository pointHistoryRepository;
 
 
     @EventListener
@@ -46,6 +49,15 @@ public class AuctionExpiredHandler {
                 confirmedBidsEntity.getAuction().getGoods().getTitle() + " 거래 채팅방",
                 confirmedBidsEntity.getAuction().getId()                     // 경매 ID
         );
+        pointHistoryRepository.save(
+                PointHistoryEntity.builder()
+                        .earnedPoint(Math.toIntExact(confirmedBidsEntity.getBiddingLog().getPrice()))
+                        .userId(confirmedBidsEntity.getSeller())
+                        .chargeType(PointHistoryEntity.ChargeType.GIFT)
+                        .contents(confirmedBidsEntity.getAuction().getGoods().getTitle()+" 경매 상품 판매로 인한 포인트 적립")
+                        .build()
+        );
+        confirmedBidsEntity.getSeller().setPoint(confirmedBidsEntity.getSeller().getPoint() + Math.toIntExact(confirmedBidsEntity.getBiddingLog().getPrice()));
 
         int rank = 0;
         for (UserMaxBidProjection payment : topBiddersPaymentsByAuctionId) {
@@ -54,7 +66,7 @@ public class AuctionExpiredHandler {
                 continue; // 낙찰자 제외
             }
             log.info("Processing refund for user: {}, paymentId: {}", payment.getBidderId(), payment.getMaxPrice());
-            paymentService.refundPointsToUser(payment.getBidderId(), payment.getMaxPrice(), "경매 미 낙찰 포인트 환불");
+            paymentService.refundPointsToUser(payment.getBidderId(), payment.getMaxPrice(), confirmedBidsEntity.getAuction().getGoods().getTitle()+" 경매 미 낙찰 포인트 환불");
         }
 
 
