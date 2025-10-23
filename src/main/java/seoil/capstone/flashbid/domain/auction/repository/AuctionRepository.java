@@ -12,6 +12,5 @@ public interface AuctionRepository extends JpaRepository<Auction,Long> {
     List<Auction> findAllByAuctionTypeAndEndTimeAfterOrderByCreatedAtDesc(AuctionType auctionType, LocalDateTime now);
     List<Auction> findTop4ByOrderByCreatedAtDesc();
     List<Auction> findAllByIdNot(Long id);
-
-
+    List<Auction> findAllByUserIdOrderByCreatedAtDesc(Long userId);
 }
