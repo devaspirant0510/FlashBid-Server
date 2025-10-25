@@ -219,8 +219,8 @@ public class AuthController {
     }
     @PostMapping("/logout")
     public ApiResult<Boolean> logout(HttpServletResponse response){
-        Cookie refreshToken = cookieProvider.removeCookie(CookieProvider.REFRESH_TOKEN);
-        response.addCookie(refreshToken);
+        ResponseCookie refreshToken = cookieProvider.removeCookie(CookieProvider.REFRESH_TOKEN);
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshToken.toString());
         return ApiResult.ok(true);
     }
 }
