@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.controller.swagger.AuctionSwagger;
@@ -16,6 +17,7 @@ import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.auction.projection.AuctionParticipantsProjection;
+import seoil.capstone.flashbid.domain.auction.projection.AuctionProjection;
 import seoil.capstone.flashbid.domain.auction.projection.BidLoggingChartProjection;
 import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
@@ -69,7 +71,7 @@ public class AuctionController implements AuctionSwagger {
     @Override
     @GetMapping("/hot")
     public ApiResult<List<AuctionDto>> getAllRecommendAuction(HttpServletRequest request) {
-        return ApiResult.ok(auctionService.getRecomendAuction(),  "hot 옥션 조회 성공");
+        return ApiResult.ok(auctionService.getRecomendAuction(), "hot 옥션 조회 성공");
     }
 
     @GetMapping("/recommend/{id}")
@@ -88,7 +90,7 @@ public class AuctionController implements AuctionSwagger {
             Account user,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId,user.getId()));
+        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId, user.getId()));
     }
 
     @Override
@@ -116,6 +118,17 @@ public class AuctionController implements AuctionSwagger {
     public ApiResult<List<AuctionDto>> getAllTestLiveAuction(HttpServletRequest request) {
         return ApiResult.ok(auctionService.queryAllAuction(AuctionType.LIVE));
     }
+
+    @GetMapping("/live")
+    public ApiResult<Slice<AuctionProjection>> getAllLiveAuctionPage(@RequestParam(name = "page", defaultValue = "1") Integer page) {
+        return ApiResult.ok(auctionService.queryGetAllAuction(AuctionType.LIVE, page - 1), "라이브 옥션 페이지 조회 성공");
+    }
+
+    @GetMapping("/blind")
+    public ApiResult<Slice<AuctionProjection>> getAllBlindAuctionPage(@RequestParam(name = "page", defaultValue = "1") Integer page) {
+        return ApiResult.ok(auctionService.queryGetAllAuction(AuctionType.BLIND, page - 1), "라이브 옥션 페이지 조회 성공");
+    }
+
     @Override
     @GetMapping("/test/all/blind")
     public ApiResult<List<AuctionDto>> getAllTestBlindAuction(HttpServletRequest request) {
@@ -178,16 +191,17 @@ public class AuctionController implements AuctionSwagger {
 
     @PostMapping("/payment")
     @AuthUser
-    public void paymentAuctionBid(Account user, @RequestBody BidDto dto){
+    public void paymentAuctionBid(Account user, @RequestBody BidDto dto) {
         auctionService.paymentAuctionBid(user, dto);
 
     }
 
     @GetMapping("/confirmed/{id}")
-    public ApiResult<ConfirmedBidsEntity> getConfirmedBids(@PathVariable("id") Long auctionId){
+    public ApiResult<ConfirmedBidsEntity> getConfirmedBids(@PathVariable("id") Long auctionId) {
         ConfirmedBidsEntity confirmedBidsEntity = auctionService.getConfirmedBids(auctionId);
-        return ApiResult.ok(confirmedBidsEntity, confirmedBidsEntity!=null?"낙찰 정보 조회 성공":"낙찰 정보 없음");
+        return ApiResult.ok(confirmedBidsEntity, confirmedBidsEntity != null ? "낙찰 정보 조회 성공" : "낙찰 정보 없음");
     }
+
     @PatchMapping("/views/{id}")
     public ApiResult<Boolean> updateAuctionViews(@PathVariable("id") Long auctionId) {
         auctionService.updateAuctionViews(auctionId);
