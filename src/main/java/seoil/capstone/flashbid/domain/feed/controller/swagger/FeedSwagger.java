@@ -41,12 +41,16 @@ public interface FeedSwagger {
             @ApiResponse(responseCode = "200", description = "피드 조회 성공"),
             @ApiResponse(responseCode = "404", description = "피드가 존재하지 않음")
     })
-    ApiResult<FeedDto> getFeedById(@PathVariable Long id, HttpServletRequest request);
+    ApiResult<FeedDto> getFeedById(
+            @PathVariable Long id,
+            Account account,
+            HttpServletRequest request
+    );
 
     @Operation(summary = "피드 전체 테스트 조회", description = "모든 피드를 테스트용으로 조회합니다.")
     ApiResult<List<FeedDto>> getTestFeedAll(Account account, HttpServletRequest request);
 
-    @Operation(summary = "피드 좋아요", description = "사용자가 해당 피드에 좋아요를 누릅니다.")
+    @Operation(summary = "피드 좋아요", description = "사용자가 해당 피드에 좋아요를 누릅니다. 이미 좋아요한 경우 자동으로 취소됩니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "좋아요 성공"),
             @ApiResponse(responseCode = "404", description = "피드가 존재하지 않음")

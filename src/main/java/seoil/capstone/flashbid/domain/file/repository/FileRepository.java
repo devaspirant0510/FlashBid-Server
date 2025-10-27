@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface FileRepository extends JpaRepository<FileEntity,Long> {
     List<FileEntity> findAllByFileIdAndFileType(Long fileId, FileType fileType);
+    void deleteByFileId(Long fileId);
 }

@@ -20,5 +20,4 @@ public class FeedDto {
     private int commentCount;
     private int likeCount;
     private boolean isLiked;
-
 }

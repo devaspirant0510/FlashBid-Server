@@ -22,7 +22,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Entity(name = "AuctionChat")
+@Table(name = "auction_chat")
 @EntityListeners(AuditingEntityListener.class)
 public class AuctionChatEntity {
     @Id
