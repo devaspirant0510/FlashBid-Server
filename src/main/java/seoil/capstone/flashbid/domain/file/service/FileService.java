@@ -110,4 +110,12 @@ public class FileService {
             }
         }
     }
+
+    /**
+     * 특정 피드의 모든 파일을 삭제합니다.
+     * @param fileId 삭제할 파일의 ID (feedId)
+     */
+    public void deleteFilesByFeedId(Long fileId) {
+        fileRepository.deleteByFileId(fileId);
+    }
 }
