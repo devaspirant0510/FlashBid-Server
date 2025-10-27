@@ -43,13 +43,25 @@ public class FeedController implements FeedSwagger {
     public ApiResult<List<FeedDto>> getHotFeed(HttpServletRequest request){
         return ApiResult.ok(feedService.getHotFeed(),"성공");
     }
+
     @GetMapping("/{id}")
+    @AuthUser
     @Override
-    public ApiResult<FeedDto> getFeedById(@PathVariable Long id, HttpServletRequest request) {
-        return ApiResult.ok(feedService.getFeedById(id));
+    public ApiResult<FeedDto> getFeedById(
+            @PathVariable Long id,
+            Account account,
+            HttpServletRequest request) {
+        return ApiResult.ok(feedService.getFeedByIdWithUser(id, account));
     }
 
-
+    @GetMapping("/{id}/detail")
+    @AuthUser
+    public ApiResult<FeedDto> getFeedByIdWithUser(
+            @PathVariable Long id,
+            Account account,
+            HttpServletRequest request) {
+        return ApiResult.ok(feedService.getFeedByIdWithUser(id, account));
+    }
 
     @GetMapping("/test-all")
     @AuthUser
@@ -110,4 +122,25 @@ public class FeedController implements FeedSwagger {
         return ApiResult.ok(feedService.getAllCommentByReplyId(replyId));
     }
 
+    @PatchMapping("/{id}")
+    @AuthUser
+    public ApiResult<FeedDto> updateFeed(
+            Account account,
+            @PathVariable Long id,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart CreateFeedDto data,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(feedService.updateFeed(account, id, files, data));
+    }
+
+    @DeleteMapping("/{id}")
+    @AuthUser
+    public ApiResult<Boolean> deleteFeed(
+            Account account,
+            @PathVariable Long id,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(feedService.deleteFeed(account, id));
+    }
 }
