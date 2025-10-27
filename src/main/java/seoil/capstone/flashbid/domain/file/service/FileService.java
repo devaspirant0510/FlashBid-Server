@@ -41,6 +41,7 @@ public class FileService {
             fileEntities.add(
                     FileEntity.builder()
                             .url(uploadResult.getUrl())
+                            .fileName(uploadResult.getStoredName())
                             .fileId(domainFileId)
                             .fileType(fileType)
                             .extension(uploadResult.getExtension())
