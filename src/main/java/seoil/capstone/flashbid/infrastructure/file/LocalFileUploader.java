@@ -36,7 +36,8 @@ public final class LocalFileUploader extends FileUploader {
         } catch (IOException e){
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "업로드 실패", "파일 저장 실패");
         }
-        String url = ServletUriComponentsBuilder.fromCurrentContextPath()+"/uploads/"+finalFileName;
+        String url = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString()+"/uploads/"+finalFileName;
+        System.out.println(ServletUriComponentsBuilder.fromCurrentContextPath());
         return new UploadResult(url,finalFileName,originalExt);
     }
 }
