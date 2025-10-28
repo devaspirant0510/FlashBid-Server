@@ -59,6 +59,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
+                                "/api/v1/auction/recommend/*",
+                                "api/v1/profile/status/*",
+                                "/api/v1/auction/views/*",
                                 "/api/v1/admin/**",
                                 "/v3/api-docs/**",
                                 "/api/dm/**",
@@ -67,12 +70,13 @@ public class SecurityConfig {
                                 HttpMethod.POST,
                                 "/api/v1/auction/live",
                                 "/api/v1/auction/blind"
-                                ).authenticated()
+                        ).authenticated()
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/v1/auction/live",
-                                "/api/v1/auction/blind"
-                                ).permitAll()
+                                "/api/v1/auction/blind",
+                                "/api/v1/auction/*"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 ) // 모든 요청 허용
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // jwt 파싱해서 유효한 토큰인지 검증하는 필터
