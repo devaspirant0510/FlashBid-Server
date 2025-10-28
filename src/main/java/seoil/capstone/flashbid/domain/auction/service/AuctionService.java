@@ -155,7 +155,10 @@ public class AuctionService {
                 .orElse(AuctionWishListCountEntity.builder().count(0L).build());
         Long wishListCount = wishListCountEntity.getCount();
         // 찜 여부 확인
-        boolean isWishListed = auctionWishListRepository.existsByUserIdAndAuctionId(userId, id);
+        boolean isWishListed = false;
+        if (userId != null) {
+            isWishListed = auctionWishListRepository.existsByUserIdAndAuctionId(userId, id);
+        }
         return new AuctionInfoDto(
                 auction,
                 allFiles,
