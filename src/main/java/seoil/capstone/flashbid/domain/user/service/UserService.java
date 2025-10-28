@@ -107,9 +107,9 @@ public class UserService {
 
     @Transactional
     public FileEntity uploadProfileImage(MultipartFile file,Account user){
-        FileEntity fileEntity = fileService.saveFileEntities(fileService.saveImage(List.of(file)), user.getId(), user, FileType.PROFILE).get(0);
-        user.setProfileUrl(fileEntity.getUrl());
-        return fileEntity;
+        List<FileEntity> fileEntity = fileService.uploadAllFiles(List.of(file), user, user.getId(), FileType.PROFILE);
+        user.setProfileUrl(fileEntity.get(0).getUrl());
+        return fileEntity.get(0);
     }
 
     @Transactional(readOnly = true)
