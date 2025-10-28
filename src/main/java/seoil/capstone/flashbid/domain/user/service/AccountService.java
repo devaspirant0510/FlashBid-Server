@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
+import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.service.FileService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
+import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
 import seoil.capstone.flashbid.global.common.enums.UserStatus;
 import seoil.capstone.flashbid.global.common.enums.UserType;
@@ -65,13 +67,12 @@ public class AccountService {
         }
 
         if (profileImage != null && !profileImage.isEmpty()) {
-            List<SaveFileDto> savedImageInfo = fileService.saveImage(Collections.singletonList(profileImage));
+            List<FileEntity> savedImageInfo = fileService.uploadAllFiles(Collections.singletonList(profileImage),user,user.getId(), FileType.PROFILE);
             if (!savedImageInfo.isEmpty()) {
                 String imageUrl = savedImageInfo.get(0).getUrl();
                 user.setProfileUrl(imageUrl);
             }
         }
-
         accountRepository.save(user);
     }
 
