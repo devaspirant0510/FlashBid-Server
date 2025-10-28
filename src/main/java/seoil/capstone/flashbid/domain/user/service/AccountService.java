@@ -40,9 +40,7 @@ public class AccountService {
     }
 
     public Account getUserByUuid(String uuid) {
-        return accountRepository.findByUuid(uuid).orElseThrow(() -> {
-            throw new IllegalStateException("유저정보를 찾는데 실패헀습니다.");
-        });
+        return accountRepository.findByUuid(uuid).orElse(null);
     }
 
     // OAuth 로그인 성공시 필수 정보 기반으로 Account 테이블 생성
