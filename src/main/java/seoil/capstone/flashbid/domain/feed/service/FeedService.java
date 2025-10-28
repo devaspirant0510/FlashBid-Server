@@ -46,11 +46,10 @@ public class FeedService {
                 .build();
         FeedEntity savedEntity = feedRepository.save(feedEntity);
         if(files!=null){
-            List<SaveFileDto> saveFileDtos = fileService.saveImage(files);
-            List<FileEntity> saveFileEntities = fileService.saveFileEntities(saveFileDtos, feedEntity.getId(), account, FileType.FEED);
+            List<FileEntity> saveFileDtos = fileService.uploadAllFiles(files,account, savedEntity.getId(), FileType.FEED);
             return new FeedDto(
                     savedEntity,
-                    saveFileEntities,
+                    saveFileDtos,
                     0,
                     0,
                     false

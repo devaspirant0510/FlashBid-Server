@@ -23,6 +23,8 @@ import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
 import seoil.capstone.flashbid.global.common.enums.UserStatus;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,6 +60,14 @@ class AuctionServiceTest {
     @AfterEach
     void tearDown() {
     }
+
+    @Test
+    public void test(){
+        List<String> list = new ArrayList<>();
+        ArrayList<String> mock = Mockito.mock(ArrayList.class);
+
+    }
+
     @Test
     @DisplayName("sss")
     void testDB(){
@@ -91,5 +101,9 @@ class AuctionServiceTest {
 
     @Test
     void participateUser() {
+    }
+
+    @Test
+    void testParticipateUser() {
     }
 }
