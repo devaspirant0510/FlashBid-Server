@@ -100,4 +100,15 @@ public class PaymentService {
         );
         bidder.setPoint(bidder.getPoint() + maxPrice.intValue());
     }
+
+    public boolean isPurchaseConfirmed(Long auctionId) {
+        String searchContent = "경매_" + auctionId;
+
+        return pointHistoryRepository.findAll().stream()
+                .anyMatch(history ->
+                        history.getChargeType() == PointHistoryEntity.ChargeType.PURCHASE &&
+                                history.getContents() != null &&
+                                history.getContents().equals(searchContent)
+                );
+    }
 }
