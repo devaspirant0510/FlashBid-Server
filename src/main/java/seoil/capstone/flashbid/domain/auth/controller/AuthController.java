@@ -113,9 +113,17 @@ public class AuthController {
     }
 
     @PostMapping("/register/oauth")
-    public ApiResult<Account> registerService(@RequestBody RegisterDto dto, HttpServletRequest request) {
+    public ApiResult<Account> registerService(
+            @RequestBody RegisterDto dto,
+            HttpServletResponse response
+    ) {
         //TODO : 가입 여부 확인
-        return ApiResult.ok(authService.registerUser(dto));
+        Account account = authService.registerUser(dto);
+        AuthTokenDto jwtToken = authService.createJwtToken(account);
+        ResponseCookie refreshTokenCookie = cookieProvider.generateRefreshTokenCookie(jwtToken.getRefreshToken());
+        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken.getAccessToken());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        return ApiResult.ok(account);
     }
 
     @PostMapping("/register/email")
