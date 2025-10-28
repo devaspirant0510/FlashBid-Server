@@ -17,6 +17,20 @@ public interface DMRoomRepository extends JpaRepository<DMRoom, Long> {
     """)
     boolean existsByParticipants(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
 
+    @Query("""
+    SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END
+    FROM DMRoom r
+    JOIN r.participants p1
+    JOIN r.participants p2
+    WHERE p1.participant.id = :senderId
+      AND p2.participant.id = :receiverId
+      AND r.auction.id = :auctionId
+""")
+    boolean existsByParticipantsAndAuction(@Param("senderId") Long senderId,
+                                           @Param("receiverId") Long receiverId,
+                                           @Param("auctionId") Long auctionId);
+
+
     /**
      * 사용자가 참여한 모든 채팅방을 최신 메시지 기준으로 정렬하여 반환
      */

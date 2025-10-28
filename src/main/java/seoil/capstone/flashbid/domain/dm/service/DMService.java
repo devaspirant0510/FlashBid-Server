@@ -66,7 +66,7 @@ public class DMService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid auctionId"));
 
         // 중복 확인
-        boolean exists = dmRoomRepository.existsByParticipants(sender.getId(), receiver.getId());
+        boolean exists = dmRoomRepository.existsByParticipantsAndAuction(sender.getId(), receiver.getId(), auctionId);
         if (exists) {
             throw new IllegalStateException("이미 존재하는 DM방입니다.");
         }
