@@ -64,6 +64,8 @@ public class SecurityConfig {
                                 "/api/v1/auction/views/*",
                                 "/api/v1/admin/**",
                                 "/v3/api-docs/**",
+                                "/api/v1/category",
+                                "/api/v1/feed/test-all",
                                 "/api/dm/**",
                                 "/webjars/**").permitAll()
                         .requestMatchers(
