@@ -198,7 +198,8 @@ public class AuthController {
         // id 토큰을 파싱하여 aud 추출( 카카오톡 유저별 고유 아이디 )
         KaKaoUserPayload kaKaoUserPayload = jwtProvider.parsingJwtBody(s.getIdToken(), KaKaoUserPayload.class);
         // 가입한적이 있는 유저의 경우 유저정보 리턴
-        String userUuid = kaKaoUserPayload.getAud();
+        String userUuid = kaKaoUserPayload.getSub();
+
         // 가입된 적이 있는지
         if (accountService.isRegisteredUser(userUuid)) {
             // TODO : 계정 정지 등에 대한 분기 처리
