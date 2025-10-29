@@ -7,6 +7,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
 import seoil.capstone.flashbid.domain.user.entity.Account;
+import seoil.capstone.flashbid.global.common.enums.AuctionStatus;
 import seoil.capstone.flashbid.global.common.enums.AuctionType;
 import seoil.capstone.flashbid.global.core.BaseTimeEntity;
 
@@ -49,9 +50,14 @@ public class Auction extends BaseTimeEntity {
     private int count;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "auction_type", nullable = false, length = 20)
+
     private AuctionType auctionType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auction_status", nullable = false, length = 20)
+
+    private AuctionStatus auctionStatus;
 
     @ManyToOne
     private CategoryEntity category;

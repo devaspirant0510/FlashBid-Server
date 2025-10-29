@@ -46,11 +46,10 @@ public class FeedService {
                 .build();
         FeedEntity savedEntity = feedRepository.save(feedEntity);
         if(files!=null){
-            List<SaveFileDto> saveFileDtos = fileService.saveImage(files);
-            List<FileEntity> saveFileEntities = fileService.saveFileEntities(saveFileDtos, feedEntity.getId(), account, FileType.FEED);
+            List<FileEntity> saveFileDtos = fileService.uploadAllFiles(files,account, savedEntity.getId(), FileType.FEED);
             return new FeedDto(
                     savedEntity,
-                    saveFileEntities,
+                    saveFileDtos,
                     0,
                     0,
                     false
@@ -64,6 +63,7 @@ public class FeedService {
                 false
         );
     }
+
     @Transactional(readOnly = true)
     public List<FeedDto> getHotFeed() {
         List<FeedDto> feedDtoList = new ArrayList<>();
@@ -102,7 +102,29 @@ public class FeedService {
         int commentCount = commentRepository.countByFeedId(id);
         int likeCount = likeRepository.countByFeedId(id);
         List<FileEntity> allFiles = fileService.getAllFiles(id, FileType.FEED);
-        boolean isLiked = likeRepository.existsByFeedIdAndAccountId(id,9l);
+
+        return new FeedDto(
+                feedEntity,
+                allFiles,
+                commentCount,
+                likeCount,
+                false
+        );
+    }
+
+    @Transactional
+    public FeedDto getFeedByIdWithUser(Long id, Account account) {
+        FeedEntity feedEntity = fetchFeedById(id);
+        int commentCount = commentRepository.countByFeedId(id);
+        int likeCount = likeRepository.countByFeedId(id);
+        List<FileEntity> allFiles = fileService.getAllFiles(id, FileType.FEED);
+
+        // 현재 로그인한 사용자의 좋아요 여부 확인
+        boolean isLiked = false;
+        if (account != null) {
+            isLiked = likeRepository.existsByFeedIdAndAccountId(id, account.getId());
+        }
+
         return new FeedDto(
                 feedEntity,
                 allFiles,
@@ -121,14 +143,21 @@ public class FeedService {
         List<FeedDto> feedDtoList = new ArrayList<>();
 
         feedRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).forEach(feed -> {
-            feedDtoList.add(getFeedById(feed.getId()));
+            feedDtoList.add(getFeedByIdWithUser(feed.getId(), account));
         });
         return feedDtoList;
     }
 
+    @Transactional
     public LikeEntity likePost(Account user, Long feedId) {
         FeedEntity feedEntity = feedRepository.findById(feedId).orElseThrow(() ->
                 new ApiException(HttpStatus.NOT_FOUND, "400E00F001", "존재하지 않는 게시글입니다."));
+
+        // 이미 좋아요를 눌렀으면 좋아요 취소
+        if (likeRepository.existsByFeedIdAndAccountId(feedId, user.getId())) {
+            likeRepository.deleteByFeedIdAndAccountId(feedId, user.getId());
+            return null;
+        }
 
         LikeEntity like = LikeEntity.builder()
                 .account(user)
@@ -145,6 +174,66 @@ public class FeedService {
             return true;
         }
         return false;
+    }
+
+    @Transactional
+    public FeedDto updateFeed(Account account, Long feedId, List<MultipartFile> files, CreateFeedDto dto) {
+        FeedEntity feedEntity = fetchFeedById(feedId);
+
+        // 작성자 확인
+        if (!feedEntity.getUser().getId().equals(account.getId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "403E00F00", "수정 권한이 없습니다.");
+        }
+
+        // 내용 업데이트
+        feedEntity.setContents(dto.getContent());
+
+        // 기존 파일 삭제
+        fileService.deleteFilesByFeedId(feedId);
+
+        // 새 파일 저장
+        if (files != null && !files.isEmpty()) {
+            List<SaveFileDto> saveFileDtos = fileService.saveImage(files);
+            List<FileEntity> saveFileEntities = fileService.saveFileEntities(saveFileDtos, feedId, account, FileType.FEED);
+            return new FeedDto(
+                    feedEntity,
+                    saveFileEntities,
+                    commentRepository.countByFeedId(feedId),
+                    likeRepository.countByFeedId(feedId),
+                    false
+            );
+        }
+
+        return new FeedDto(
+                feedEntity,
+                null,
+                commentRepository.countByFeedId(feedId),
+                likeRepository.countByFeedId(feedId),
+                false
+        );
+    }
+
+    @Transactional
+    public Boolean deleteFeed(Account account, Long feedId) {
+        FeedEntity feedEntity = fetchFeedById(feedId);
+
+        // 작성자 확인
+        if (!feedEntity.getUser().getId().equals(account.getId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "403E00F00", "삭제 권한이 없습니다.");
+        }
+
+        // 파일 삭제
+        fileService.deleteFilesByFeedId(feedId);
+
+        // 좋아요 삭제
+        likeRepository.deleteByFeedId(feedId);
+
+        // 댓글 삭제
+        commentRepository.deleteByFeedId(feedId);
+
+        // 피드 삭제
+        feedRepository.deleteById(feedId);
+        return true;
     }
 
     public CommentEntity createComent(Account user, Long feedId, CreateCommentDto dto){
@@ -172,4 +261,9 @@ public class FeedService {
     public List<CommentEntity> getAllCommentByReplyId(Long replyId){
         return commentRepository.findAllByReplyId(replyId);
     }
+
+    // FileService 관련 메서드 (FileService에도 추가 필요)
+    // public void deleteFilesByFeedId(Long feedId) {
+    //     fileService.deleteByFileId(feedId);
+    // }
 }

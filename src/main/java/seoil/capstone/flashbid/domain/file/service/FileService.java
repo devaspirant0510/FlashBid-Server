@@ -41,6 +41,7 @@ public class FileService {
             fileEntities.add(
                     FileEntity.builder()
                             .url(uploadResult.getUrl())
+                            .fileName(uploadResult.getStoredName())
                             .fileId(domainFileId)
                             .fileType(fileType)
                             .extension(uploadResult.getExtension())
@@ -109,5 +110,13 @@ public class FileService {
                 throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러", "500E001");
             }
         }
+    }
+
+    /**
+     * 특정 피드의 모든 파일을 삭제합니다.
+     * @param fileId 삭제할 파일의 ID (feedId)
+     */
+    public void deleteFilesByFeedId(Long fileId) {
+        fileRepository.deleteByFileId(fileId);
     }
 }

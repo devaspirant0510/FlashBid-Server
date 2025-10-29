@@ -3,6 +3,7 @@ package seoil.capstone.flashbid.global.configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,10 +16,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import seoil.capstone.flashbid.global.core.security.JwtAuthenticationFilter;
 import seoil.capstone.flashbid.global.core.security.CustomAccessDeniedHandler;
 import seoil.capstone.flashbid.global.core.security.CustomAuthenticationEntryPoint;
 import seoil.capstone.flashbid.global.core.security.CustomUserDetailService;
+import seoil.capstone.flashbid.global.core.security.JwtAuthenticationFilter;
 
 import java.util.List;
 
@@ -58,9 +59,26 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
+                                "/api/v1/auction/recommend/*",
+                                "api/v1/profile/status/*",
+                                "/api/v1/auction/views/*",
                                 "/api/v1/admin/**",
                                 "/v3/api-docs/**",
+                                "/api/v1/category",
+                                "/api/v1/feed/test-all",
+                                "/api/dm/**",
                                 "/webjars/**").permitAll()
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/auction/live",
+                                "/api/v1/auction/blind"
+                        ).authenticated()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/auction/live",
+                                "/api/v1/auction/blind",
+                                "/api/v1/auction/*"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 ) // 모든 요청 허용
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // jwt 파싱해서 유효한 토큰인지 검증하는 필터

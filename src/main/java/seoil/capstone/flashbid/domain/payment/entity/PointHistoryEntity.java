@@ -16,7 +16,8 @@ public class PointHistoryEntity extends BaseTimeOnlyCreated {
     public enum ChargeType {
         CHARGE,
         GIFT,
-        PURCHASE
+        PURCHASE,
+        REFUND
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

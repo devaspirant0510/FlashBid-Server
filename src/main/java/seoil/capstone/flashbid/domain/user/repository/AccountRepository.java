@@ -16,8 +16,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
             select 
             (select count(*) from FollowEntity f where f.follower.id = a.id) as followerCount,
             (select count(*) from FollowEntity f where f.following.id = a.id) as followingCount,
-            (select count(*) from bidding_log  b where b.bidder.id = a.id) as biddingCount,
-            (select count(*) from Account a where a.id = a.id) as sellCount,
+            (select count(*) from confirm_bids  b where b.bidder.id = a.id) as biddingCount,
+            (select count(*) from confirm_bids  b where b.seller.id = a.id) as sellCount,
             a.nickname as nickname,
             a.profileUrl as profileUrl
             from Account a

@@ -37,7 +37,7 @@ public class FileEntity extends BaseTimeEntity {
     private String url;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "file_type", nullable = false, length = 20)
     private FileType fileType;
 
     @Column
