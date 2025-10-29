@@ -29,6 +29,7 @@ import seoil.capstone.flashbid.global.common.error.ApiException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -48,10 +49,19 @@ public class UserService {
     private final AuctionChatRepository auctionChatRepository;
     private final AuctionWishListCountRepository auctionWishListCountRepository;
 
-    public UserDto getUserById(Long userId){
-        Account account = accountRepository.findById(userId).orElseThrow(() ->
-                new ApiException(HttpStatus.NOT_FOUND, "", ""));
-        return getUserProfile(account);
+    public UserDto getUserById(Account authUser, Long profileUserId){
+        Account account = accountRepository.findById(profileUserId).orElseThrow(() ->
+                new ApiException(HttpStatus.NOT_FOUND, "", "해당 유저를 찾을 수 없습니다."));
+
+        UserDto userDto = getUserProfile(account);
+
+        boolean isFollowing = false;
+        if (authUser != null && !authUser.getId().equals(profileUserId)) {
+            isFollowing = followRepository.existsByFollowerIdAndFollowingId(authUser.getId(), profileUserId);
+        }
+
+        userDto.setFollowing(isFollowing);
+        return userDto;
     }
 
     @Transactional
@@ -72,7 +82,8 @@ public class UserService {
                 follower,
                 following,
                 feedCount,
-                profileImage
+                profileImage,
+                false
         );
     }
 
@@ -187,16 +198,32 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<FollowUserDto> getFollowerList(Long userId) {
+    public List<FollowUserDto> getFollowerList(Account authUser, Long userId) { // [수정] authUser 추가
         return followRepository.findAllByFollowingId(userId).stream()
-                .map(followEntity -> FollowUserDto.from(followEntity.getFollower()))
+                .map(followEntity -> {
+                    Account itemUser = followEntity.getFollower();
+                    boolean iFollowThem = (authUser != null) &&
+                            followRepository.existsByFollowerIdAndFollowingId(authUser.getId(), itemUser.getId());
+                    return FollowUserDto.from(itemUser, iFollowThem);
+                })
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<FollowUserDto> getFollowingList(Long userId) {
+    public List<FollowUserDto> getFollowingList(Account authUser, Long userId) { // [수정] authUser 추가
         return followRepository.findAllByFollowerId(userId).stream()
-                .map(followEntity -> FollowUserDto.from(followEntity.getFollowing()))
+                .map(followEntity -> {
+                    Account itemUser = followEntity.getFollowing();
+
+                    boolean iFollowThem = (authUser != null) &&
+                            followRepository.existsByFollowerIdAndFollowingId(authUser.getId(), itemUser.getId());
+
+                    if (authUser != null && Objects.equals(authUser.getId(), userId)) {
+                        iFollowThem = true;
+                    }
+
+                    return FollowUserDto.from(itemUser, iFollowThem);
+                })
                 .collect(Collectors.toList());
     }
 }
