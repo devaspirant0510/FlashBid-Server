@@ -31,7 +31,7 @@ spring:
     username: ${USERNAME}
     password: ${PASSWORD}
 #    username: postgres
-#   password: 4628
+#    password: 4628
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
