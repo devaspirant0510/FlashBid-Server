@@ -10,7 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import seoil.capstone.flashbid.domain.auth.dto.AuthTokenDto;
 import seoil.capstone.flashbid.domain.auth.dto.RegisterDto;
 import seoil.capstone.flashbid.domain.auth.dto.RegisterEmailDto;
+import seoil.capstone.flashbid.domain.auth.entity.UserFcmEntity;
 import seoil.capstone.flashbid.domain.auth.repository.EmailOtpRedisRepository;
+import seoil.capstone.flashbid.domain.auth.repository.FcmCacheRepository;
+import seoil.capstone.flashbid.domain.auth.repository.UserFcmRepository;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
@@ -21,6 +24,7 @@ import seoil.capstone.flashbid.global.core.provider.JwtProvider;
 import seoil.capstone.flashbid.infrastructure.mail.EmailTemplate;
 import seoil.capstone.flashbid.infrastructure.mail.MailService;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -32,6 +36,8 @@ public class AuthService {
     private final EmailOtpRedisRepository emailOtpRedisRepository;
     private final EmailTemplate emailTemplate;
     private final MailService mailService;
+    private final UserFcmRepository userFcmRepository;
+    private final FcmCacheRepository fcmCacheRepository;
 
     public Account authorizationTokenWithUser(String token) {
         log.info(token);
@@ -97,5 +103,33 @@ public class AuthService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "인증코드 인증 실패", "인증 코드가 올바르지 않거나 만료되었습니다.");
         }
         return true;
+    }
+
+    public String saveFcmToken(Long userId, String fcmToken) {
+        String cacheFcmToken = fcmCacheRepository.getFcmToken(userId);
+
+        // 1. 캐시에 토큰 존재하고 같으면 그대로 리턴
+        if (cacheFcmToken != null && cacheFcmToken.equals(fcmToken)) {
+            return cacheFcmToken;
+        }
+
+        // 2. DB에서 토큰 조회
+        Optional<UserFcmEntity> users = userFcmRepository.findByAccountId(userId);
+        if (users.isPresent()) {
+            UserFcmEntity userFcmEntity = users.get();
+            if (!userFcmEntity.getToken().equals(fcmToken)) {
+                userFcmEntity.setToken(fcmToken);
+                userFcmRepository.save(userFcmEntity);
+                fcmCacheRepository.saveFcmToken(userId, fcmToken);
+            }
+        } else {
+            // 2-2. DB에 토큰이 존재하지 않을 경우 -> 생성
+            userFcmRepository.save(UserFcmEntity.builder()
+                    .account(accountRepository.findById(userId).orElseThrow())
+                    .token(fcmToken)
+                    .build());
+            fcmCacheRepository.saveFcmToken(userId, fcmToken);
+        }
+        return fcmToken;
     }
 }
