@@ -90,7 +90,7 @@ public class AuctionController implements AuctionSwagger {
             Account user,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId, user.getId()));
+        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId,user==null?null: user.getId()));
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
@@ -122,14 +123,14 @@ public class    AccountController implements AccountSwagger {
     @AuthUser
     @GetMapping("/purchases")
     @Override
-    public ApiResult<List<ConfirmedBidsEntity>> getPurchaseHistory(Account user, HttpServletRequest request) {
+    public ApiResult<List<AuctionDto>> getPurchaseHistory(Account user, HttpServletRequest request) { // [변경] List<ConfirmedBidsEntity> -> List<AuctionDto>
         return ApiResult.ok(userService.getPurchaseHistory(user));
     }
 
     @AuthUser
     @GetMapping("/sales")
     @Override
-    public ApiResult<List<ConfirmedBidsEntity>> getSalesHistory(Account user, HttpServletRequest request) {
+    public ApiResult<List<AuctionDto>> getSalesHistory(Account user, HttpServletRequest request) { // [변경] List<ConfirmedBidsEntity> -> List<AuctionDto>
         return ApiResult.ok(userService.getSalesHistory(user));
     }
 
