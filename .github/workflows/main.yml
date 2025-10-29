@@ -35,7 +35,11 @@ jobs:
         run: |
           mkdir -p src/main/resources/config
           echo "${{ secrets.FIREBASE_SERVICE }}" > src/main/resources/config/firebase-service.json
-          
+
+      - name: 🔐 Create Firebase service JSON2
+        run: |
+          mkdir -p config
+          echo "${{ secrets.FIREBASE_SERVICE }}" > config/firebase-service.json
       # 3️⃣ Gradle 빌드
       - name: 🏗️ Build with Gradle
         run: |
