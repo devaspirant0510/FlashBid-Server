@@ -3,17 +3,23 @@ package seoil.capstone.flashbid.global.configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import seoil.capstone.flashbid.domain.auth.filter.JwtAuthenticationFilter;
-import seoil.capstone.flashbid.global.core.module.security.CustomAccessDeniedHandler;
-import seoil.capstone.flashbid.global.core.module.security.CustomAuthenticationEntryPoint;
+import seoil.capstone.flashbid.global.core.security.CustomAccessDeniedHandler;
+import seoil.capstone.flashbid.global.core.security.CustomAuthenticationEntryPoint;
+import seoil.capstone.flashbid.global.core.security.CustomUserDetailService;
+import seoil.capstone.flashbid.global.core.security.JwtAuthenticationFilter;
 
 import java.util.List;
 
@@ -22,6 +28,17 @@ import java.util.List;
 public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomUserDetailService customUserDetailService;
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
@@ -36,15 +53,35 @@ public class SecurityConfig {
                                 "/ws/**",
                                 "/api/v1/auction/hot",
                                 "/api/v1/feed/hot",
-                                "/auth/callback/*",
-                                "/auth/oauth2/*",
-                                "/auth/register/*",
+                                "/auth/login",
+                                "/auth/**",
                                 "/uploads/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
+                                "/api/v1/auction/recommend/*",
+                                "api/v1/profile/status/*",
+                                "/api/v1/profile/*/sales",
+                                "/api/v1/profile/*/purchases",
+                                "/api/v1/auction/views/*",
+                                "/api/v1/admin/**",
                                 "/v3/api-docs/**",
+                                "/api/v1/category",
+                                "/api/v1/feed/test-all",
+                                "/api/v2/feed",
+                                "/api/dm/**",
                                 "/webjars/**").permitAll()
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/auction/live",
+                                "/api/v1/auction/blind"
+                        ).authenticated()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/auction/live",
+                                "/api/v1/auction/blind",
+                                "/api/v1/auction/*"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 ) // 모든 요청 허용
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // jwt 파싱해서 유효한 토큰인지 검증하는 필터

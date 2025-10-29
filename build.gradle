@@ -53,8 +53,25 @@ dependencies {
 	implementation 'com.h2database:h2'
 	testImplementation 'com.h2database:h2'
 
+	// mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	implementation 'com.google.firebase:firebase-admin:9.2.0'
+	// AWS S3 SDK (for S3 uploads)
+	implementation 'software.amazon.awssdk:s3:2.20.32'
+
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+tasks.processResources {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	// .env.properties를 항상 포함하도록 설정
+	from("src/main/resources/properties/.env.properties") {
+		into("properties")
+	}
 }

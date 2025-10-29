@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
@@ -91,19 +92,35 @@ public interface AccountSwagger {
             HttpServletRequest request
     );
 
-    @Operation(summary = "내 구매 내역 조회", description = "내가 구매한(낙찰받은) 경매 내역을 조회합니다.")
+    @Operation(summary = "내 구매 내역 조회", description = "내가 구매한(낙찰받은) 경매 내역을 조회합니다.") // 설명은 유지
     @ApiResponse(responseCode = "200", description = "조회 성공",
-            content = @Content(schema = @Schema(implementation = ConfirmedBidsEntity.class)))
-    ApiResult<List<ConfirmedBidsEntity>> getPurchaseHistory(
+            content = @Content(schema = @Schema(implementation = AuctionDto.class))) // [변경] ConfirmedBidsEntity.class -> AuctionDto.class
+    ApiResult<List<AuctionDto>> getPurchaseHistory(
             @Parameter(hidden = true) Account user,
             HttpServletRequest request
     );
 
-    @Operation(summary = "내 판매 내역 조회", description = "내가 판매한(낙찰된) 경매 내역을 조회합니다.")
+    @Operation(summary = "내 판매 목록 조회", description = "내가 등록한 경매 내역을 조회합니다.") // [설명 변경]
     @ApiResponse(responseCode = "200", description = "조회 성공",
-            content = @Content(schema = @Schema(implementation = ConfirmedBidsEntity.class)))
-    ApiResult<List<ConfirmedBidsEntity>> getSalesHistory(
+            content = @Content(schema = @Schema(implementation = AuctionDto.class)))
+    ApiResult<List<AuctionDto>> getSalesHistory(
             @Parameter(hidden = true) Account user,
+            HttpServletRequest request
+    );
+
+    @Operation(summary = "특정 유저 판매 목록 조회", description = "해당 유저가 올린 판매 상품을 모두 조회합니다.") // [추가]
+    @ApiResponse(responseCode = "200", description = "조회 성공",
+            content = @Content(schema = @Schema(implementation = AuctionDto.class)))
+    ApiResult<List<AuctionDto>> getAllUserSales(
+            @Parameter(description = "유저 ID") @PathVariable("id") Long userId,
+            HttpServletRequest request
+    );
+
+    @Operation(summary = "특정 유저 구매 내역 조회", description = "해당 유저가 구매(낙찰)한 내역을 모두 조회합니다.") // [추가]
+    @ApiResponse(responseCode = "200", description = "조회 성공",
+            content = @Content(schema = @Schema(implementation = AuctionDto.class)))
+    ApiResult<List<AuctionDto>> getAllUserPurchases(
+            @Parameter(description = "유저 ID") @PathVariable("id") Long userId,
             HttpServletRequest request
     );
 }

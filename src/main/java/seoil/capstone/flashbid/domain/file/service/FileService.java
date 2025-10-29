@@ -11,11 +11,12 @@ import seoil.capstone.flashbid.domain.file.repository.FileRepository;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
+import seoil.capstone.flashbid.infrastructure.file.FileUploader;
+import seoil.capstone.flashbid.infrastructure.file.UploadResult;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 
@@ -26,14 +27,35 @@ public class FileService {
     private final String uploadDir = System.getProperty("user.home") + "/seungho/uploads/";
     private final FileRepository repository;
     private final FileRepository fileRepository;
+    private final FileUploader fileUploader;
 
-    public List<FileEntity> getAllFiles(Long domainId,FileType fileType){
-        return repository.findAllByFileIdAndFileType(domainId,fileType);
+    public List<FileEntity> getAllFiles(Long domainId, FileType fileType) {
+        return repository.findAllByFileIdAndFileType(domainId, fileType);
     }
 
-    public List<FileEntity> saveFileEntities(List<SaveFileDto> files, Long fileId, Account account,FileType fileType){
+    public List<FileEntity> uploadAllFiles(List<MultipartFile> files, Account uploader, Long domainFileId, FileType fileType) {
         List<FileEntity> fileEntities = new ArrayList<>();
-        for(SaveFileDto file:files){
+        for (MultipartFile file : files) {
+            UploadResult uploadResult = fileUploader.uploadFile(file);
+            log.info("file upload result : {}", uploadResult);
+            fileEntities.add(
+                    FileEntity.builder()
+                            .url(uploadResult.getUrl())
+                            .fileName(uploadResult.getStoredName())
+                            .fileId(domainFileId)
+                            .fileType(fileType)
+                            .extension(uploadResult.getExtension())
+                            .userId(uploader)
+                            .build()
+            );
+        }
+        return fileRepository.saveAll(fileEntities);
+    }
+
+    @Deprecated
+    public List<FileEntity> saveFileEntities(List<SaveFileDto> files, Long fileId, Account account, FileType fileType) {
+        List<FileEntity> fileEntities = new ArrayList<>();
+        for (SaveFileDto file : files) {
             fileEntities.add(
                     FileEntity.builder()
                             .url(file.getUrl())
@@ -48,6 +70,7 @@ public class FileService {
         return fileRepository.saveAll(fileEntities);
     }
 
+    @Deprecated
     public List<SaveFileDto> saveImage(List<MultipartFile> files) {
         List<SaveFileDto> fileNames = new ArrayList<>();
         createOrGetDirectory();
@@ -60,8 +83,8 @@ public class FileService {
             String[] extension = fileName.split("\\.");
 
             System.out.println(Arrays.toString(extension));
-            System.out.println(uploadDir+fileName);
-            String accessUrl = "/uploads/"+fileName;
+            System.out.println(uploadDir + fileName);
+            String accessUrl = "/uploads/" + fileName;
 
             fileNames.add(SaveFileDto
                     .builder()
@@ -87,5 +110,13 @@ public class FileService {
                 throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러", "500E001");
             }
         }
+    }
+
+    /**
+     * 특정 피드의 모든 파일을 삭제합니다.
+     * @param fileId 삭제할 파일의 ID (feedId)
+     */
+    public void deleteFilesByFeedId(Long fileId) {
+        fileRepository.deleteByFileId(fileId);
     }
 }

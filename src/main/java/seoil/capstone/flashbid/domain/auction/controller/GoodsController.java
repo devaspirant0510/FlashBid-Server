@@ -13,6 +13,7 @@ import seoil.capstone.flashbid.domain.auction.service.GoodsService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.auction.controller.swagger.GoodsSwagger;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
+import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 
 import java.util.List;
@@ -32,10 +33,9 @@ public class GoodsController implements GoodsSwagger {
             Account user,
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam("title") String title,
-            @RequestParam("description") String description,
-            HttpServletRequest request
+            @RequestParam("description") String description
     ) {
-        GoodsDto goodsDto = goodsService.uploadGoods(user, files, title, description);
-        return ApiResult.created(goodsDto,request);
+        GoodsDto goodsDto = goodsService.uploadGoods(user, files, title, description, DeliveryType.DIRECT);
+        return ApiResult.created(goodsDto);
     }
 }

@@ -24,6 +24,6 @@ public class CategoryController {
     public ApiResult<List<CategoryEntity>> getAllCategory(
             HttpServletRequest request
     ){
-        return ApiResult.ok(repository.findAllByRootIdIsNull(),request);
+        return ApiResult.ok(repository.findAllByRootIdIsNull());
     }
 }

@@ -1,7 +1,7 @@
 package seoil.capstone.flashbid.global.common.response;
 
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 
@@ -13,81 +13,89 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class ApiResult<T> {
-    private ApiHeader apiHeader;
-    private String path;
-    private String method;
-    private LocalDateTime timestamp;
     private T data;
-    private ApiError error;
     private String message;
+    private Boolean success;
+    private ErrorDetails error;
+    private LocalDateTime timestamp;
 
-    public static <T> ApiResult<T> ok(T data, HttpServletRequest request) {
-        return ApiResult.<T>builder()
-                .apiHeader(new ApiHeader(
-                        HttpStatus.OK
-                ))
-                .method(request.getMethod())
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
+    @JsonIgnore
+    private int status;
+
+    public static <T> ApiResult<T> ok(T data) {
+        return new ApiResult<T>()
+                .status(200)
+                .data(data)
                 .message("성공")
-                .data(data)
-                .build();
-
+                .success(true)
+                .timestampNow();
     }
-    public static <T> ApiResult<T> ok(T data, HttpServletRequest request,String message) {
-        return ApiResult.<T>builder()
-                .apiHeader(new ApiHeader(
-                        HttpStatus.OK
-                ))
-                .method(request.getMethod())
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
+
+    public static <T> ApiResult<T> ok(T data, String message) {
+        return new ApiResult<T>()
+                .status(200)
+                .data(data)
                 .message(message)
-                .data(data)
-                .build();
-
+                .success(true)
+                .timestampNow();
     }
 
-    public static <T> ApiResult<T> created(T data,HttpServletRequest request,String message){
-        return ApiResult.<T>builder()
-                .apiHeader(new ApiHeader(
-                        HttpStatus.CREATED
-                ))
-                .method(request.getMethod())
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .message(message)
+    public static <T> ApiResult<T> created(T data) {
+        return new ApiResult<T>()
+                .status(201)
                 .data(data)
-                .build();
-    }
-    public static <T> ApiResult<T> created(T data,HttpServletRequest request){
-        return ApiResult.<T>builder()
-                .apiHeader(new ApiHeader(
-                        HttpStatus.CREATED
-                ))
-                .method(request.getMethod())
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
                 .message("생성됨")
-                .data(data)
-                .build();
+                .success(true)
+                .timestampNow();
     }
 
-    public static <T> ApiResult<T> error(String errorCode,String errorMessage,HttpServletRequest request,HttpStatus status){
-        return ApiResult.<T>builder()
-                .apiHeader(new ApiHeader(
-                        HttpStatus.CREATED
-                ))
-                .method(request.getMethod())
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .data(null)
-                .error(
-                        new ApiError(
-                                errorCode,errorMessage
-                        )
-                )
-                .build();
+    public static <T> ApiResult<T> created(T data, String message) {
+        return new ApiResult<T>()
+                .status(201)
+                .data(data)
+                .message(message)
+                .success(true)
+                .timestampNow();
+    }
 
+    public static <T> ApiResult<T> error(HttpStatus status, String title, String content) {
+        return new ApiResult<T>()
+                .status(status.value())
+                .message("서버 오류")
+                .success(false)
+                .data(null)
+                .error(new ErrorDetails(null, title, status.value(), content, null))
+                .timestampNow();
+    }
+
+    public ApiResult<T> status(int status) {
+        this.status = status;
+        return this;
+    }
+
+    public ApiResult<T> message(String message) {
+        this.message = message;
+        return this;
+    }
+
+    public ApiResult<T> data(T data) {
+        this.data = data;
+        this.timestamp = LocalDateTime.now();
+        return this;
+    }
+
+    public ApiResult<T> success(boolean success) {
+        this.success = success;
+        return this;
+    }
+
+    public ApiResult<T> error(ErrorDetails error) {
+        this.error = error;
+        return this;
+    }
+
+    private ApiResult<T> timestampNow() {
+        this.timestamp = LocalDateTime.now();
+        return this;
     }
 }

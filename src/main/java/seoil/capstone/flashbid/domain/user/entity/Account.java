@@ -2,6 +2,8 @@ package seoil.capstone.flashbid.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
 import seoil.capstone.flashbid.global.common.enums.UserStatus;
 import seoil.capstone.flashbid.global.common.enums.UserType;
@@ -30,6 +32,9 @@ public class Account extends BaseTimeEntity {
     @Enumerated
     private UserType userType;
 
+    @Column
+    String password;
+
     @Column(nullable = false)
     private String email;
 
@@ -51,11 +56,16 @@ public class Account extends BaseTimeEntity {
     @Column
     private String profileUrl;
 
-    public Account(LoginType loginType, UserStatus userStatus, UserType userType, String email,  LocalDateTime deletedAt, boolean isVerified, String uuid) {
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    @Builder.Default
+    private Integer point = 0;
+
+    public Account(LoginType loginType, UserStatus userStatus, UserType userType, String email, String password, LocalDateTime deletedAt, boolean isVerified, String uuid) {
         this.loginType = loginType;
         this.userStatus = userStatus;
         this.userType = userType;
         this.email = email;
+        this.password = password;
         this.deletedAt = deletedAt;
         this.isVerified = isVerified;
         this.uuid = uuid;

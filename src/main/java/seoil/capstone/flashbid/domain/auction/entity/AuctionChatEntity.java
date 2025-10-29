@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -20,7 +22,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Entity(name = "AuctionChat")
+@Table(name = "auction_chat")
 @EntityListeners(AuditingEntityListener.class)
 public class AuctionChatEntity {
     @Id
@@ -39,7 +42,8 @@ public class AuctionChatEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Enumerated
+    @Enumerated()
+    @Column(name = "chat_type", nullable = false, length = 20)
     private ChatType chatType;
 
     @ManyToOne
