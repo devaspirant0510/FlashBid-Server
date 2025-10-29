@@ -32,10 +32,10 @@ jobs:
           echo "${{ secrets.ENV }}" > src/main/resources/properties/.env.properties
           
       # 2️⃣ Firebase 서비스 JSON 생성 (base64 안전 방식)
-      - name: 🔥 Create Firebase service key
+      - name: 🔐 Create Firebase service JSON
         run: |
           mkdir -p src/main/resources/config
-          echo "${{ secrets.FIREBASE_SERVICE }}" > src/main/resources/config/firebase-service.json
+          echo '${{ secrets.FIREBASE_SERVICE }}' > src/main/resources/config/firebase-service.json
           
       # 3️⃣ Gradle 빌드
       - name: 🏗️ Build with Gradle
