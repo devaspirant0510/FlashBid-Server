@@ -198,6 +198,42 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public List<AuctionDto> getSalesHistoryByUserId(Long userId) {
+        // 1. 사용자가 등록한 모든 경매 조회
+        List<Auction> userAuctions = auctionRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+
+        List<AuctionDto> auctionDtos = new ArrayList<>();
+
+        // 2. 각 경매를 AuctionDto로 변환 (AuctionService.queryAllAuction 로직 참고)
+        for (Auction auction : userAuctions) {
+            List<FileEntity> images = fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS);
+            Integer participateCount = auctionParticipateRepository.countByAuctionId(auction.getId());
+            Long biddingCount = auctionBidLogRepository.countByAuctionId(auction.getId());
+            BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByPriceDesc(auction.getId());
+
+            // 현재 가격 (최고 입찰가 또는 시작가)
+            Long currentPrice = (bidHistory != null) ? bidHistory.getPrice() : auction.getStartPrice();
+
+            Long chatCount = auctionChatRepository.countByAuctionId(auction.getId());
+
+            AuctionWishListCountEntity wishListCountEntity = auctionWishListCountRepository.findById(auction.getId())
+                    .orElse(AuctionWishListCountEntity.builder().count(0L).build());
+            Long wishListCount = wishListCountEntity.getCount();
+
+            auctionDtos.add(new AuctionDto(
+                    auction,
+                    images,
+                    participateCount,
+                    biddingCount,
+                    currentPrice,
+                    chatCount,
+                    wishListCount
+            ));
+        }
+        return auctionDtos;
+    }
+
+    @Transactional(readOnly = true)
     public List<FollowUserDto> getFollowerList(Account authUser, Long userId) { // [수정] authUser 추가
         return followRepository.findAllByFollowingId(userId).stream()
                 .map(followEntity -> {

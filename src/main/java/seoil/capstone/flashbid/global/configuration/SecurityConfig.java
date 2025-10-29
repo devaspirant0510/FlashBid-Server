@@ -61,6 +61,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/api/v1/auction/recommend/*",
                                 "api/v1/profile/status/*",
+                                "/api/v1/profile/*/sales",
                                 "/api/v1/auction/views/*",
                                 "/api/v1/admin/**",
                                 "/v3/api-docs/**",

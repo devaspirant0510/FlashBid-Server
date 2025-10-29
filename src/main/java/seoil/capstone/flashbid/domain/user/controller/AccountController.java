@@ -102,6 +102,15 @@ public class    AccountController implements AccountSwagger {
         return ApiResult.ok(userService.getAllFeedByUserId(userId));
     }
 
+    @GetMapping("/{id}/sales") // [추가] 새로운 API 엔드포인트
+    @Override
+    public ApiResult<List<AuctionDto>> getAllUserSales(
+            @PathVariable(name = "id") Long userId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(userService.getSalesHistoryByUserId(userId));
+    }
+
     @AuthUser
     @Override
     @GetMapping("/{id}")

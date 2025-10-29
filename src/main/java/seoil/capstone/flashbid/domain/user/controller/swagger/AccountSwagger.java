@@ -107,4 +107,12 @@ public interface AccountSwagger {
             @Parameter(hidden = true) Account user,
             HttpServletRequest request
     );
+
+    @Operation(summary = "특정 유저 판매 목록 조회", description = "해당 유저가 올린 판매 상품을 모두 조회합니다.") // [추가]
+    @ApiResponse(responseCode = "200", description = "조회 성공",
+            content = @Content(schema = @Schema(implementation = AuctionDto.class)))
+    ApiResult<List<AuctionDto>> getAllUserSales(
+            @Parameter(description = "유저 ID") @PathVariable("id") Long userId,
+            HttpServletRequest request
+    );
 }
