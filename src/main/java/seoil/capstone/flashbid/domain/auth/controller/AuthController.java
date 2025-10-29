@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import seoil.capstone.flashbid.domain.auth.dto.*;
 import seoil.capstone.flashbid.domain.auth.service.AuthService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
+import seoil.capstone.flashbid.domain.user.projection.AccountProjection;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.domain.user.service.AccountService;
+import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
 import seoil.capstone.flashbid.global.common.AuthRestClient;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
@@ -26,6 +28,7 @@ import seoil.capstone.flashbid.global.common.response.ApiResult;
 import seoil.capstone.flashbid.global.core.provider.CookieProvider;
 import seoil.capstone.flashbid.global.core.provider.JwtProvider;
 import seoil.capstone.flashbid.global.model.*;
+import seoil.capstone.flashbid.infrastructure.firebasefcm.FcmService;
 
 import java.io.IOException;
 
@@ -42,6 +45,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final AccountRepository accountRepository;
     private final CookieProvider cookieProvider;
+    private final FcmService fcmService;
 
     // 가입된 이메일이 있는지 확인
     @GetMapping("/register/email/check")
@@ -231,5 +235,17 @@ public class AuthController {
         ResponseCookie refreshToken = cookieProvider.removeCookie(CookieProvider.REFRESH_TOKEN);
         response.addHeader(HttpHeaders.SET_COOKIE, refreshToken.toString());
         return ApiResult.ok(true);
+    }
+
+    @PostMapping("/v1/fcm-token")
+    @AuthUser
+    public ApiResult<Boolean> saveFcmToken(
+            Account account,
+            @RequestBody
+            SaveFcmTokenDto dto
+    ){
+        String firebaseToken = authService.saveFcmToken(account.getId(), dto.getFcmToken());
+        fcmService.subscribeToTopic("all", firebaseToken);
+        return ApiResult.ok(true, "FCM 토큰 저장 성공");
     }
 }

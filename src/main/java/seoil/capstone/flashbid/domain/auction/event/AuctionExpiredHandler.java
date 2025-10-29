@@ -49,15 +49,15 @@ public class AuctionExpiredHandler {
                 confirmedBidsEntity.getAuction().getGoods().getTitle() + " 거래 채팅방",
                 confirmedBidsEntity.getAuction().getId()                     // 경매 ID
         );
-        pointHistoryRepository.save(
-                PointHistoryEntity.builder()
-                        .earnedPoint(Math.toIntExact(confirmedBidsEntity.getBiddingLog().getPrice()))
-                        .userId(confirmedBidsEntity.getSeller())
-                        .chargeType(PointHistoryEntity.ChargeType.GIFT)
-                        .contents(confirmedBidsEntity.getAuction().getGoods().getTitle()+" 경매 상품 판매로 인한 포인트 적립")
-                        .build()
-        );
-        confirmedBidsEntity.getSeller().setPoint(confirmedBidsEntity.getSeller().getPoint() + Math.toIntExact(confirmedBidsEntity.getBiddingLog().getPrice()));
+//        pointHistoryRepository.save(
+//                PointHistoryEntity.builder()
+//                        .earnedPoint(Math.toIntExact(confirmedBidsEntity.getBiddingLog().getPrice()))
+//                        .userId(confirmedBidsEntity.getSeller())
+//                        .chargeType(PointHistoryEntity.ChargeType.GIFT)
+//                        .contents(confirmedBidsEntity.getAuction().getGoods().getTitle()+" 경매 상품 판매로 인한 포인트 적립")
+//                        .build()
+//        );
+//        confirmedBidsEntity.getSeller().setPoint(confirmedBidsEntity.getSeller().getPoint() + Math.toIntExact(confirmedBidsEntity.getBiddingLog().getPrice()));
 
         int rank = 0;
         for (UserMaxBidProjection payment : topBiddersPaymentsByAuctionId) {

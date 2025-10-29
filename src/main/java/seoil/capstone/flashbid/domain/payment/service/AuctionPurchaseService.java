@@ -33,6 +33,7 @@ public class AuctionPurchaseService {
      * 2. 판매자 포인트 지급 (PointHistoryEntity 생성)
      * 3. 경매 상태 SOLD로 변경
      */
+    @Transactional
     public void confirmPurchase(Account currentUser, PurchaseConfirmRequest request) {
         // 1. 경매 정보 조회
         Auction auction = auctionRepository.findById(request.getAuctionId())
@@ -61,7 +62,7 @@ public class AuctionPurchaseService {
 //        }
 
         // 7. 최신 입찰 로그 조회
-        BiddingLogEntity latestBid = biddingLogRepository.findTopByAuctionOrderByIdDesc(auction)
+        biddingLogRepository.findTopByAuctionOrderByIdDesc(auction)
                 .orElseThrow(() -> new IllegalArgumentException("입찰 정보를 찾을 수 없습니다."));
 
         // 9. 판매자 포인트 지급
