@@ -25,7 +25,7 @@ public class AdminNotificationController {
     public String sendGlobalNotice(@RequestBody NoticeRequest request) {
         try {
             // 🔹 FCM 전체 발송 ("all" 토픽)
-            fcmService.sendToTopic("all", request.getTitle(), request.getBody(), null);
+            fcmService.sendToTopic("all", request.getTitle(), request.getBody(), request.getLink()t);
 
             // 🔹 DB 저장 (user 없이)
             NotificationEntity notification = NotificationEntity.builder()
@@ -47,5 +47,6 @@ public class AdminNotificationController {
     public static class NoticeRequest {
         private String title;
         private String body;
+        private String link;
     }
 }
