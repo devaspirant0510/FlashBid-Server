@@ -106,7 +106,7 @@ public class    AccountController implements AccountSwagger {
     @Override
     @GetMapping("/{id}")
     public ApiResult<UserDto> getUserById(Account user,@PathVariable(name = "id") Long userId, HttpServletRequest request) {
-        return ApiResult.ok(userService.getUserById(userId));
+        return ApiResult.ok(userService.getUserById(user, userId));
     }
 
     @AuthUser

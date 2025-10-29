@@ -48,10 +48,19 @@ public class UserService {
     private final AuctionChatRepository auctionChatRepository;
     private final AuctionWishListCountRepository auctionWishListCountRepository;
 
-    public UserDto getUserById(Long userId){
-        Account account = accountRepository.findById(userId).orElseThrow(() ->
-                new ApiException(HttpStatus.NOT_FOUND, "", ""));
-        return getUserProfile(account);
+    public UserDto getUserById(Account authUser, Long profileUserId){
+        Account account = accountRepository.findById(profileUserId).orElseThrow(() ->
+                new ApiException(HttpStatus.NOT_FOUND, "", "해당 유저를 찾을 수 없습니다."));
+
+        UserDto userDto = getUserProfile(account);
+
+        boolean isFollowing = false;
+        if (authUser != null && !authUser.getId().equals(profileUserId)) {
+            isFollowing = followRepository.existsByFollowerIdAndFollowingId(authUser.getId(), profileUserId);
+        }
+
+        userDto.setFollowing(isFollowing);
+        return userDto;
     }
 
     @Transactional
@@ -72,7 +81,8 @@ public class UserService {
                 follower,
                 following,
                 feedCount,
-                profileImage
+                profileImage,
+                false
         );
     }
 
