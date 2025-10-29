@@ -106,7 +106,7 @@ public class    AccountController implements AccountSwagger {
     @Override
     @GetMapping("/{id}")
     public ApiResult<UserDto> getUserById(Account user,@PathVariable(name = "id") Long userId, HttpServletRequest request) {
-        return ApiResult.ok(userService.getUserById(userId));
+        return ApiResult.ok(userService.getUserById(user, userId));
     }
 
     @AuthUser
@@ -147,14 +147,22 @@ public class    AccountController implements AccountSwagger {
 
     @AuthUser
     @GetMapping("/{userId}/followers")
-    public ApiResult<List<FollowUserDto>> getFollowerList(@PathVariable Long userId, HttpServletRequest request) {
-        return ApiResult.ok(userService.getFollowerList(userId));
+    public ApiResult<List<FollowUserDto>> getFollowerList(
+            Account user,
+            @PathVariable Long userId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(userService.getFollowerList(user, userId));
     }
 
     @AuthUser
     @GetMapping("/{userId}/followings")
-    public ApiResult<List<FollowUserDto>> getFollowingList(@PathVariable Long userId, HttpServletRequest request) {
-        return ApiResult.ok(userService.getFollowingList(userId));
+    public ApiResult<List<FollowUserDto>> getFollowingList(
+            Account user,
+            @PathVariable Long userId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(userService.getFollowingList(user, userId));
     }
 
     @AuthUser
