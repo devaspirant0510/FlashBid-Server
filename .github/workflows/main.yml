@@ -32,7 +32,7 @@ jobs:
           
       - name: 🔥 Create Firebase service key
         run: |
-          mkdir -p config
+          mkdir -p src/main/resources/config
           echo "${{ secrets.FIREBASE_SERVICE }}" > src/main/resources/config/firebase-service.json
           
       - name: 🏗️ Build with Gradle
