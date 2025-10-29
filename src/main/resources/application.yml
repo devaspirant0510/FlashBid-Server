@@ -25,13 +25,13 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
   datasource:
-#    url: ${DB_URL}
-    url : jdbc:postgresql://localhost:5432/flash_bid
+    url: ${DB_URL}
+#    url : jdbc:postgresql://localhost:5432/flash_bid
     driver-class-name: org.postgresql.Driver
-#    username: ${USERNAME}
-#    password: ${PASSWORD}
-    username: postgres
-    password: 4628
+    username: ${USERNAME}
+    password: ${PASSWORD}
+#    username: postgres
+#   password: 4628
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
