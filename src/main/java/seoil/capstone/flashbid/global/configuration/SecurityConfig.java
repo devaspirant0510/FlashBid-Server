@@ -66,6 +66,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api/v1/category",
                                 "/api/v1/feed/test-all",
+                                "/api/v2/feed",
                                 "/api/dm/**",
                                 "/webjars/**").permitAll()
                         .requestMatchers(

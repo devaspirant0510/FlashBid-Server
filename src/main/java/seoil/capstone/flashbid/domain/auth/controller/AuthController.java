@@ -169,7 +169,7 @@ public class AuthController {
         Account newAccount = accountService.registerAccount(
                 naverUserInfo.getResponse().getEmail(),
                 userUuid,
-                LoginType.FACEBOOK
+                LoginType.NAVER
         );
 
         return ApiResult.created(newAccount);
