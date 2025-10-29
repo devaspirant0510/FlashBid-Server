@@ -27,7 +27,7 @@ public class PointHistoryEntity extends BaseTimeOnlyCreated {
     @Column(name = "earned_point", nullable = false)
     private Integer earnedPoint; // 충전 포인트
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated()
     @Column(name = "charge_type", nullable = false, length = 20)
     private ChargeType chargeType; // 충전 유형 (CHARGE, GIFT, PURCHASE)
 
