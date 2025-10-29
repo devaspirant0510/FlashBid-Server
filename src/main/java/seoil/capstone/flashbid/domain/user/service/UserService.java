@@ -234,6 +234,44 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public List<AuctionDto> getPurchaseHistoryByUserId(Long userId) {
+        // 1. 사용자가 낙찰받은 내역 조회
+        List<ConfirmedBidsEntity> purchases = confirmedBidsRepository.findAllByBidder_Id(userId);
+
+        List<AuctionDto> auctionDtos = new ArrayList<>();
+
+        // 2. 각 내역을 AuctionDto로 변환 (이미지 포함)
+        for (ConfirmedBidsEntity confirmedBid : purchases) {
+            Auction auction = confirmedBid.getAuction(); // 낙찰받은 경매 정보
+
+            List<FileEntity> images = fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS);
+            Integer participateCount = auctionParticipateRepository.countByAuctionId(auction.getId());
+            Long biddingCount = auctionBidLogRepository.countByAuctionId(auction.getId());
+            BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByPriceDesc(auction.getId());
+
+            // 낙찰 내역이므로, 확정된 낙찰가를 currentPrice로 사용
+            Long currentPrice = confirmedBid.getBiddingLog() != null ? confirmedBid.getBiddingLog().getPrice() : auction.getStartPrice();
+
+            Long chatCount = auctionChatRepository.countByAuctionId(auction.getId());
+
+            AuctionWishListCountEntity wishListCountEntity = auctionWishListCountRepository.findById(auction.getId())
+                    .orElse(AuctionWishListCountEntity.builder().count(0L).build());
+            Long wishListCount = wishListCountEntity.getCount();
+
+            auctionDtos.add(new AuctionDto(
+                    auction,
+                    images,
+                    participateCount,
+                    biddingCount,
+                    currentPrice,
+                    chatCount,
+                    wishListCount
+            ));
+        }
+        return auctionDtos;
+    }
+
+    @Transactional(readOnly = true)
     public List<FollowUserDto> getFollowerList(Account authUser, Long userId) { // [수정] authUser 추가
         return followRepository.findAllByFollowingId(userId).stream()
                 .map(followEntity -> {

@@ -115,4 +115,12 @@ public interface AccountSwagger {
             @Parameter(description = "유저 ID") @PathVariable("id") Long userId,
             HttpServletRequest request
     );
+
+    @Operation(summary = "특정 유저 구매 내역 조회", description = "해당 유저가 구매(낙찰)한 내역을 모두 조회합니다.") // [추가]
+    @ApiResponse(responseCode = "200", description = "조회 성공",
+            content = @Content(schema = @Schema(implementation = AuctionDto.class)))
+    ApiResult<List<AuctionDto>> getAllUserPurchases(
+            @Parameter(description = "유저 ID") @PathVariable("id") Long userId,
+            HttpServletRequest request
+    );
 }
