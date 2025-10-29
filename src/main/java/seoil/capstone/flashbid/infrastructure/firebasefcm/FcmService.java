@@ -6,6 +6,7 @@ import com.google.firebase.messaging.*;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import seoil.capstone.flashbid.global.core.interceptor.LoggingInterceptor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,6 +18,8 @@ import java.util.List;
 public class FcmService {
     private static final String MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
     private static final String[] SCOPES = { MESSAGING_SCOPE };
+    private final LoggingInterceptor loggingInterceptor;
+
     private String getAccessToken() throws IOException {
         GoogleCredentials googleCredentials = GoogleCredentials
                 .fromStream(new FileInputStream("config/firebase-service.json"))
@@ -36,9 +39,14 @@ public class FcmService {
         // 웹푸시 링크 설정
         if (link != null && !link.isEmpty()) {
             builder.setWebpushConfig(WebpushConfig.builder()
-                    .setNotification(new WebpushNotification(title, body, null))
-                    .putHeader("link", link)
-                    .build());
+                    .setFcmOptions(WebpushFcmOptions.withLink(link))
+                    .setNotification(WebpushNotification.builder()
+                            .setTitle(title)
+                            .setBody(body)
+                            .build())
+                    .build())
+                    .putData("click_action", link);;
+
         }
 
         return FirebaseMessaging.getInstance().send(builder.build());
@@ -55,11 +63,18 @@ public class FcmService {
 
         // 웹푸시 링크 설정
         if (link != null && !link.isEmpty()) {
+
             builder.setWebpushConfig(WebpushConfig.builder()
-                    .setNotification(new WebpushNotification(title, body, null))
-                    .putHeader("link", link) // 링크 전달
-                    .build());
+                    .setFcmOptions(WebpushFcmOptions.withLink(link))
+                    .setNotification(WebpushNotification.builder()
+                            .setTitle(title)
+                            .setBody(body)
+                            .build())
+                    .build())
+                    .putData("click_action", link);;
+
         }
+        System.out.println(builder);
 
         return FirebaseMessaging.getInstance().send(builder.build());
     }
