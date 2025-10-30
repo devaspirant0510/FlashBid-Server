@@ -61,7 +61,7 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedDto createFeed(Account account, List<MultipartFile> files, CreateFeedDto dto) {
+    public FeedListResponse createFeed(Account account, List<MultipartFile> files, CreateFeedDto dto) {
         FeedEntity feedEntity = FeedEntity
                 .builder()
                 .contents(dto.getContent())
@@ -69,23 +69,35 @@ public class FeedService {
                 .viewCount(0)
                 .build();
         FeedEntity savedEntity = feedRepository.save(feedEntity);
-        if(files!=null){
-            List<FileEntity> saveFileDtos = fileService.uploadAllFiles(files,account, savedEntity.getId(), FileType.FEED);
-            return new FeedDto(
-                    savedEntity,
-                    saveFileDtos,
-                    0,
-                    0,
-                    false
-            );
+        if (files != null) {
+            List<FileProjection> uploadFiles = fileService
+                    .uploadAllFiles(files, account, savedEntity.getId(), FileType.FEED)
+                    .stream()
+                    .map(f -> new FileProjection() {
+                        @Override
+                        public Long getId() {
+                            return f.getId();
+                        }
+
+                        @Override
+                        public String getUrl() {
+                            return f.getUrl();
+                        }
+
+                        @Override
+                        public Long getFileId() {
+                            return f.getFileId();
+                        }
+
+                        @Override
+                        public FileType getFileType() {
+                            return f.getFileType();
+                        }
+                    })
+                    .collect(Collectors.toList());
+            return FeedListResponse.from(feedEntity, uploadFiles);
         }
-        return new FeedDto(
-                savedEntity,
-                null,
-                0,
-                0,
-                false
-        );
+        return FeedListResponse.from(feedEntity, Collections.emptyList());
     }
 
     @Transactional(readOnly = true)
