@@ -1,19 +1,5 @@
 package seoil.capstone.flashbid;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
-import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
-import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
-import seoil.capstone.flashbid.global.core.provider.HashProvider;
-
-import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.List;
-
 //@SpringBootTest
 public class DBTest {
 

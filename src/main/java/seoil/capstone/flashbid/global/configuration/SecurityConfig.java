@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import seoil.capstone.flashbid.global.core.security.JwtAuthenticationFilter;
 import seoil.capstone.flashbid.global.core.security.CustomAccessDeniedHandler;
 import seoil.capstone.flashbid.global.core.security.CustomAuthenticationEntryPoint;
 import seoil.capstone.flashbid.global.core.security.CustomUserDetailService;
@@ -66,6 +67,8 @@ public class SecurityConfig {
                                 "/api/v1/auction/views/*",
                                 "/api/v1/admin/**",
                                 "/v3/api-docs/**",
+                                "/api/user/notices/**",
+                                "/api/admin/notices/**",
                                 "/api/v1/category",
                                 "/api/v1/feed/test-all",
                                 "/api/v2/feed",

@@ -1,10 +1,6 @@
 package seoil.capstone.flashbid.domain.auction.dto.request;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 
 @Getter

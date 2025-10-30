@@ -22,7 +22,6 @@ import seoil.capstone.flashbid.domain.user.service.AccountService;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
 import seoil.capstone.flashbid.global.common.AuthRestClient;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
-import seoil.capstone.flashbid.global.common.error.ApiException;
 import seoil.capstone.flashbid.global.common.error.TokenUnAuthorized;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 import seoil.capstone.flashbid.global.core.provider.CookieProvider;
