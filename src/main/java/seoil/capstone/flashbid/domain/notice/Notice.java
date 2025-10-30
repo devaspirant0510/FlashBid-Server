@@ -24,8 +24,7 @@ public class Notice {
     @Column(nullable = false)
     private String title;
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false,columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "created_at", nullable = false)
@@ -33,6 +32,7 @@ public class Notice {
 
     // 조회수 필드 추가 (기본값 0)
     @Column(name = "view_count", nullable = false)
+    @Builder.Default
     private Integer viewCount = 0;
 
     @PrePersist

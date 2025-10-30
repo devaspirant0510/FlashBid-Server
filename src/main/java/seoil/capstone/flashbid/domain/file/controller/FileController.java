@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.file.controller.swagger.FileSwagger;
 import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
+import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.service.FileService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
