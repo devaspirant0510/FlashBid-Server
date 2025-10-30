@@ -11,4 +11,5 @@ public interface FeedProjection {
     LocalDateTime getCreatedAt();
     Integer getLikeCount();
     Integer getCommentCount();
+    Boolean getLiked();
 }
