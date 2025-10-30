@@ -1,16 +1,14 @@
 package seoil.capstone.flashbid.domain.file.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.server.ServerHttpRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.file.controller.swagger.FileSwagger;
 import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
-import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.service.FileService;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 

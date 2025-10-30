@@ -1,3 +1,6 @@
+server:
+  port: 5555
+
 spring:
   mail:
     host: smtp.gmail.com
@@ -17,7 +20,7 @@ spring:
   datasource:
     url: ${DB_URL}
     driver-class-name: org.postgresql.Driver
-    username: ${USERNAME}
+    username: ${USER}
     password: ${PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -30,3 +33,6 @@ spring:
   web:
     resources:
       static-locations: file:/Users/kotlinandnode/seungho/uploads/
+
+
+

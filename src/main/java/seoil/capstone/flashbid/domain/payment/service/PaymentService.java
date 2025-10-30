@@ -2,9 +2,7 @@ package seoil.capstone.flashbid.domain.payment.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +12,6 @@ import seoil.capstone.flashbid.domain.payment.entity.PointHistoryEntity;
 import seoil.capstone.flashbid.domain.payment.repository.PaymentRepository;
 import seoil.capstone.flashbid.domain.payment.repository.PointHistoryRepository;
 import seoil.capstone.flashbid.domain.user.entity.Account;
-import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 
 
 @Service

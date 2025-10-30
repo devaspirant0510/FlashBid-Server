@@ -2,7 +2,6 @@ package seoil.capstone.flashbid.domain.auction.dto.request;
 
 
 import lombok.*;
-import seoil.capstone.flashbid.global.common.enums.AuctionType;
 import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 
 import java.time.LocalDateTime;

@@ -15,10 +15,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import seoil.capstone.flashbid.global.core.security.JwtAuthenticationFilter;
 import seoil.capstone.flashbid.global.core.security.CustomAccessDeniedHandler;
 import seoil.capstone.flashbid.global.core.security.CustomAuthenticationEntryPoint;
 import seoil.capstone.flashbid.global.core.security.CustomUserDetailService;
+import seoil.capstone.flashbid.global.core.security.JwtAuthenticationFilter;
 
 import java.util.List;
 
@@ -60,6 +60,8 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/api/v1/admin/**",
                                 "/v3/api-docs/**",
+                                "/api/user/notices/**",
+                                "/api/admin/notices/**",
                                 "/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 ) // 모든 요청 허용

@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import seoil.capstone.flashbid.global.model.NaverOAuthTokenResponse;
-import seoil.capstone.flashbid.global.model.NaverUserInfoResponse;
 import seoil.capstone.flashbid.global.model.*;
 
 @Component
