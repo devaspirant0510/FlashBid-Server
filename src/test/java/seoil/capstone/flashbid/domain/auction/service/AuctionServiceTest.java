@@ -15,6 +15,8 @@ import seoil.capstone.flashbid.domain.auction.repository.*;
 import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
 import seoil.capstone.flashbid.domain.file.service.FileService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +50,14 @@ class AuctionServiceTest {
     @AfterEach
     void tearDown() {
     }
+
+    @Test
+    public void test(){
+        List<String> list = new ArrayList<>();
+        ArrayList<String> mock = Mockito.mock(ArrayList.class);
+
+    }
+
     @Test
     @DisplayName("sss")
     void testDB(){
@@ -81,5 +91,9 @@ class AuctionServiceTest {
 
     @Test
     void participateUser() {
+    }
+
+    @Test
+    void testParticipateUser() {
     }
 }

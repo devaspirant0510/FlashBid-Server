@@ -1,6 +1,3 @@
-server:
-  port: 5555
-
 spring:
   mail:
     host: smtp.gmail.com
@@ -20,12 +17,13 @@ spring:
   datasource:
     url: ${DB_URL}
     driver-class-name: org.postgresql.Driver
-    username: ${USER}
+    username: ${USERNAME}
     password: ${PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
+
     show-sql: true
     properties:
       hibernate:
@@ -33,6 +31,14 @@ spring:
   web:
     resources:
       static-locations: file:/Users/kotlinandnode/seungho/uploads/
-
-
-
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+cloudfront:
+  domain: ${AWS_CLOUDFRONT_DOMAIN}

@@ -24,7 +24,7 @@ public class FeedEntity extends BaseTimeEntity {
     @Schema(description = "작성자 계정")
     private Account user;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     @Schema(description = "피드 내용", example = "오늘은 낙찰 성공했어요!")
     private String contents;
 

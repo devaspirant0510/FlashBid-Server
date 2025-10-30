@@ -58,18 +58,6 @@ public class AuctionChatService {
                 .biddingLog(biddingLogEntity)
                 .user(account)
                 .build();
-        Map<String, Object> priceData = new HashMap<>();
-        Message<String> message = new Message<String>() {
-            @Override
-            public String getPayload() {
-                return "";
-            }
-
-            @Override
-            public MessageHeaders getHeaders() {
-                return null;
-            }
-        };
         AuctionChatEntity save = auctionChatRepository.save(chat);
         return save;
 

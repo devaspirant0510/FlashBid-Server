@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Entity(name = "AuctionChat")
+@Table(name = "auction_chat")
 @EntityListeners(AuditingEntityListener.class)
 public class AuctionChatEntity {
     @Id
@@ -36,8 +37,8 @@ public class AuctionChatEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Enumerated()
+    @Column(name = "chat_type", nullable = false, length = 20)
     private ChatType chatType;
 
     @ManyToOne

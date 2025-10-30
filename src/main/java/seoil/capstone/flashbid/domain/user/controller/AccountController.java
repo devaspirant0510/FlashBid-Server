@@ -7,6 +7,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
@@ -101,11 +102,29 @@ public class    AccountController implements AccountSwagger {
         return ApiResult.ok(userService.getAllFeedByUserId(userId));
     }
 
+    @GetMapping("/{id}/sales")
+    @Override
+    public ApiResult<List<AuctionDto>> getAllUserSales(
+            @PathVariable(name = "id") Long userId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(userService.getSalesHistoryByUserId(userId));
+    }
+
+    @GetMapping("/{id}/purchases")
+    @Override
+    public ApiResult<List<AuctionDto>> getAllUserPurchases(
+            @PathVariable(name = "id") Long userId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(userService.getPurchaseHistoryByUserId(userId));
+    }
+
     @AuthUser
     @Override
     @GetMapping("/{id}")
     public ApiResult<UserDto> getUserById(Account user,@PathVariable(name = "id") Long userId, HttpServletRequest request) {
-        return ApiResult.ok(userService.getUserById(userId));
+        return ApiResult.ok(userService.getUserById(user, userId));
     }
 
     @AuthUser
@@ -122,14 +141,14 @@ public class    AccountController implements AccountSwagger {
     @AuthUser
     @GetMapping("/purchases")
     @Override
-    public ApiResult<List<ConfirmedBidsEntity>> getPurchaseHistory(Account user, HttpServletRequest request) {
+    public ApiResult<List<AuctionDto>> getPurchaseHistory(Account user, HttpServletRequest request) { // [변경] List<ConfirmedBidsEntity> -> List<AuctionDto>
         return ApiResult.ok(userService.getPurchaseHistory(user));
     }
 
     @AuthUser
     @GetMapping("/sales")
     @Override
-    public ApiResult<List<ConfirmedBidsEntity>> getSalesHistory(Account user, HttpServletRequest request) {
+    public ApiResult<List<AuctionDto>> getSalesHistory(Account user, HttpServletRequest request) { // [변경] List<ConfirmedBidsEntity> -> List<AuctionDto>
         return ApiResult.ok(userService.getSalesHistory(user));
     }
 
@@ -146,14 +165,22 @@ public class    AccountController implements AccountSwagger {
 
     @AuthUser
     @GetMapping("/{userId}/followers")
-    public ApiResult<List<FollowUserDto>> getFollowerList(@PathVariable Long userId, HttpServletRequest request) {
-        return ApiResult.ok(userService.getFollowerList(userId));
+    public ApiResult<List<FollowUserDto>> getFollowerList(
+            Account user,
+            @PathVariable Long userId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(userService.getFollowerList(user, userId));
     }
 
     @AuthUser
     @GetMapping("/{userId}/followings")
-    public ApiResult<List<FollowUserDto>> getFollowingList(@PathVariable Long userId, HttpServletRequest request) {
-        return ApiResult.ok(userService.getFollowingList(userId));
+    public ApiResult<List<FollowUserDto>> getFollowingList(
+            Account user,
+            @PathVariable Long userId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(userService.getFollowingList(user, userId));
     }
 
     @AuthUser

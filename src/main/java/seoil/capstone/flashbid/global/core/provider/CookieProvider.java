@@ -44,13 +44,15 @@ public class CookieProvider {
                 .sameSite(isProd?"None":"Lax")
                 .build();
     }
-    public Cookie removeCookie(String key) {
-        Cookie cookie = new Cookie(key, null);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setSecure(true);
-        cookie.setMaxAge(0);
-        return cookie;
+    public ResponseCookie removeCookie(String key) {
+        boolean isProd = mode.equals("production");
+        return ResponseCookie.from(key,null)
+                .httpOnly(true)
+                .secure(isProd)
+                .path("/")
+                .maxAge(0)
+                .sameSite(isProd?"None":"Lax")
+                .build();
     }
 
 }

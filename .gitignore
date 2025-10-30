@@ -39,3 +39,7 @@ out/
 .DS_Store
 
 src/main/resources/properties/.env.properties
+
+test-load/.env
+
+config/firebase-service.json

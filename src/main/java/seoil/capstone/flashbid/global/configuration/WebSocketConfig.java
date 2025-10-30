@@ -33,8 +33,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         // 받는 쪽
-        registry.enableSimpleBroker("/topic");
-        // 보낼쪽
+        registry.enableSimpleBroker("/topic", "/user");
+
+        // 보낼쪽 (서버 @MessageMapping)
         registry.setApplicationDestinationPrefixes("/app");
+
+        // ✅ 4. (필수) 개인화된 주소를 위한 prefix 추가
+        registry.setUserDestinationPrefix("/user");
     }
 }

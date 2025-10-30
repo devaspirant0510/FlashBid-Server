@@ -47,24 +47,7 @@ public class GoodsService {
                 .deliveryType(deliveryType)
                 .build();
         Goods savedGoods = goodsRepository.save(createGoods);
-        List<SaveFileDto> saveFileDtos = fileService.saveImage(files);
-        List<FileEntity> createFiles = new ArrayList<>();
-        for (SaveFileDto fileDto : saveFileDtos) {
-            createFiles.add(
-                    FileEntity
-                            .builder()
-                            .fileName(fileDto.getFileName())
-                            .url(fileDto.getUrl())
-                            .extension(fileDto.getExtension())
-                            .fileType(FileType.GOODS)
-                            .fileId(savedGoods.getId())
-                            .userId(account)
-                            .build()
-            );
-        }
-        List<FileEntity> fileEntities = fileRepository.saveAll(createFiles);
-        return new GoodsDto(savedGoods, fileEntities);
-
+        List<FileEntity> saveFileDtos = fileService.uploadAllFiles(files,account,savedGoods.getId(),FileType.GOODS);
+        return new GoodsDto(savedGoods, saveFileDtos);
     }
-
 }

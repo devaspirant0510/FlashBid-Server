@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import seoil.capstone.flashbid.domain.auth.dto.*;
 import seoil.capstone.flashbid.domain.auth.service.AuthService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
+import seoil.capstone.flashbid.domain.user.projection.AccountProjection;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.domain.user.service.AccountService;
+import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
 import seoil.capstone.flashbid.global.common.AuthRestClient;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
 import seoil.capstone.flashbid.global.common.error.TokenUnAuthorized;
@@ -25,6 +27,7 @@ import seoil.capstone.flashbid.global.common.response.ApiResult;
 import seoil.capstone.flashbid.global.core.provider.CookieProvider;
 import seoil.capstone.flashbid.global.core.provider.JwtProvider;
 import seoil.capstone.flashbid.global.model.*;
+import seoil.capstone.flashbid.infrastructure.firebasefcm.FcmService;
 
 import java.io.IOException;
 
@@ -41,6 +44,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final AccountRepository accountRepository;
     private final CookieProvider cookieProvider;
+    private final FcmService fcmService;
 
     // 가입된 이메일이 있는지 확인
     @GetMapping("/register/email/check")
@@ -112,9 +116,17 @@ public class AuthController {
     }
 
     @PostMapping("/register/oauth")
-    public ApiResult<Account> registerService(@RequestBody RegisterDto dto, HttpServletRequest request) {
+    public ApiResult<Account> registerService(
+            @RequestBody RegisterDto dto,
+            HttpServletResponse response
+    ) {
         //TODO : 가입 여부 확인
-        return ApiResult.ok(authService.registerUser(dto));
+        Account account = authService.registerUser(dto);
+        AuthTokenDto jwtToken = authService.createJwtToken(account);
+        ResponseCookie refreshTokenCookie = cookieProvider.generateRefreshTokenCookie(jwtToken.getRefreshToken());
+        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken.getAccessToken());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        return ApiResult.ok(account);
     }
 
     @PostMapping("/register/email")
@@ -156,7 +168,7 @@ public class AuthController {
         Account newAccount = accountService.registerAccount(
                 naverUserInfo.getResponse().getEmail(),
                 userUuid,
-                LoginType.FACEBOOK
+                LoginType.NAVER
         );
 
         return ApiResult.created(newAccount);
@@ -197,7 +209,8 @@ public class AuthController {
         // id 토큰을 파싱하여 aud 추출( 카카오톡 유저별 고유 아이디 )
         KaKaoUserPayload kaKaoUserPayload = jwtProvider.parsingJwtBody(s.getIdToken(), KaKaoUserPayload.class);
         // 가입한적이 있는 유저의 경우 유저정보 리턴
-        String userUuid = kaKaoUserPayload.getAud();
+        String userUuid = kaKaoUserPayload.getSub();
+
         // 가입된 적이 있는지
         if (accountService.isRegisteredUser(userUuid)) {
             // TODO : 계정 정지 등에 대한 분기 처리
@@ -218,8 +231,20 @@ public class AuthController {
     }
     @PostMapping("/logout")
     public ApiResult<Boolean> logout(HttpServletResponse response){
-        Cookie refreshToken = cookieProvider.removeCookie(CookieProvider.REFRESH_TOKEN);
-        response.addCookie(refreshToken);
+        ResponseCookie refreshToken = cookieProvider.removeCookie(CookieProvider.REFRESH_TOKEN);
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshToken.toString());
         return ApiResult.ok(true);
+    }
+
+    @PostMapping("/v1/fcm-token")
+    @AuthUser
+    public ApiResult<Boolean> saveFcmToken(
+            Account account,
+            @RequestBody
+            SaveFcmTokenDto dto
+    ){
+        String firebaseToken = authService.saveFcmToken(account.getId(), dto.getFcmToken());
+        fcmService.subscribeToTopic("all", firebaseToken);
+        return ApiResult.ok(true, "FCM 토큰 저장 성공");
     }
 }

@@ -15,7 +15,12 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Builder
 @Entity
-@Table(name = "follow")
+@Table(name = "follow", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "follow_uk", // 유니크 제약조건 이름
+                columnNames = {"follower_id", "following_id"} // 두 컬럼의 조합을 유니크하게 설정
+        )
+})
 public class FollowEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
