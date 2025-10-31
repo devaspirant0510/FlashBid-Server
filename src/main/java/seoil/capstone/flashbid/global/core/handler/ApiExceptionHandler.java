@@ -16,9 +16,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import seoil.capstone.flashbid.global.common.error.ApiException;
-import seoil.capstone.flashbid.global.common.response.ErrorDetails;
-import seoil.capstone.flashbid.global.common.response.ApiHeader;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
+import seoil.capstone.flashbid.global.common.response.ErrorDetails;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

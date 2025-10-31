@@ -24,7 +24,7 @@ public class Goods {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated()
     @Column(name = "delivery_type", nullable = false, length = 20)
 
     private DeliveryType deliveryType;

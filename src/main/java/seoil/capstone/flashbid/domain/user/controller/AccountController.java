@@ -102,6 +102,24 @@ public class    AccountController implements AccountSwagger {
         return ApiResult.ok(userService.getAllFeedByUserId(userId));
     }
 
+    @GetMapping("/{id}/sales")
+    @Override
+    public ApiResult<List<AuctionDto>> getAllUserSales(
+            @PathVariable(name = "id") Long userId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(userService.getSalesHistoryByUserId(userId));
+    }
+
+    @GetMapping("/{id}/purchases")
+    @Override
+    public ApiResult<List<AuctionDto>> getAllUserPurchases(
+            @PathVariable(name = "id") Long userId,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(userService.getPurchaseHistoryByUserId(userId));
+    }
+
     @AuthUser
     @Override
     @GetMapping("/{id}")

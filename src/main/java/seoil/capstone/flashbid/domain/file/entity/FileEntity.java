@@ -1,11 +1,7 @@
 package seoil.capstone.flashbid.domain.file.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import seoil.capstone.flashbid.domain.user.entity.Account;
@@ -36,7 +32,7 @@ public class FileEntity extends BaseTimeEntity {
     @Column
     private String url;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated()
     @Column(name = "file_type", nullable = false, length = 20)
     private FileType fileType;
 
