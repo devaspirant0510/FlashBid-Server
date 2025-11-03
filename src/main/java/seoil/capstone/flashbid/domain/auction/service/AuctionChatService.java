@@ -1,17 +1,20 @@
 package seoil.capstone.flashbid.domain.auction.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import seoil.capstone.flashbid.domain.auction.dto.model.AuctionChatModel;
+import seoil.capstone.flashbid.domain.auction.dto.response.AuctionChatDto;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.entity.AuctionChatEntity;
 import seoil.capstone.flashbid.domain.auction.entity.BiddingLogEntity;
+import seoil.capstone.flashbid.domain.auction.projection.AuctionChatProjection;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionChatRepository;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
@@ -21,6 +24,7 @@ import seoil.capstone.flashbid.global.common.enums.ChatType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -34,9 +38,12 @@ public class AuctionChatService {
     private final AuctionBidLogRepository auctionBidLogRepository;
 
     private final SimpMessagingTemplate messagingTemplate;
+    public List<AuctionChatProjection> findAllAuctionChatByAuctionId(Long auctionId){
+        return auctionChatRepository.findAllAuctionQuery(auctionId);
+    }
 
     @Transactional
-    public AuctionChatEntity saveAuctionChat(AuctionChatModel model,Long auctionId){
+    public AuctionChatDto saveAuctionChat(AuctionChatModel model,Long auctionId){
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
         Account account = accountRepository.findById(model.getUserId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
         BiddingLogEntity biddingLogEntity = null;
@@ -59,7 +66,8 @@ public class AuctionChatService {
                 .user(account)
                 .build();
         AuctionChatEntity save = auctionChatRepository.save(chat);
-        return save;
+        log.info("save chat {}",save);
+        return AuctionChatDto.fromEntity(save);
 
     }
 }

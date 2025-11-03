@@ -25,7 +25,7 @@ public interface AuctionRepository extends JpaRepository<Auction,Long> {
                     (SELECT f.url
                      FROM file f
                      WHERE f.fileId = g.id
-                       AND f.fileType = 'GOODS'
+                       AND f.fileType = seoil.capstone.flashbid.global.common.enums.FileType.GOODS
                      ORDER BY f.id ASC
                      LIMIT 1) AS goodsImageUrl,
                     acc.nickname AS bidderName,

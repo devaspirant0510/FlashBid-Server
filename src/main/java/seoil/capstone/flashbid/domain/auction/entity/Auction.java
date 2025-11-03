@@ -49,12 +49,11 @@ public class Auction extends BaseTimeEntity {
     @Column
     private int count;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated
     @Column(name = "auction_type", nullable = false, length = 20)
-
     private AuctionType auctionType;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated
     @Column(name = "auction_status", nullable = false, length = 20)
 
     private AuctionStatus auctionStatus;

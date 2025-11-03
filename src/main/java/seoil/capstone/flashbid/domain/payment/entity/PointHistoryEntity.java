@@ -19,6 +19,10 @@ public class PointHistoryEntity extends BaseTimeOnlyCreated {
         PURCHASE,
         REFUND
     }
+    public enum EarnType {
+        EARN,
+        USE
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 포인트 결제 내역 ID
@@ -27,9 +31,13 @@ public class PointHistoryEntity extends BaseTimeOnlyCreated {
     @Column(name = "earned_point", nullable = false)
     private Integer earnedPoint; // 충전 포인트
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "charge_type", nullable = false, length = 20)
+    @Enumerated()
+    @Column(name = "charge_type", nullable = false)
     private ChargeType chargeType; // 충전 유형 (CHARGE, GIFT, PURCHASE)
+
+    @Enumerated
+    @Column
+    private EarnType earnType;
 
     @Column(name = "contents", length = 1024)
     private String contents; // 충전 내용

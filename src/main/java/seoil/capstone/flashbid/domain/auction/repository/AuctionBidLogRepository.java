@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import seoil.capstone.flashbid.domain.auction.entity.BiddingLogEntity;
 import seoil.capstone.flashbid.domain.auction.projection.BidLoggingChartProjection;
 import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
+import seoil.capstone.flashbid.domain.auction.projection.BiddingLogDailySummary;
 import seoil.capstone.flashbid.domain.auction.projection.UserMaxBidProjection;
 
 import java.util.List;
@@ -74,4 +75,16 @@ public interface AuctionBidLogRepository extends JpaRepository<BiddingLogEntity,
            "GROUP BY bl.bidder.id " +
            "ORDER BY MAX(bl.price) DESC")
     List<UserMaxBidProjection> findMaxBidPerUserByAuctionId(@Param("auctionId") Long auctionId);
+
+    @Query("""
+                SELECT
+                    DATE(DATE_TRUNC('day', bl.createdAt)) AS truncatedDate,
+                    COUNT(bl.id) AS count,
+                    SUM(bl.price) AS totalPrice
+                FROM bidding_log bl
+                WHERE bl.auction.id = :auctionId
+                GROUP BY DATE_TRUNC('day', bl.createdAt)
+                ORDER BY DATE_TRUNC('day', bl.createdAt)
+            """)
+    List<BiddingLogDailySummary> getTransactionWithPeriod(Long auctionId);
 }

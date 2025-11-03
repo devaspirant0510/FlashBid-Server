@@ -30,17 +30,23 @@ jobs:
           mkdir -p src/main/resources/properties
           echo "${{ secrets.ENV }}" > src/main/resources/properties/.env.properties
           
-      - name: 🔥 Create Firebase service key
+      - name: 🔐 Create Firebase service JSON
+        run: |
+          mkdir -p src/main/resources/config
+          echo "${{ secrets.FIREBASE_SERVICE }}" | base64 --decode  > src/main/resources/config/firebase-service.json
+
+      - name: 🔐 Create Firebase service JSON2
         run: |
           mkdir -p config
-          echo "${{ secrets.FIREBASE_SERVICE }}" > config/firebase-service.json
-          
+          echo "${{ secrets.FIREBASE_SERVICE }}" | base64 --decode  > config/firebase-service.json
+      # 3️⃣ Gradle 빌드
       - name: 🏗️ Build with Gradle
         run: |
           echo "🚀 빌드 시작!"
           ./gradlew clean build -x test
           echo "✅ 빌드 완료!"
 
+      # 4️⃣ SSH 키 설정
       - name: 🔐 Set up SSH
         run: |
           mkdir -p ~/.ssh
@@ -48,6 +54,7 @@ jobs:
           chmod 600 ~/.ssh/aws_key.pem
           ssh-keyscan -H ${{ secrets.AWS_URL }} >> ~/.ssh/known_hosts
 
+      # 5️⃣ EC2 배포
       - name: 🚚 Deploy to AWS EC2
         run: |
           echo "🚀 EC2 배포 시작!"
@@ -73,7 +80,7 @@ jobs:
             JAR_NAME=$(ls /home/ubuntu/*.jar | head -n 1)
 
             # 백그라운드 실행 + 로그 기록
-            nohup java -jar "$JAR_NAME" > app.log 2>&1 &
+            nohup java -jar -Duser.timezone=Asia/Seoul "$JAR_NAME" > app.log 2>&1 &
 
             echo "✅ 새 앱 실행 완료!"
             echo "🔎 현재 실행 중 프로세스:"

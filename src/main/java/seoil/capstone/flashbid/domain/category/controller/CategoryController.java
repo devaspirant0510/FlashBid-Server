@@ -1,11 +1,11 @@
 package seoil.capstone.flashbid.domain.category.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
 import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
 import seoil.capstone.flashbid.global.common.response.ApiResult;

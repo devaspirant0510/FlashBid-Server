@@ -1,15 +1,15 @@
 package seoil.capstone.flashbid.domain.auction.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import seoil.capstone.flashbid.domain.auction.controller.swagger.AuctionChatSwagger;
 import seoil.capstone.flashbid.domain.auction.entity.AuctionChatEntity;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionChatRepository;
-import seoil.capstone.flashbid.domain.auction.controller.swagger.AuctionChatSwagger;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 
 import java.util.List;

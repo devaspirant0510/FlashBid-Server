@@ -1,8 +1,8 @@
 package seoil.capstone.flashbid.domain.admin.service;
 
-import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import seoil.capstone.flashbid.domain.admin.projection.BidInfoProjection;
 import seoil.capstone.flashbid.domain.admin.projection.CategoryAuctionChartProjection;
 import seoil.capstone.flashbid.domain.admin.repository.AuctionAdminRepository;

@@ -16,10 +16,7 @@ import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
-import seoil.capstone.flashbid.domain.auction.projection.AuctionParticipantsProjection;
-import seoil.capstone.flashbid.domain.auction.projection.AuctionProjection;
-import seoil.capstone.flashbid.domain.auction.projection.BidLoggingChartProjection;
-import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
+import seoil.capstone.flashbid.domain.auction.projection.*;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionParticipateRepository;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
@@ -146,6 +143,14 @@ public class AuctionController implements AuctionSwagger {
         return ApiResult.ok(auctionService.findAllBidLogForAccountId(auctionId, pageable));
     }
 
+    @GetMapping("/bid-history/{id}/daily-summary")
+    public ApiResult<List<BiddingLogDailySummary>> getBidHistoryDailySummaryByAuctionId(
+            @PathVariable("id")
+            Long auctionId
+    ) {
+        return ApiResult.ok(auctionService.findBidLogDailySummaryByAuctionId(auctionId));
+    }
+
     @Override
     @GetMapping("/bid-history/{id}/page")
     public ApiResult<Page<List<BidLoggingProjection>>> getBidHistoryByAuctionIdWithPage(@PathVariable(name = "id") Long auctionId, HttpServletRequest request, Pageable pageable) {
@@ -172,6 +177,7 @@ public class AuctionController implements AuctionSwagger {
     public ApiResult<List<AuctionDto>> getRecommendAuction(Long currentAuctionId, HttpServletRequest request) {
         return null;
     }
+
 
     @Override
     @AuthUser

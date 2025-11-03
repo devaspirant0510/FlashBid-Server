@@ -1,14 +1,9 @@
 package seoil.capstone.flashbid.domain.auction.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import seoil.capstone.flashbid.domain.user.entity.Account;
@@ -42,7 +37,7 @@ public class AuctionChatEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated()
     @Column(name = "chat_type", nullable = false, length = 20)
     private ChatType chatType;
 

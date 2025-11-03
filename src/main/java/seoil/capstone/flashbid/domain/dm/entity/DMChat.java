@@ -44,7 +44,7 @@ public class DMChat {
     @Column(columnDefinition = "TEXT")
     private String contents;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated
     @Column(name = "dm_type", nullable = false, length = 20)
 
     private DMType dmType;  // MESSAGE, FILE 등

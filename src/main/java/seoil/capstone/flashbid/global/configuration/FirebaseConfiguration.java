@@ -24,7 +24,7 @@ public class FirebaseConfiguration {
             // Firebase initialization logic here
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl("https://daewooteam5-432ae-default-rtdb.asia-southeast1.firebasedatabase.app")
+                    .setDatabaseUrl("https://unknownauction-8bfa1-default-rtdb.firebaseio.com")
                     .build();
 
             FirebaseApp.initializeApp(options);

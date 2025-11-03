@@ -15,10 +15,7 @@ import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
 import seoil.capstone.flashbid.domain.auction.entity.*;
-import seoil.capstone.flashbid.domain.auction.projection.AuctionProjection;
-import seoil.capstone.flashbid.domain.auction.projection.BidLoggingChartProjection;
-import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
-import seoil.capstone.flashbid.domain.auction.projection.UserMaxBidProjection;
+import seoil.capstone.flashbid.domain.auction.projection.*;
 import seoil.capstone.flashbid.domain.auction.repository.*;
 import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
 import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
@@ -403,5 +400,9 @@ public class AuctionService {
     // 주어진 auctionId에 대해 각 사용자별 최고 입찰가를 가져옵니다 (내림차순)
     public List<UserMaxBidProjection> getMaxBidPerUserByAuctionId(Long auctionId) {
         return auctionBidLogRepository.findMaxBidPerUserByAuctionId(auctionId);
+    }
+
+    public List<BiddingLogDailySummary> findBidLogDailySummaryByAuctionId(Long auctionId) {
+        return auctionBidLogRepository.getTransactionWithPeriod(auctionId);
     }
 }
