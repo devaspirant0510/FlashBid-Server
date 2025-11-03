@@ -87,7 +87,7 @@ public class AuctionController implements AuctionSwagger {
             Account user,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId,user==null?null: user.getId()));
+        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId, user == null ? null : user.getId()));
     }
 
     @Override
@@ -117,13 +117,19 @@ public class AuctionController implements AuctionSwagger {
     }
 
     @GetMapping("/live")
-    public ApiResult<Slice<AuctionProjection>> getAllLiveAuctionPage(@RequestParam(name = "page", defaultValue = "1") Integer page) {
-        return ApiResult.ok(auctionService.queryGetAllAuction(AuctionType.LIVE, page - 1), "라이브 옥션 페이지 조회 성공");
+    public ApiResult<Slice<AuctionProjection>> getAllLiveAuctionPage(
+            @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @RequestParam(name = "category",required = false) String categoryName
+    ) {
+        return ApiResult.ok(auctionService.queryGetAllAuction(AuctionType.LIVE,categoryName, page - 1), "라이브 옥션 페이지 조회 성공");
     }
 
     @GetMapping("/blind")
-    public ApiResult<Slice<AuctionProjection>> getAllBlindAuctionPage(@RequestParam(name = "page", defaultValue = "1") Integer page) {
-        return ApiResult.ok(auctionService.queryGetAllAuction(AuctionType.BLIND, page - 1), "라이브 옥션 페이지 조회 성공");
+    public ApiResult<Slice<AuctionProjection>> getAllBlindAuctionPage(
+            @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @RequestParam(name = "category", required = false) String categoryName
+    ) {
+        return ApiResult.ok(auctionService.queryGetAllAuction(AuctionType.BLIND, categoryName, page - 1), "라이브 옥션 페이지 조회 성공");
     }
 
     @Override
