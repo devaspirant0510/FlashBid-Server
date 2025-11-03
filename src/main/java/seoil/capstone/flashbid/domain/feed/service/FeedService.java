@@ -17,6 +17,7 @@ import seoil.capstone.flashbid.domain.feed.dto.response.FeedListResponse;
 import seoil.capstone.flashbid.domain.feed.entity.CommentEntity;
 import seoil.capstone.flashbid.domain.feed.entity.FeedEntity;
 import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
+import seoil.capstone.flashbid.domain.feed.projection.FeedAuctionProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedProjection;
 import seoil.capstone.flashbid.domain.feed.repository.CommentRepository;
 import seoil.capstone.flashbid.domain.feed.repository.FeedRepository;
@@ -310,6 +311,10 @@ public class FeedService {
         return commentRepository.findAllByReplyId(replyId);
     }
 
+    @Transactional
+    public List<FeedAuctionProjection> getMyFeedAuction(Account account) {
+        return feedRepository.findMyFeedPostedAuction(account.getId());
+    }
     // FileService 관련 메서드 (FileService에도 추가 필요)
     // public void deleteFilesByFeedId(Long feedId) {
     //     fileService.deleteByFileId(feedId);

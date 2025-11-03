@@ -6,6 +6,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import seoil.capstone.flashbid.domain.feed.entity.FeedEntity;
+import seoil.capstone.flashbid.domain.feed.projection.FeedAuctionProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedProjection;
 
 import java.util.List;
@@ -40,5 +41,36 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
                 ORDER BY f.createdAt DESC
             """)
     Slice<FeedProjection> findAllFeedQuery(Pageable pageable,Long userId);
+
+    @Query("""
+            select
+                au.id as auctionId,
+                au.goods.title as auctionTitle,
+                au.goods.description as auctionDescription,
+                au.category.name as categoryName,
+                (
+                    SELECT f.url
+                    FROM file f
+                    WHERE f.fileId = au.id
+                    AND f.fileType = seoil.capstone.flashbid.global.common.enums.FileType.GOODS
+                    ORDER BY f.id ASC
+                    LIMIT 1
+                ) AS thumbnail,
+                au.startPrice as startPrice,
+                (
+                    SELECT b.price
+                    FROM bidding_log b
+                    WHERE b.auction.id = au.id
+                    ORDER BY b.createdAt DESC
+                    LIMIT 1
+                ) AS currentPrice,
+                au.startTime as startTime,
+                au.endTime as endTime
+            from Account ac
+            join Auction au
+            on ac.id = au.user.id
+            where au.auctionStatus != seoil.capstone.flashbid.global.common.enums.AuctionStatus.ENDED
+            """)
+    List<FeedAuctionProjection> findMyFeedPostedAuction(Long accountId);
 
 }

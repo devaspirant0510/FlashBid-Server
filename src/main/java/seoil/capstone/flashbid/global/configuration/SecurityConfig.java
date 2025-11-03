@@ -83,7 +83,11 @@ public class SecurityConfig {
                                 HttpMethod.GET,
                                 "/api/v1/auction/live",
                                 "/api/v1/auction/blind",
-                                "/api/v1/auction/*"
+                                "/api/v1/auction/*",
+                                "/api/v1/profile/*",
+                                "/api/v1/profile/*/feed",
+                                "/api/v1/profile/*/sales",
+                                "/api/v1/profile/*/purchases"
                         ).permitAll()
                         .anyRequest().authenticated()
                 ) // 모든 요청 허용

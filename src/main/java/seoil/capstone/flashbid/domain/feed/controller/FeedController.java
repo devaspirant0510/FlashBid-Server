@@ -144,4 +144,12 @@ public class FeedController implements FeedSwagger {
     ) {
         return ApiResult.ok(feedService.deleteFeed(account, id));
     }
+
+    @GetMapping("/my/auction")
+    @AuthUser
+    public ApiResult<?> getMyFeedAuction(
+            Account account
+    ){
+        return ApiResult.ok(feedService.getMyFeedAuction(account));
+    }
 }
