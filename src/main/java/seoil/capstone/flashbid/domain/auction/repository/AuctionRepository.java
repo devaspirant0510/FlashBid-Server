@@ -48,7 +48,8 @@ public interface AuctionRepository extends JpaRepository<Auction,Long> {
                 WHERE a.auctionType = :auctionType
                   AND c.root IS NULL
                   AND a.endTime > CURRENT_TIMESTAMP
+                    AND (:categoryName IS NULL OR c.name = :categoryName)
                 ORDER BY a.createdAt DESC
             """)
-    Slice<AuctionProjection> findAllByLiveAuctionPage(AuctionType auctionType, Pageable pageable);
+    Slice<AuctionProjection> findAllByLiveAuctionPage(AuctionType auctionType,String categoryName, Pageable pageable);
 }

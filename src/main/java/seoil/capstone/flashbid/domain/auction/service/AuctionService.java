@@ -88,8 +88,8 @@ public class AuctionService {
         return auctionRepository.findById(auctionId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
     }
 
-    public Slice<AuctionProjection> queryGetAllAuction(AuctionType type, int page) {
-        return auctionRepository.findAllByLiveAuctionPage(type, PageRequest.of(page, 3));
+    public Slice<AuctionProjection> queryGetAllAuction(AuctionType type,String categoryName, int page) {
+        return auctionRepository.findAllByLiveAuctionPage(type,categoryName, PageRequest.of(page, 3));
     }
 
     @Transactional
