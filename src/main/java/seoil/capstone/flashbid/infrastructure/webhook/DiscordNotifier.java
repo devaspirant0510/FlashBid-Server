@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import seoil.capstone.flashbid.infrastructure.api.client.DiscordNotifierClient;
-import seoil.capstone.flashbid.infrastructure.api.client.GeoIPFeignClient;
+import seoil.capstone.flashbid.infrastructure.api.client.GeoIpCacheClient;
 import ua_parser.Client;
 import ua_parser.Parser;
 
@@ -19,7 +19,7 @@ import java.util.Map;
 public class DiscordNotifier {
 
     private final DiscordNotifierClient discordFeignClient;
-    private final GeoIPFeignClient geoIPFeignClient;
+    private final GeoIpCacheClient geoIpCacheClient;
     private final Parser uaParser = new Parser();
 
     @Async
@@ -48,15 +48,31 @@ public class DiscordNotifier {
     }
 
     private String getLocationFromIP(String ip) {
-        if (ip == null || ip.equals("0:0:0:0:0:0:0:1")) return "로컬호스트";
+        if (ip == null || ip.equals("0:0:0:0:0:0:0:1")) {
+            return "로컬호스트 (127.0.0.1)";
+        }
+
         try {
-            JsonNode json = geoIPFeignClient.getLocation(ip);
+            JsonNode json = geoIpCacheClient.getGeoLocation(ip);
+
             String city = json.path("city").asText("");
             String region = json.path("region").asText("");
             String country = json.path("country_name").asText("");
+            String org = json.path("org").asText("알 수 없음");
+            String latitude = json.path("latitude").asText("?");
+            String longitude = json.path("longitude").asText("?");
 
-            if (city.isEmpty() && region.isEmpty()) return country.isEmpty() ? "알 수 없음" : country;
-            return String.format("%s %s %s", country, region, city).trim();
+            StringBuilder sb = new StringBuilder();
+
+            if (!country.isEmpty()) sb.append(country);
+            if (!region.isEmpty()) sb.append(" ").append(region);
+            if (!city.isEmpty()) sb.append(" ").append(city);
+
+            sb.append(String.format(" (%.5s, %.5s)", latitude, longitude)); // 위도, 경도
+            sb.append(" / ").append(org); // 통신사
+
+            return sb.toString().trim();
+
         } catch (Exception e) {
             log.warn("GeoIP 조회 실패: {}", e.getMessage());
             return "위치 조회 실패";
