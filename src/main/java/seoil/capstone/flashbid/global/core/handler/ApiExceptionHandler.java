@@ -3,7 +3,9 @@ package seoil.capstone.flashbid.global.core.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,6 +20,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import seoil.capstone.flashbid.global.common.error.ApiException;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 import seoil.capstone.flashbid.global.common.response.ErrorDetails;
+import seoil.capstone.flashbid.infrastructure.webhook.DiscordNotifier;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -25,8 +28,11 @@ import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class ApiExceptionHandler implements ResponseBodyAdvice<Object> {
-
+    private final DiscordNotifier discordNotifier;
+    @Value("${MODE:production}")
+    private String mode;
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResult<?>> handleException(Exception e, HttpServletRequest request) {
@@ -55,6 +61,23 @@ public class ApiExceptionHandler implements ResponseBodyAdvice<Object> {
             error.setInstance(request.getRequestURI());
         }
         response.setStatus(error.getStatus());
+        if (mode.equals("production")) {
+            String ip = request.getHeader("X-Forwarded-For");
+            if (ip == null) ip = request.getRemoteAddr();
+
+            String userAgent = request.getHeader("User-Agent");
+            String deviceInfo = discordNotifier.parseDeviceInfo(userAgent);
+
+            Map<String, String> info = new HashMap<>();
+            info.put("URL", request.getRequestURI());
+            info.put("IP 주소", ip);
+            info.put("디바이스", deviceInfo);
+            info.put("상태코드", String.valueOf(error.getStatus()));
+            info.put("에러 제목", error.getTitle());
+            info.put("에러 메시지", error.getDetail());
+            info.put("예외 전체 메시지", e.toString());
+            discordNotifier.sendError("🔥 ApiException 발생", info);
+        }
 
         return
                 ApiResult.builder()
