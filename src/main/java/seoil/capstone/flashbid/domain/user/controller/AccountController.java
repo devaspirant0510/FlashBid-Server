@@ -208,4 +208,10 @@ public class    AccountController implements AccountSwagger {
         ),"내 정보 조회 성공");
     }
 
+    @AuthUser
+    @GetMapping("/my/interests")
+    public ApiResult<List<AuctionDto>> getInterestsHistory(Account user, HttpServletRequest request) {
+        return ApiResult.ok(userService.getInterestsHistory(user));
+    }
+
 }

@@ -15,4 +15,6 @@ public interface AccountStatusInfoProjection {
 
     Long getFollowingCount();
 
+    Long getWishListCount();
+
 }
