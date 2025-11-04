@@ -8,8 +8,6 @@ import org.springframework.data.repository.query.Param;
 import seoil.capstone.flashbid.domain.auction.entity.AuctionParticipateEntity;
 import seoil.capstone.flashbid.domain.auction.projection.AuctionParticipantsProjection;
 
-import java.util.List;
-
 public interface AuctionParticipateRepository extends JpaRepository<AuctionParticipateEntity, Long> {
     int countByAuctionId(Long auctionId);
 

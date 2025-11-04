@@ -11,7 +11,6 @@ import seoil.capstone.flashbid.domain.auction.repository.ConfirmedBidsRepository
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.feed.repository.FeedRepository;
 import seoil.capstone.flashbid.domain.feed.service.FeedService;
-import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.service.FileService;
 import seoil.capstone.flashbid.domain.user.dto.response.FollowUserDto;

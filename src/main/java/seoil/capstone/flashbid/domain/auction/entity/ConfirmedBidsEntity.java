@@ -3,7 +3,6 @@ package seoil.capstone.flashbid.domain.auction.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import seoil.capstone.flashbid.domain.user.entity.Account;
-import seoil.capstone.flashbid.global.core.BaseTimeEntity;
 import seoil.capstone.flashbid.global.core.BaseTimeOnlyCreated;
 
 

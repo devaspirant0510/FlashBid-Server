@@ -15,7 +15,6 @@ import seoil.capstone.flashbid.global.common.error.ApiException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 

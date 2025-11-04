@@ -10,22 +10,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.repository.*;
 import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
 import seoil.capstone.flashbid.domain.file.service.FileService;
-import seoil.capstone.flashbid.domain.user.entity.Account;
-import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
-import seoil.capstone.flashbid.global.common.enums.LoginType;
-import seoil.capstone.flashbid.global.common.enums.UserStatus;
 
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuctionServiceTest {
