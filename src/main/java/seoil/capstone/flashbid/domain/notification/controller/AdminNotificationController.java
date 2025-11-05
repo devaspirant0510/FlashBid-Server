@@ -32,7 +32,8 @@ public class AdminNotificationController {
                     .title(request.getTitle())
                     .content(request.getBody())
                     .notificationType(NotificationEntity.NotificationType.ALL)
-                    .account(null) // 전체 공지는 특정 유저 없음
+                    .account(null)
+                    .link(request.getLink())
                     .build();
             notificationRepository.save(notification);
 

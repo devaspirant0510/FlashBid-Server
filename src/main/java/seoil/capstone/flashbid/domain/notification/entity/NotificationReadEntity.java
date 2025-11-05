@@ -22,6 +22,9 @@ public class NotificationReadEntity {
     @ManyToOne
     private Account account;
 
+    @ManyToOne
+    private NotificationEntity notification;
+
     @Column
     private LocalDateTime readAt;
 }
