@@ -335,6 +335,7 @@ public class AuctionService {
                         .earnedPoint(dto.getAmount())
                         .contents(auction.getGoods().getTitle() + " 경매 입찰")
                         .chargeType(PointHistoryEntity.ChargeType.PURCHASE)
+                        .earnType(PointHistoryEntity.EarnType.USE)
                         .userId(user)
                         .build()
         );
