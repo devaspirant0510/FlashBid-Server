@@ -30,6 +30,8 @@ public class NotificationEntity extends BaseTimeEntity {
     @ManyToOne
     private Account account;
 
+    @Column
+    private String link;
 
     public enum NotificationType {
         AUCTION_ENDED, POINT, ALL
