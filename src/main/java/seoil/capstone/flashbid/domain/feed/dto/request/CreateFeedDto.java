@@ -12,4 +12,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CreateFeedDto {
     private String content;
+    private Long auctionId;
 }

@@ -20,6 +20,7 @@ import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
 import seoil.capstone.flashbid.domain.feed.projection.FeedAuctionProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedProjection;
 import seoil.capstone.flashbid.domain.feed.repository.CommentRepository;
+import seoil.capstone.flashbid.domain.feed.repository.FeedAuctionRepository;
 import seoil.capstone.flashbid.domain.feed.repository.FeedRepository;
 import seoil.capstone.flashbid.domain.feed.repository.LikeRepository;
 import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
@@ -44,6 +45,7 @@ public class FeedService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final FileRepository fileRepository;
+    private final FeedAuctionRepository feedAuctionRepository;
 
     @Transactional(readOnly = true)
     public Slice<FeedListResponse> getFeedQuery(int page, int size, Account account) {
@@ -81,6 +83,7 @@ public class FeedService {
                 .viewCount(0)
                 .build();
         FeedEntity savedEntity = feedRepository.save(feedEntity);
+
         if (files != null) {
             List<FileProjection> uploadFiles = fileService
                     .uploadAllFiles(files, account, savedEntity.getId(), FileType.FEED)
