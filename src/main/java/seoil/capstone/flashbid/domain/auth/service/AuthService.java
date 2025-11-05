@@ -14,6 +14,8 @@ import seoil.capstone.flashbid.domain.auth.entity.UserFcmEntity;
 import seoil.capstone.flashbid.domain.auth.repository.EmailOtpRedisRepository;
 import seoil.capstone.flashbid.domain.auth.repository.FcmCacheRepository;
 import seoil.capstone.flashbid.domain.auth.repository.UserFcmRepository;
+import seoil.capstone.flashbid.domain.payment.entity.PointHistoryEntity;
+import seoil.capstone.flashbid.domain.payment.repository.PointHistoryRepository;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
@@ -38,6 +40,7 @@ public class AuthService {
     private final MailService mailService;
     private final UserFcmRepository userFcmRepository;
     private final FcmCacheRepository fcmCacheRepository;
+    private final PointHistoryRepository pointHistoryRepository;
 
     public Account authorizationTokenWithUser(String token) {
         log.info(token);
@@ -86,6 +89,16 @@ public class AuthService {
                 .email(dto.getEmail())
                 .build();
         accountRepository.save(createAccount);
+
+        createAccount.setPoint(1000000);
+        PointHistoryEntity pointHistory = PointHistoryEntity.builder()
+                .chargeType(PointHistoryEntity.ChargeType.GIFT)
+                .contents("가입 축하 포인트 지급")
+                .earnedPoint(1000000)
+                .earnType(PointHistoryEntity.EarnType.EARN)
+                .userId(createAccount)
+                .build();
+        pointHistoryRepository.save(pointHistory);
         return createAccount;
     }
 
