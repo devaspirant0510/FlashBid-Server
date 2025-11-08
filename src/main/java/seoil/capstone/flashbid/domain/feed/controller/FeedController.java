@@ -9,6 +9,7 @@ import seoil.capstone.flashbid.domain.feed.controller.swagger.FeedSwagger;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateCommentDto;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateFeedDto;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.feed.dto.response.FeedListResponse;
 import seoil.capstone.flashbid.domain.feed.entity.CommentEntity;
 import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
 import seoil.capstone.flashbid.domain.feed.service.FeedService;
@@ -29,14 +30,14 @@ public class FeedController implements FeedSwagger {
     @AuthUser
     @PostMapping
     @Override
-    public ApiResult<FeedDto> createFeed(
+    public ApiResult<FeedListResponse> createFeed(
             Account account,
             @RequestParam(value = "files",required = false) List<MultipartFile> files,
             @RequestPart CreateFeedDto data,
             HttpServletRequest request
     ) {
-        FeedDto feed = feedService.createFeed(account, files, data);
-        return ApiResult.created(feed);
+        FeedListResponse feed = feedService.createFeed(account, files, data);
+        return ApiResult.created(feed,"경매 생성 완료");
     }
 
     @GetMapping("/hot")
@@ -142,5 +143,13 @@ public class FeedController implements FeedSwagger {
             HttpServletRequest request
     ) {
         return ApiResult.ok(feedService.deleteFeed(account, id));
+    }
+
+    @GetMapping("/my/auction")
+    @AuthUser
+    public ApiResult<?> getMyFeedAuction(
+            Account account
+    ){
+        return ApiResult.ok(feedService.getMyFeedAuction(account));
     }
 }

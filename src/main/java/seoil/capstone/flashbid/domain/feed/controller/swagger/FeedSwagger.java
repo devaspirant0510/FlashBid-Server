@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateCommentDto;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateFeedDto;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.feed.dto.response.FeedListResponse;
 import seoil.capstone.flashbid.domain.feed.entity.CommentEntity;
 import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
 import seoil.capstone.flashbid.domain.user.entity.Account;
@@ -29,7 +30,7 @@ public interface FeedSwagger {
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    ApiResult<FeedDto> createFeed(
+    ApiResult<FeedListResponse> createFeed(
             @Parameter(hidden = true) Account account,
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
             @RequestPart(value = "data") CreateFeedDto data,

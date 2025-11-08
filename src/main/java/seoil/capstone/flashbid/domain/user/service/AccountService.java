@@ -2,10 +2,12 @@ package seoil.capstone.flashbid.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.service.FileService;
+import seoil.capstone.flashbid.domain.payment.entity.PointHistoryEntity;
+import seoil.capstone.flashbid.domain.payment.repository.PointHistoryRepository;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.global.common.enums.FileType;
@@ -24,6 +26,8 @@ public class AccountService {
     private final FileService fileService;
 
     private final AccountRepository accountRepository;
+    private final PointHistoryRepository pointHistoryRepository;
+
     // 이메일로 가입한 유저의 이메일을 디비에서 조회하여 가입한적이 있는지 확인
     public boolean isRegisteredEmail(String email) {
         return accountRepository.existsByEmail(email);
@@ -44,6 +48,7 @@ public class AccountService {
     }
 
     // OAuth 로그인 성공시 필수 정보 기반으로 Account 테이블 생성
+    @Transactional
     public Account registerAccount(String email, String uuid, LoginType loginType) {
         Account createAccount = Account.builder()
                 .email(email)
@@ -53,6 +58,16 @@ public class AccountService {
                 .userType(UserType.UN_REGISTER)
                 .userStatus(UserStatus.UN_LINK)
                 .build();
+        createAccount.setPoint(1000000);
+        PointHistoryEntity pointHistory = PointHistoryEntity.builder()
+                .chargeType(PointHistoryEntity.ChargeType.GIFT)
+                .contents("가입 축하 포인트 지급")
+                .earnedPoint(1000000)
+                .earnType(PointHistoryEntity.EarnType.EARN)
+                .userId(createAccount)
+                .build();
+        pointHistoryRepository.save(pointHistory);
+
         return accountRepository.save(createAccount);
     }
 

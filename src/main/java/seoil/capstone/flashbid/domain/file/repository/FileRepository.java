@@ -17,7 +17,9 @@ public interface FileRepository extends JpaRepository<FileEntity, Long> {
     @Query("""
                     select
                     f.id as id,
-                    f.url as url
+                    f.url as url,
+                    f.fileId as fileId,
+                    f.fileType as fileType
                     from file f
                     where f.fileId in :ids and f.fileType = :fileType
             """)

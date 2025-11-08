@@ -9,10 +9,12 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import seoil.capstone.flashbid.domain.auction.dto.model.AuctionChatModel;
+import seoil.capstone.flashbid.domain.auction.dto.response.AuctionChatDto;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.entity.AuctionChatEntity;
 import seoil.capstone.flashbid.domain.auction.entity.BiddingLogEntity;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
+import seoil.capstone.flashbid.domain.auction.projection.AuctionChatProjection;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
 import seoil.capstone.flashbid.domain.auction.service.AuctionChatService;
@@ -29,7 +31,7 @@ public class AuctionChatSocketController {
 
     @MessageMapping("/chat/send/{auctionId}")
     @SendTo("/topic/public/{auctionId}")
-    public AuctionChatEntity sendChat(@DestinationVariable Long auctionId, @Payload AuctionChatModel message) {
+    public AuctionChatDto sendChat(@DestinationVariable Long auctionId, @Payload AuctionChatModel message) {
         return auctionChatService.saveAuctionChat(message, auctionId);
     }
 

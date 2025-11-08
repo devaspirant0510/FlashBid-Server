@@ -1,4 +1,6 @@
 spring:
+  cache:
+    type: redis
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -26,7 +28,7 @@ spring:
       max-request-size: 10MB
   datasource:
     url: ${DB_URL}
-#    url : jdbc:postgresql://localhost:5432/flash_bid
+ #   url : jdbc:postgresql://localhost:5432/flash_bid
     driver-class-name: org.postgresql.Driver
     username: ${USERNAME}
     password: ${PASSWORD}

@@ -16,10 +16,7 @@ import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
-import seoil.capstone.flashbid.domain.auction.projection.AuctionParticipantsProjection;
-import seoil.capstone.flashbid.domain.auction.projection.AuctionProjection;
-import seoil.capstone.flashbid.domain.auction.projection.BidLoggingChartProjection;
-import seoil.capstone.flashbid.domain.auction.projection.BidLoggingProjection;
+import seoil.capstone.flashbid.domain.auction.projection.*;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionParticipateRepository;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
@@ -90,7 +87,7 @@ public class AuctionController implements AuctionSwagger {
             Account user,
             HttpServletRequest request
     ) {
-        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId,user==null?null: user.getId()));
+        return ApiResult.ok(auctionService.getAuctionInfoByIdToDto(auctionId, user == null ? null : user.getId()));
     }
 
     @Override
@@ -120,13 +117,19 @@ public class AuctionController implements AuctionSwagger {
     }
 
     @GetMapping("/live")
-    public ApiResult<Slice<AuctionProjection>> getAllLiveAuctionPage(@RequestParam(name = "page", defaultValue = "1") Integer page) {
-        return ApiResult.ok(auctionService.queryGetAllAuction(AuctionType.LIVE, page - 1), "라이브 옥션 페이지 조회 성공");
+    public ApiResult<Slice<AuctionProjection>> getAllLiveAuctionPage(
+            @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @RequestParam(name = "category",required = false) String categoryName
+    ) {
+        return ApiResult.ok(auctionService.queryGetAllAuction(AuctionType.LIVE,categoryName, page - 1), "라이브 옥션 페이지 조회 성공");
     }
 
     @GetMapping("/blind")
-    public ApiResult<Slice<AuctionProjection>> getAllBlindAuctionPage(@RequestParam(name = "page", defaultValue = "1") Integer page) {
-        return ApiResult.ok(auctionService.queryGetAllAuction(AuctionType.BLIND, page - 1), "라이브 옥션 페이지 조회 성공");
+    public ApiResult<Slice<AuctionProjection>> getAllBlindAuctionPage(
+            @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @RequestParam(name = "category", required = false) String categoryName
+    ) {
+        return ApiResult.ok(auctionService.queryGetAllAuction(AuctionType.BLIND, categoryName, page - 1), "라이브 옥션 페이지 조회 성공");
     }
 
     @Override
@@ -144,6 +147,14 @@ public class AuctionController implements AuctionSwagger {
             Pageable pageable
     ) {
         return ApiResult.ok(auctionService.findAllBidLogForAccountId(auctionId, pageable));
+    }
+
+    @GetMapping("/bid-history/{id}/daily-summary")
+    public ApiResult<List<BiddingLogDailySummary>> getBidHistoryDailySummaryByAuctionId(
+            @PathVariable("id")
+            Long auctionId
+    ) {
+        return ApiResult.ok(auctionService.findBidLogDailySummaryByAuctionId(auctionId));
     }
 
     @Override
@@ -172,6 +183,7 @@ public class AuctionController implements AuctionSwagger {
     public ApiResult<List<AuctionDto>> getRecommendAuction(Long currentAuctionId, HttpServletRequest request) {
         return null;
     }
+
 
     @Override
     @AuthUser

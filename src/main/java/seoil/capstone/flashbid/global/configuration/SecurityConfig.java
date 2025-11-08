@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import seoil.capstone.flashbid.global.core.security.JwtAuthenticationFilter;
 import seoil.capstone.flashbid.global.core.security.CustomAccessDeniedHandler;
 import seoil.capstone.flashbid.global.core.security.CustomAuthenticationEntryPoint;
 import seoil.capstone.flashbid.global.core.security.CustomUserDetailService;
@@ -63,9 +64,12 @@ public class SecurityConfig {
                                 "api/v1/profile/status/*",
                                 "/api/v1/profile/*/sales",
                                 "/api/v1/profile/*/purchases",
+                                "/api/v1/profile/my/interests",
                                 "/api/v1/auction/views/*",
                                 "/api/v1/admin/**",
                                 "/v3/api-docs/**",
+                                "/api/user/notices/**",
+                                "/api/admin/notices/**",
                                 "/api/v1/category",
                                 "/api/v1/feed/test-all",
                                 "/api/v2/feed",
@@ -80,7 +84,11 @@ public class SecurityConfig {
                                 HttpMethod.GET,
                                 "/api/v1/auction/live",
                                 "/api/v1/auction/blind",
-                                "/api/v1/auction/*"
+                                "/api/v1/auction/*",
+                                "/api/v1/profile/*",
+                                "/api/v1/profile/*/feed",
+                                "/api/v1/profile/*/sales",
+                                "/api/v1/profile/*/purchases"
                         ).permitAll()
                         .anyRequest().authenticated()
                 ) // 모든 요청 허용

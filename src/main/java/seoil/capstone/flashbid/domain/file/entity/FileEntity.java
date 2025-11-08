@@ -1,11 +1,7 @@
 package seoil.capstone.flashbid.domain.file.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import seoil.capstone.flashbid.domain.user.entity.Account;

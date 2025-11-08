@@ -6,13 +6,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import seoil.capstone.flashbid.global.common.response.ErrorDetails;
-import seoil.capstone.flashbid.global.common.response.ApiHeader;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
+import seoil.capstone.flashbid.global.common.response.ErrorDetails;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

@@ -7,15 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
-import seoil.capstone.flashbid.domain.auction.entity.Auction;
-import seoil.capstone.flashbid.domain.auction.entity.AuctionWishListCountEntity;
-import seoil.capstone.flashbid.domain.auction.entity.BiddingLogEntity;
-import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
+import seoil.capstone.flashbid.domain.auction.entity.*;
 import seoil.capstone.flashbid.domain.auction.repository.*;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.feed.repository.FeedRepository;
 import seoil.capstone.flashbid.domain.feed.service.FeedService;
-import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.service.FileService;
 import seoil.capstone.flashbid.domain.user.dto.response.FollowUserDto;
@@ -48,6 +44,7 @@ public class UserService {
     private final AuctionBidLogRepository auctionBidLogRepository;
     private final AuctionChatRepository auctionChatRepository;
     private final AuctionWishListCountRepository auctionWishListCountRepository;
+    private final AuctionWishListRepository auctionWishListRepository;
 
     public UserDto getUserById(Account authUser, Long profileUserId){
         Account account = accountRepository.findById(profileUserId).orElseThrow(() ->
@@ -299,5 +296,39 @@ public class UserService {
                     return FollowUserDto.from(itemUser, iFollowThem);
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<AuctionDto> getInterestsHistory(Account user) {
+        // 1. 새로 만든 리포지토리 메소드 사용
+        List<AuctionWishListEntity> interests = auctionWishListRepository.findAllByUserId(user.getId());
+
+        List<AuctionDto> auctionDtos = new ArrayList<>();
+
+        // 2. 찜한 목록을 AuctionDto로 변환 (getSalesHistory 로직과 거의 동일)
+        for (AuctionWishListEntity wishItem : interests) {
+            Auction auction = wishItem.getAuction(); // 찜한 경매 정보
+
+            List<FileEntity> images = fileService.getAllFiles(auction.getGoods().getId(), FileType.GOODS);
+            Integer participateCount = auctionParticipateRepository.countByAuctionId(auction.getId());
+            Long biddingCount = auctionBidLogRepository.countByAuctionId(auction.getId());
+            BiddingLogEntity bidHistory = auctionBidLogRepository.findTop1ByAuctionIdOrderByPriceDesc(auction.getId());
+            Long currentPrice = (bidHistory != null) ? bidHistory.getPrice() : auction.getStartPrice();
+            Long chatCount = auctionChatRepository.countByAuctionId(auction.getId());
+            AuctionWishListCountEntity wishListCountEntity = auctionWishListCountRepository.findById(auction.getId())
+                    .orElse(AuctionWishListCountEntity.builder().count(0L).build());
+            Long wishListCount = wishListCountEntity.getCount();
+
+            auctionDtos.add(new AuctionDto(
+                    auction,
+                    images,
+                    participateCount,
+                    biddingCount,
+                    currentPrice,
+                    chatCount,
+                    wishListCount
+            ));
+        }
+        return auctionDtos;
     }
 }

@@ -86,6 +86,7 @@ public class AuctionPurchaseService {
                 .earnedPoint(Math.toIntExact(amount))
                 .chargeType(PointHistoryEntity.ChargeType.PURCHASE)
                 .contents("경매_" + auctionId)
+                .earnType(PointHistoryEntity.EarnType.EARN)
                 .build();
         pointHistoryRepository.save(pointHistory);
     }

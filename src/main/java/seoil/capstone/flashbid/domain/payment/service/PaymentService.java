@@ -43,6 +43,7 @@ public class PaymentService {
                 .userId(account)
                 .chargeType(PointHistoryEntity.ChargeType.CHARGE)
                 .contents("포인트 충전")
+                .earnType(PointHistoryEntity.EarnType.EARN)
                 .earnedPoint(dto.getPointAmount())
                 .build();
         pointHistoryRepository.save(savedPointHistory);
@@ -95,6 +96,7 @@ public class PaymentService {
                         .userId(bidder)
                         .chargeType(PointHistoryEntity.ChargeType.REFUND)
                         .contents(contents)
+                        .earnType(PointHistoryEntity.EarnType.EARN)
                         .earnedPoint(maxPrice.intValue())
                         .build()
         );

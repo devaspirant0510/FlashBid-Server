@@ -80,7 +80,7 @@ jobs:
             JAR_NAME=$(ls /home/ubuntu/*.jar | head -n 1)
 
             # 백그라운드 실행 + 로그 기록
-            nohup java -jar "$JAR_NAME" > app.log 2>&1 &
+            nohup java -jar -Duser.timezone=Asia/Seoul "$JAR_NAME" > app.log 2>&1 &
 
             echo "✅ 새 앱 실행 완료!"
             echo "🔎 현재 실행 중 프로세스:"

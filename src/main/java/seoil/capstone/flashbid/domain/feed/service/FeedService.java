@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,11 +13,14 @@ import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateCommentDto;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateFeedDto;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.feed.dto.response.FeedListResponse;
 import seoil.capstone.flashbid.domain.feed.entity.CommentEntity;
 import seoil.capstone.flashbid.domain.feed.entity.FeedEntity;
 import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
+import seoil.capstone.flashbid.domain.feed.projection.FeedAuctionProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedProjection;
 import seoil.capstone.flashbid.domain.feed.repository.CommentRepository;
+import seoil.capstone.flashbid.domain.feed.repository.FeedAuctionRepository;
 import seoil.capstone.flashbid.domain.feed.repository.FeedRepository;
 import seoil.capstone.flashbid.domain.feed.repository.LikeRepository;
 import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
@@ -28,10 +32,8 @@ import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -43,25 +45,37 @@ public class FeedService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final FileRepository fileRepository;
+    private final FeedAuctionRepository feedAuctionRepository;
 
     @Transactional(readOnly = true)
-    public Slice<FeedProjection> getFeedQuery(int page, int size){
-        Slice<FeedProjection> allFeedQuery = feedRepository.findAllFeedQuery(PageRequest.of(page, size));
+    public Slice<FeedListResponse> getFeedQuery(int page, int size, Account account) {
+        // Feed 조회
+        Slice<FeedProjection> allFeedQuery = feedRepository.findAllFeedQuery(PageRequest.of(page, size), account == null ? null : account.getId());
+        // Feed ID 추출후 해당 피드의 File 조회
         List<Long> feedIds = allFeedQuery.getContent().stream().map(FeedProjection::getId).toList();
         List<FileProjection> fetchAllFeedImages = fileRepository.findAllInFileIdsWithFileType(feedIds, FileType.FEED);
+        // 해시맵 으로 피드 ID별 이미지 묶기
         Map<Long, List<FileProjection>> imageMap = new HashMap<>();
 
         for (FileProjection file : fetchAllFeedImages) {
             imageMap
-                    .computeIfAbsent(file.getId(), k -> new ArrayList<>())
+                    .computeIfAbsent(file.getFileId(), k -> new ArrayList<>())
                     .add(file);
         }
-        return null;
+        List<FeedListResponse> feedResult = new ArrayList<>();
+        for (FeedProjection feed : allFeedQuery.getContent()) {
+            feedResult.add(FeedListResponse.from(
+                    feed,
+                    imageMap.getOrDefault(feed.getId(), Collections.emptyList())
+            ));
+
+        }
+        return new SliceImpl<>(feedResult, allFeedQuery.getPageable(), allFeedQuery.hasNext());
 
     }
 
     @Transactional
-    public FeedDto createFeed(Account account, List<MultipartFile> files, CreateFeedDto dto) {
+    public FeedListResponse createFeed(Account account, List<MultipartFile> files, CreateFeedDto dto) {
         FeedEntity feedEntity = FeedEntity
                 .builder()
                 .contents(dto.getContent())
@@ -69,23 +83,36 @@ public class FeedService {
                 .viewCount(0)
                 .build();
         FeedEntity savedEntity = feedRepository.save(feedEntity);
-        if(files!=null){
-            List<FileEntity> saveFileDtos = fileService.uploadAllFiles(files,account, savedEntity.getId(), FileType.FEED);
-            return new FeedDto(
-                    savedEntity,
-                    saveFileDtos,
-                    0,
-                    0,
-                    false
-            );
+
+        if (files != null) {
+            List<FileProjection> uploadFiles = fileService
+                    .uploadAllFiles(files, account, savedEntity.getId(), FileType.FEED)
+                    .stream()
+                    .map(f -> new FileProjection() {
+                        @Override
+                        public Long getId() {
+                            return f.getId();
+                        }
+
+                        @Override
+                        public String getUrl() {
+                            return f.getUrl();
+                        }
+
+                        @Override
+                        public Long getFileId() {
+                            return f.getFileId();
+                        }
+
+                        @Override
+                        public FileType getFileType() {
+                            return f.getFileType();
+                        }
+                    })
+                    .collect(Collectors.toList());
+            return FeedListResponse.from(feedEntity, uploadFiles);
         }
-        return new FeedDto(
-                savedEntity,
-                null,
-                0,
-                0,
-                false
-        );
+        return FeedListResponse.from(feedEntity, Collections.emptyList());
     }
 
     @Transactional(readOnly = true)
@@ -97,7 +124,7 @@ public class FeedService {
         return feedDtoList;
     }
 
-    public FeedEntity fetchFeedById(Long id){
+    public FeedEntity fetchFeedById(Long id) {
         return feedRepository.findById(id).orElseThrow(
                 () -> new ApiException(HttpStatus.NOT_FOUND, "404E00F00", "존재하지 않는 피드입니다.")
         );
@@ -105,7 +132,7 @@ public class FeedService {
 
 
     @Transactional
-    public FeedDto getQueryFeedDto(FeedEntity feed){
+    public FeedDto getQueryFeedDto(FeedEntity feed) {
         int commentCount = commentRepository.countByFeedId(feed.getId());
         int likeCount = likeRepository.countByFeedId(feed.getId());
         List<FileEntity> allFiles = fileService.getAllFiles(feed.getId(), FileType.FEED);
@@ -160,7 +187,7 @@ public class FeedService {
 
     public List<FeedDto> getTestAllFeed(Account account) {
         Long userId = null;
-        if(account!=null){
+        if (account != null) {
             userId = account.getId();
 
         }
@@ -191,10 +218,10 @@ public class FeedService {
     }
 
     @Transactional
-    public Boolean unLikePost(Account user,Long feedId){
-        int deleteCount = likeRepository.deleteByFeedIdAndAccountId(feedId,user.getId());
-        log.info(deleteCount+" ");
-        if(deleteCount==1){
+    public Boolean unLikePost(Account user, Long feedId) {
+        int deleteCount = likeRepository.deleteByFeedIdAndAccountId(feedId, user.getId());
+        log.info(deleteCount + " ");
+        if (deleteCount == 1) {
             return true;
         }
         return false;
@@ -260,14 +287,14 @@ public class FeedService {
         return true;
     }
 
-    public CommentEntity createComent(Account user, Long feedId, CreateCommentDto dto){
+    public CommentEntity createComent(Account user, Long feedId, CreateCommentDto dto) {
         FeedEntity feedEntity = feedRepository.findById(feedId).orElseThrow(
                 () -> new ApiException(HttpStatus.NOT_FOUND, "404E00F00", "존재하지 않는 피드입니다.")
         );
         CommentEntity comment = null;
-        if(dto.getCommentId()!=null){
+        if (dto.getCommentId() != null) {
             comment = commentRepository.findById(dto.getCommentId()).orElseThrow(
-                    ()-> new ApiException(HttpStatus.NOT_FOUND,"404E00C00","존재하지 않는 댓글입니다.")
+                    () -> new ApiException(HttpStatus.NOT_FOUND, "404E00C00", "존재하지 않는 댓글입니다.")
             );
         }
         CommentEntity createComment = CommentEntity.builder()
@@ -279,13 +306,18 @@ public class FeedService {
         return commentRepository.save(createComment);
     }
 
-    public List<CommentEntity> getAllRootComment(Long feedId){
+    public List<CommentEntity> getAllRootComment(Long feedId) {
         return commentRepository.findAllByFeedIdAndReplyIsNull(feedId);
     }
-    public List<CommentEntity> getAllCommentByReplyId(Long replyId){
+
+    public List<CommentEntity> getAllCommentByReplyId(Long replyId) {
         return commentRepository.findAllByReplyId(replyId);
     }
 
+    @Transactional
+    public List<FeedAuctionProjection> getMyFeedAuction(Account account) {
+        return feedRepository.findMyFeedPostedAuction(account.getId());
+    }
     // FileService 관련 메서드 (FileService에도 추가 필요)
     // public void deleteFilesByFeedId(Long feedId) {
     //     fileService.deleteByFileId(feedId);
