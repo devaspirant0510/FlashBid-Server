@@ -38,6 +38,7 @@ public class Inquiry extends BaseTimeEntity {
     private InquiryType inquiryType;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean replyStatus = false;
 
     public void linkReply(Reply reply) {
