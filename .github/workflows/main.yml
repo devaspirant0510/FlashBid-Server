@@ -3,11 +3,11 @@ name: CI/CD Workflow
 on:
   push:
     branches:
-      - 'feat/**'
       - main
-      - dev
   pull_request:
     branches:
+      - 'release/**'
+      - main
       - dev
 
 jobs:
