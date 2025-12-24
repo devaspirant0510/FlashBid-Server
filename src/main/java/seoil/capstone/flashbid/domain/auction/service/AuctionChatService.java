@@ -2,10 +2,9 @@ package seoil.capstone.flashbid.domain.auction.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,9 +22,7 @@ import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.global.common.enums.ChatType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Service
@@ -38,16 +35,30 @@ public class AuctionChatService {
     private final AuctionBidLogRepository auctionBidLogRepository;
 
     private final SimpMessagingTemplate messagingTemplate;
-    public List<AuctionChatProjection> findAllAuctionChatByAuctionId(Long auctionId){
+
+    public Slice<AuctionChatProjection> findAllAuctionChayByAuctionIdWithCursor(Long auctionId, Long cursorId, Integer size) {
+        if (cursorId == null) {
+            cursorId = auctionChatRepository.getAuctionChatLastId(auctionId) + 1;
+        }
+        log.info("cursorId ,{}",cursorId);
+
+        return auctionChatRepository.findAllAuctionQueryWithCursor(
+                auctionId,
+                cursorId,
+                PageRequest.of(0, size)
+        );
+    }
+
+    public List<AuctionChatProjection> findAllAuctionChatByAuctionId(Long auctionId) {
         return auctionChatRepository.findAllAuctionQuery(auctionId);
     }
 
     @Transactional
-    public AuctionChatDto saveAuctionChat(AuctionChatModel model,Long auctionId){
+    public AuctionChatDto saveAuctionChat(AuctionChatModel model, Long auctionId) {
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
         Account account = accountRepository.findById(model.getUserId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
         BiddingLogEntity biddingLogEntity = null;
-        if (model.getBid()!=null){
+        if (model.getBid() != null) {
             BiddingLogEntity bidlog = BiddingLogEntity.builder()
                     .auction(auction)
                     .bidder(account)
@@ -60,13 +71,13 @@ public class AuctionChatService {
 
         AuctionChatEntity chat = AuctionChatEntity.builder()
                 .auction(auction)
-                .chatType(model.getBid()==null?ChatType.MESSAGE:ChatType.BID_LOG)
+                .chatType(model.getBid() == null ? ChatType.MESSAGE : ChatType.BID_LOG)
                 .contents(model.getContents())
                 .biddingLog(biddingLogEntity)
                 .user(account)
                 .build();
         AuctionChatEntity save = auctionChatRepository.save(chat);
-        log.info("save chat {}",save);
+        log.info("save chat {}", save);
         return AuctionChatDto.fromEntity(save);
 
     }
