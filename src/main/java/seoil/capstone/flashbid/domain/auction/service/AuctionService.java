@@ -2,9 +2,7 @@ package seoil.capstone.flashbid.domain.auction.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,8 +86,35 @@ public class AuctionService {
         return auctionRepository.findById(auctionId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
     }
 
-    public Slice<AuctionProjection> queryGetAllAuction(AuctionType type,String categoryName, int page) {
-        return auctionRepository.findAllByLiveAuctionPage(type,categoryName, PageRequest.of(page, 3));
+    public Slice<AuctionProjection> queryGetAllAuction(AuctionType type, String categoryName, int page, int size) {
+        return auctionRepository.findAllByLiveAuctionPage(type, categoryName, PageRequest.of(page, size));
+    }
+
+    public Page<AuctionProjection> searchAuction(
+            String categoryName,
+            Integer auctionType,
+            Integer currentPage,
+            Integer pageSize,
+            Integer pageGroupSize
+    ) {
+        long categoryId = 1L;
+        int offset = (currentPage - 1) * pageSize;
+        List<AuctionProjection> allByAuctionPageV2 = auctionRepository.findAllByAuctionPageV2(
+                categoryId,
+                auctionType,
+                pageSize,
+                offset
+        );
+        int pageLimit = ((currentPage - 1) / pageSize)*pageSize * pageGroupSize;
+        int pageOffset = pageLimit + pageSize * pageGroupSize;
+        System.out.println(pageLimit);
+        System.out.println(pageOffset);
+        Integer auctionCount = auctionRepository.countByAuctionPageV2(categoryId, auctionType, pageSize*pageGroupSize, pageOffset);
+        return new PageImpl<>(
+                allByAuctionPageV2,
+                PageRequest.of(currentPage, pageSize),
+                auctionCount
+        );
     }
 
     @Transactional
