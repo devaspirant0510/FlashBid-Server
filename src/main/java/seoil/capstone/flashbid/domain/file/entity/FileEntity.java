@@ -2,8 +2,6 @@ package seoil.capstone.flashbid.domain.file.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.core.BaseTimeEntity;
@@ -21,7 +19,7 @@ public class FileEntity extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne
-    private Account userId;
+    private Account user;
 
     @Column
     private String fileName;
