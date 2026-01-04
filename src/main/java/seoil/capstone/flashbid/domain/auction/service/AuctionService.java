@@ -99,14 +99,14 @@ public class AuctionService {
     ) {
         long categoryId = 1L;
         int offset = (currentPage - 1) * pageSize;
+        int pageLimit = ((currentPage - 1) / pageSize)*pageSize * pageGroupSize;
+        int pageOffset = pageLimit + pageSize * pageGroupSize;
         List<AuctionProjection> allByAuctionPageV2 = auctionRepository.findAllByAuctionPageV2(
                 categoryId,
                 auctionType,
                 pageSize,
                 offset
         );
-        int pageLimit = ((currentPage - 1) / pageSize)*pageSize * pageGroupSize;
-        int pageOffset = pageLimit + pageSize * pageGroupSize;
         System.out.println(pageLimit);
         System.out.println(pageOffset);
         Integer auctionCount = auctionRepository.countByAuctionPageV2(categoryId, auctionType, pageSize*pageGroupSize, pageOffset);
