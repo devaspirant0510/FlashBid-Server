@@ -3,8 +3,6 @@ package seoil.capstone.flashbid.domain.auction.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.common.enums.AuctionStatus;
@@ -47,7 +45,7 @@ public class Auction extends BaseTimeEntity {
     private int bidUnit;
 
     @Column
-    private int count;
+    private int count; // 참여자수
 
     @Enumerated
     @Column(name = "auction_type", nullable = false, length = 20)
