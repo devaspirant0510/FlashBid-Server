@@ -27,7 +27,7 @@ class AuctionRepositoryTest {
     @Test
     void findByAuctionPageModel(){
         Page<AuctionProjection> auctionProjectionPagingModel = auctionService.searchAuction(
-                1L,
+                "test",
                 0,
                 1,
                 10,
