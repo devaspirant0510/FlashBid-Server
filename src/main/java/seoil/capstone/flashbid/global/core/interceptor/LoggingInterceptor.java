@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Component
 public class LoggingInterceptor implements HandlerInterceptor {
@@ -17,8 +20,19 @@ public class LoggingInterceptor implements HandlerInterceptor {
         String requestURI = request.getRequestURI();    // 요청 URL
         String clientIP = getClientIP(request);         // 클라이언트 IP
 
-        log.info("요청 - Method: {}, URL: {}, Client IP: {}", method, requestURI, clientIP);
+        Map<String, String[]> paramMap = request.getParameterMap();
 
+        String params = paramMap.entrySet().stream()
+                .map(e -> e.getKey() + "=" + String.join(",", e.getValue()))
+                .collect(Collectors.joining("&"));
+
+        log.info(
+                "요청 - Method: {}, URL: {}, Params: {}, Client IP: {}",
+                method,
+                requestURI,
+                params,
+                clientIP
+        );
         return true; // 다음으로 진행
     }
 
