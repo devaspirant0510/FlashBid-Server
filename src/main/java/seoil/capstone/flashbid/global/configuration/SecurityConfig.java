@@ -16,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import seoil.capstone.flashbid.global.core.security.JwtAuthenticationFilter;
 import seoil.capstone.flashbid.global.core.security.CustomAccessDeniedHandler;
 import seoil.capstone.flashbid.global.core.security.CustomAuthenticationEntryPoint;
 import seoil.capstone.flashbid.global.core.security.CustomUserDetailService;
@@ -74,6 +73,7 @@ public class SecurityConfig {
                                 "/api/v1/feed/test-all",
                                 "/api/v2/feed",
                                 "/api/dm/**",
+                                "/api/v1/admin/**",
                                 "/webjars/**").permitAll()
                         .requestMatchers(
                                 HttpMethod.POST,
