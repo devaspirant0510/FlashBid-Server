@@ -72,6 +72,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     )
     Page<AuctionProjection> findAllByLiveAuctionPage(AuctionType auctionType, String categoryName, Pageable pageable);
 
+    // TODO: scalar sub query lateral join 으로 변경
     @Query(
             value = """
                            SELECT a.id,
