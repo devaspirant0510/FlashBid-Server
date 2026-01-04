@@ -4,12 +4,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.domain.user.projection.AccountStatusInfoProjection;
+import seoil.capstone.flashbid.global.common.enums.UserType;
 
 import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByUuid(String uuid);
     boolean existsByEmail(String email);
+    boolean existsByEmailAndUserType(String email, UserType userType);
     boolean existsByNickname(String nickname);
     Optional<Account> findByEmail(String email);
     @Query("""
