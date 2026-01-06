@@ -132,19 +132,20 @@ public class AdminService {
         return dashboardOverViewDto;
     }
 
+    @Transactional
     public void registerAdmin(AdminRegisterDto registerDto) {
         BCryptPasswordEncoder encode = new BCryptPasswordEncoder();
         if(accountRepository.existsByEmailAndUserType(registerDto.getEmail(), UserType.ADMIN)){
             throw new ApiException(HttpStatus.CONFLICT,"회원가입 실패","이미 가입된 계정입니다");
         }
-        Account save = accountRepository.save(
+        accountRepository.save(
                 Account.builder()
                         .email(registerDto.getEmail())
                         .isVerified(false)
                         .password(encode.encode(registerDto.getPassword()))
                         .loginType(LoginType.EMAIL)
                         .nickname(registerDto.getUsername())
-                        .userStatus(UserStatus.UN_LINK)
+                        .userStatus(UserStatus.ACTIVE) // 테스트용으로 관리자 가입시 바로 active
                         .userType(UserType.ADMIN)
                         .uuid(UUID.randomUUID().toString())
                         .build()

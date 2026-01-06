@@ -23,12 +23,18 @@ import java.util.List;
 @RequestMapping("/api/v1/admin/user")
 public class AdminUserController implements AdminSwagger {
     private final AdminService adminService;
+    @GetMapping("ping")
+    public String ping() {
+        return "pong";
+    }
 
     @PostMapping("/register")
     public ApiResult<String> postRegisterAdmin(@RequestBody AdminRegisterDto registerDto){
         adminService.registerAdmin(registerDto);
-        return null;
+        return ApiResult.ok("회원가입 성공");
     }
+
+
 
     @GetMapping()
     public ApiResult<Page<AccountDetailDto>> getUserList(
