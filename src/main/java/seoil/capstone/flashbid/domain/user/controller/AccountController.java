@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
-import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.payment.entity.PointHistoryEntity;
@@ -199,13 +198,7 @@ public class    AccountController implements AccountSwagger {
     public ApiResult<AccountDto> getMyAccountInfo(
             Account user
     ) {
-        return ApiResult.ok(new AccountDto(
-                user.getId(),
-                user.getEmail(),
-                user.getNickname(),
-                user.getProfileUrl(),
-                user.getPoint()
-        ),"내 정보 조회 성공");
+        return ApiResult.ok(AccountDto.from(user),"내 정보 조회 성공");
     }
 
     @AuthUser
