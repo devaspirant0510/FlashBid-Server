@@ -1,7 +1,6 @@
 package seoil.capstone.flashbid.domain.auth.controller;
 
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,14 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import seoil.capstone.flashbid.domain.auth.dto.*;
 import seoil.capstone.flashbid.domain.auth.service.AuthService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
-import seoil.capstone.flashbid.domain.user.projection.AccountProjection;
 import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
 import seoil.capstone.flashbid.domain.user.service.AccountService;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
@@ -96,24 +91,24 @@ public class AuthController {
         return ApiResult.ok(token.getAccessToken());
     }
 
-    @PostMapping("/login")
-    public ApiResult<Account> login(@RequestBody EmailAuthLoginDto dto, HttpServletResponse response) {
-        //  이메일+패스워드 인증
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
-        );
-
-        //  인증 성공 → SecurityContext 저장
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.info(authentication.getName());
-        Account account = accountRepository.findByEmail(authentication.getName()).orElseThrow();
-        AuthTokenDto jwtToken = authService.createJwtToken(account);
-        ResponseCookie refreshCookie = cookieProvider.generateRefreshTokenCookie(jwtToken.getRefreshToken());
-        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken.getAccessToken());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        return ApiResult.ok(account);
-    }
+//    @PostMapping("/login")
+//    public ApiResult<Account> login(@RequestBody EmailAuthLoginDto dto, HttpServletResponse response) {
+//        //  이메일+패스워드 인증
+//
+//        Authentication authentication = authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
+//        );
+//
+//        //  인증 성공 → SecurityContext 저장
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        log.info(authentication.getName());
+//        Account account = accountRepository.findByEmail(authentication.getName()).orElseThrow();
+//        AuthTokenDto jwtToken = authService.createJwtToken(account);
+//        ResponseCookie refreshCookie = cookieProvider.generateRefreshTokenCookie(jwtToken.getRefreshToken());
+//        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken.getAccessToken());
+//        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+//        return ApiResult.ok(account);
+//    }
 
     @PostMapping("/register/oauth")
     public ApiResult<Account> registerService(
