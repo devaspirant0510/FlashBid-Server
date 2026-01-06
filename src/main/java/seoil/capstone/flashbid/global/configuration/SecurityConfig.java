@@ -1,5 +1,6 @@
 package seoil.capstone.flashbid.global.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,10 +17,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import seoil.capstone.flashbid.global.core.security.CustomAccessDeniedHandler;
-import seoil.capstone.flashbid.global.core.security.CustomAuthenticationEntryPoint;
-import seoil.capstone.flashbid.global.core.security.CustomUserDetailService;
-import seoil.capstone.flashbid.global.core.security.JwtAuthenticationFilter;
+import seoil.capstone.flashbid.domain.auth.service.AuthService;
+import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
+import seoil.capstone.flashbid.global.core.provider.CookieProvider;
+import seoil.capstone.flashbid.global.core.security.*;
 
 import java.util.List;
 
@@ -41,11 +42,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter, AuthenticationManager authenticationManager, AuthService authService, CookieProvider cookieProvider, AccountRepository accountRepository, ObjectMapper objectMapper) throws Exception {
+        JwtLoginFilter jwtLoginFilter = new JwtLoginFilter(
+                authenticationManager,
+                authService,
+                cookieProvider,
+                accountRepository,
+                objectMapper
+        );
         http
                 .cors(cors -> cors.configurationSource(corsConfiguration()))
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화 (필요한 경우)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/admin/user/ping")
+                        .hasAuthority("ADMIN")
                         .requestMatchers(
                                 "/",
                                 "/login",
@@ -92,7 +102,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 ) // 모든 요청 허용
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // jwt 파싱해서 유효한 토큰인지 검증하는 필터
+                .addFilterAt(jwtLoginFilter,UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // jwt 파싱해서 유효한 토큰인지 검증하는 필터
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(authenticationEntryPoint)
                                 .accessDeniedHandler(accessDeniedHandler)
