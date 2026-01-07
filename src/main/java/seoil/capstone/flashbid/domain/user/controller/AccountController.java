@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
-import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.feed.dto.response.FeedDtoLegacy;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.payment.entity.PointHistoryEntity;
 import seoil.capstone.flashbid.domain.payment.service.PaymentService;
@@ -85,7 +85,7 @@ public class    AccountController implements AccountSwagger {
     @GetMapping("/my/feed")
     @AuthUser
     @Override
-    public ApiResult<List<FeedDto>> getAllMyFeed(
+    public ApiResult<List<FeedDtoLegacy>> getAllMyFeed(
             Account user,
             HttpServletRequest request
     ) {
@@ -94,7 +94,7 @@ public class    AccountController implements AccountSwagger {
 
     @GetMapping("/{id}/feed")
     @Override
-    public ApiResult<List<FeedDto>> getAllUserFeed(
+    public ApiResult<List<FeedDtoLegacy>> getAllUserFeed(
             @PathVariable(name = "id") Long userId,
             HttpServletRequest request
     ){
