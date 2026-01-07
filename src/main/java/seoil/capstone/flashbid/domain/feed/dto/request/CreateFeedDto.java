@@ -13,4 +13,5 @@ import lombok.Setter;
 public class CreateFeedDto {
     private String content;
     private Long auctionId;
+    private Long confirmedBidId;
 }
