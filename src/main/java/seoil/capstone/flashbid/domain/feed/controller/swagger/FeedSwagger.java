@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateCommentDto;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateFeedDto;
-import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.feed.dto.response.FeedDtoLegacy;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedListResponse;
 import seoil.capstone.flashbid.domain.feed.entity.CommentEntity;
 import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
