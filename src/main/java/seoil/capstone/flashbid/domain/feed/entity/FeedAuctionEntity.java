@@ -1,8 +1,6 @@
 package seoil.capstone.flashbid.domain.feed.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 
@@ -12,9 +10,11 @@ import seoil.capstone.flashbid.domain.auction.entity.Auction;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Entity(name = "FeedAuction")
+@Table(name = "feed_auction")
 public class FeedAuctionEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
