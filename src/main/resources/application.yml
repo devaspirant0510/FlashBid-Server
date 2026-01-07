@@ -38,14 +38,17 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+        highlight_sql: true
   web:
     resources:
       static-locations: file:/Users/kotlinandnode/seungho/uploads/
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
 cloud:
   aws:
     credentials:
@@ -57,3 +60,9 @@ cloud:
       bucket: ${AWS_S3_BUCKET}
 cloudfront:
   domain: ${AWS_CLOUDFRONT_DOMAIN}
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true

@@ -1,8 +1,5 @@
 package seoil.capstone.flashbid.domain.feed.projection;
 
-import com.google.type.DateTime;
-import seoil.capstone.flashbid.domain.file.projection.FileProjection;
-
 import java.time.LocalDateTime;
 
 public interface FeedAuctionProjection {

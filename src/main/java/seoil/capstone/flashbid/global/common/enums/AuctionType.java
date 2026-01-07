@@ -1,6 +1,12 @@
 package seoil.capstone.flashbid.global.common.enums;
 
 
-public enum AuctionType {
-    LIVE,BLIND
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
+public enum AuctionType implements CodeEnum {
+    LIVE(0), BLIND(1);
+    private final int code;
 }

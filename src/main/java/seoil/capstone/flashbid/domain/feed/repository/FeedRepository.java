@@ -5,9 +5,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import seoil.capstone.flashbid.domain.feed.entity.FeedEntity;
 import seoil.capstone.flashbid.domain.feed.projection.FeedAuctionProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedProjection;
+import seoil.capstone.flashbid.domain.feed.projection.FeedSummaryProjection;
 
 import java.util.List;
 
@@ -43,6 +45,130 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
     Slice<FeedProjection> findAllFeedQuery(Pageable pageable,Long userId);
 
     @Query("""
+            SELECT
+                f.id AS id,
+                f.contents AS contents,
+                u.id AS writerId,
+                u.nickname AS writerName,
+                u.profileUrl AS writerProfileImageUrl,
+                f.createdAt AS createdAt,
+            
+                COUNT(DISTINCT l.id) AS likeCount,
+                COUNT(DISTINCT c.id) AS commentCount,
+            
+                CASE
+                    WHEN :userId IS NULL THEN false
+                    WHEN ul.id IS NOT NULL THEN true
+                    ELSE false
+                END AS liked,
+                a.id as auctionId,
+                g.title as auctionTitle,
+                g.description as auctionDescription,
+                awl.count as auctionLikeCount,
+                a.viewCount as auctionViewCount,
+                a.auctionType as auctionType,
+                a.startPrice as auctionStartPrice,
+                a.auctionStatus as auctionStatus,
+                a.startTime as auctionStartTime,
+                a.endTime as auctionEndTime,
+                ast.lastBidAmount as auctionCurrentPrice,
+                ca.name as auctionCategoryName,
+                (
+                    select ff.url
+                    from file ff
+                    where ff.fileId=a.id
+                    and ff.fileType=seoil.capstone.flashbid.global.common.enums.FileType.GOODS
+                                order by ff.id asc
+                    limit 1) as auctionImageUrl
+            FROM feed f
+            JOIN f.user u
+            LEFT JOIN FeedAuction fa ON fa.feed.id = f.id
+            LEFT JOIN Auction a ON fa.auction.id = a.id
+            LEFT JOIN category ca on a.category.id = ca.id
+            LEFT JOIN AuctionWishlistCount awl ON awl.auction.id = a.id
+            LEFT JOIN AuctionStats ast ON a.id = ast.auction.id
+            LEFT JOIN Goods g ON a.goods.id = g.id
+            LEFT JOIN likes l ON l.feed.id = f.id
+            LEFT JOIN CommentEntity c ON c.feed.id = f.id
+            LEFT JOIN likes ul ON ul.feed.id = f.id AND ul.account.id = :userId
+            GROUP BY
+                a.id,f.id, u.id, g.id, ul.id,awl.id,ast.id,ca.id
+            ORDER BY f.createdAt DESC
+            """)
+    Slice<FeedSummaryProjection> findAllFeedQueryV2(Pageable pageable, Long userId);
+
+    @Query("""
+            SELECT
+                f.id AS id,
+                f.contents AS contents,
+                u.id AS writerId,
+                u.nickname AS writerName,
+                u.profileUrl AS writerProfileImageUrl,
+                f.createdAt AS createdAt,
+            
+                COUNT(DISTINCT l.id) AS likeCount,
+                COUNT(DISTINCT c.id) AS commentCount,
+            
+                CASE
+                    WHEN :userId IS NULL THEN false
+                    WHEN ul.id IS NOT NULL THEN true
+                    ELSE false
+                END AS liked,
+                a.id as auctionId,
+                g.title as auctionTitle,
+                g.description as auctionDescription,
+                awl.count as auctionLikeCount,
+                a.viewCount as auctionViewCount,
+                a.auctionType as auctionType,
+                a.startPrice as auctionStartPrice,
+                a.auctionStatus as auctionStatus,
+                a.startTime as auctionStartTime,
+                a.endTime as auctionEndTime,
+                ast.lastBidAmount as auctionCurrentPrice,
+                ca.name as auctionCategoryName,
+                (
+                    select ff.url
+                    from file ff
+                    where ff.fileId=a.id
+                    and ff.fileType=seoil.capstone.flashbid.global.common.enums.FileType.GOODS
+                                order by ff.id asc
+                    limit 1) as auctionImageUrl
+            FROM feed f
+            JOIN f.user u
+            LEFT JOIN FeedAuction fa ON fa.feed.id = f.id
+            LEFT JOIN Auction a ON fa.auction.id = a.id
+            LEFT JOIN category ca on a.category.id = ca.id
+            LEFT JOIN AuctionWishlistCount awl ON awl.auction.id = a.id
+            LEFT JOIN AuctionStats ast ON a.id = ast.auction.id
+            LEFT JOIN Goods g ON a.goods.id = g.id
+            LEFT JOIN likes l ON l.feed.id = f.id
+            LEFT JOIN CommentEntity c ON c.feed.id = f.id
+            LEFT JOIN likes ul ON ul.feed.id = f.id AND ul.account.id = :userId
+           
+            WHERE (:cursorId IS NULL OR f.id < :cursorId)
+            
+            GROUP BY
+                a.id,f.id, u.id, g.id, ul.id,awl.id,ast.id,ca.id
+            ORDER BY f.createdAt DESC
+            
+            """)
+    List<FeedSummaryProjection> findAllFeedQueryCursor(
+            @Param("cursorId") Long cursorId,
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
+
+    @Query("""
+                select
+                f.id
+                from feed f
+                join Account u
+                on f.user.id = u.id
+                
+            """)
+    List<FeedProjection> findAllFeedWithCursor(Long userId, Long pageSize,Long cursorId);
+
+    @Query("""
             select
                 au.id as auctionId,
                 au.goods.title as auctionTitle,
@@ -70,6 +196,7 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
             join Auction au
             on ac.id = au.user.id
             where au.auctionStatus != seoil.capstone.flashbid.global.common.enums.AuctionStatus.ENDED
+            and au.user.id =:accountId
             """)
     List<FeedAuctionProjection> findMyFeedPostedAuction(Long accountId);
 

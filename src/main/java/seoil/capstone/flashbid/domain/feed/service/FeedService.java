@@ -10,15 +10,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import seoil.capstone.flashbid.domain.auction.entity.Auction;
+import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
+import seoil.capstone.flashbid.domain.auction.repository.ConfirmedBidsRepository;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateCommentDto;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateFeedDto;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.feed.dto.response.FeedDtoLegacy;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedListResponse;
 import seoil.capstone.flashbid.domain.feed.entity.CommentEntity;
+import seoil.capstone.flashbid.domain.feed.entity.FeedAuctionEntity;
 import seoil.capstone.flashbid.domain.feed.entity.FeedEntity;
 import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
 import seoil.capstone.flashbid.domain.feed.projection.FeedAuctionProjection;
+import seoil.capstone.flashbid.domain.feed.projection.FeedConfirmBidsProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedProjection;
+import seoil.capstone.flashbid.domain.feed.projection.FeedSummaryProjection;
 import seoil.capstone.flashbid.domain.feed.repository.CommentRepository;
 import seoil.capstone.flashbid.domain.feed.repository.FeedAuctionRepository;
 import seoil.capstone.flashbid.domain.feed.repository.FeedRepository;
@@ -31,6 +38,7 @@ import seoil.capstone.flashbid.domain.file.service.FileService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
+import seoil.capstone.flashbid.global.common.error.NotFoundAuctionException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,11 +54,16 @@ public class FeedService {
     private final CommentRepository commentRepository;
     private final FileRepository fileRepository;
     private final FeedAuctionRepository feedAuctionRepository;
+    private final AuctionRepository auctionRepository;
+    private final ConfirmedBidsRepository confirmedBidsRepository;
 
     @Transactional(readOnly = true)
-    public Slice<FeedListResponse> getFeedQuery(int page, int size, Account account) {
+    public Slice<FeedDto> getFeedQuery(int page, int size, Account account) {
         // Feed 조회
-        Slice<FeedProjection> allFeedQuery = feedRepository.findAllFeedQuery(PageRequest.of(page, size), account == null ? null : account.getId());
+        Slice<FeedSummaryProjection> allFeedQuery = feedRepository.findAllFeedQueryV2(
+                PageRequest.of(page, size),
+                account == null ? null : account.getId()
+        );
         // Feed ID 추출후 해당 피드의 File 조회
         List<Long> feedIds = allFeedQuery.getContent().stream().map(FeedProjection::getId).toList();
         List<FileProjection> fetchAllFeedImages = fileRepository.findAllInFileIdsWithFileType(feedIds, FileType.FEED);
@@ -62,20 +75,51 @@ public class FeedService {
                     .computeIfAbsent(file.getFileId(), k -> new ArrayList<>())
                     .add(file);
         }
-        List<FeedListResponse> feedResult = new ArrayList<>();
-        for (FeedProjection feed : allFeedQuery.getContent()) {
-            feedResult.add(FeedListResponse.from(
+        List<FeedDto> feedResult = new ArrayList<>();
+        for (FeedSummaryProjection feed : allFeedQuery.getContent()) {
+            feedResult.add(FeedDto.from(
                     feed,
                     imageMap.getOrDefault(feed.getId(), Collections.emptyList())
             ));
 
         }
         return new SliceImpl<>(feedResult, allFeedQuery.getPageable(), allFeedQuery.hasNext());
+    }
+
+    public List<FeedDto> getFeedQueryCursor(Long cursorId,Account account){
+        List<FeedSummaryProjection> feedQuery = feedRepository.findAllFeedQueryCursor(
+                cursorId,
+                account == null ? null : account.getId(),
+                PageRequest.of(0,10)
+        );
+        List<Long> feedIds = feedQuery.stream().map(FeedProjection::getId).toList();
+        List<FileProjection> fetchAllFeedImages = fileRepository.findAllInFileIdsWithFileType(feedIds, FileType.FEED);
+        // 해시맵 으로 피드 ID별 이미지 묶기
+        Map<Long, List<FileProjection>> imageMap = new HashMap<>();
+
+        for (FileProjection file : fetchAllFeedImages) {
+            imageMap
+                    .computeIfAbsent(file.getFileId(), k -> new ArrayList<>())
+                    .add(file);
+        }
+        List<FeedDto> feedResult = new ArrayList<>();
+        for (FeedSummaryProjection feed : feedQuery) {
+            feedResult.add(FeedDto.from(
+                    feed,
+                    imageMap.getOrDefault(feed.getId(), Collections.emptyList())
+            ));
+
+        }
+        return feedResult;
 
     }
 
-    @Transactional
-    public FeedListResponse createFeed(Account account, List<MultipartFile> files, CreateFeedDto dto) {
+    @Transactional()
+    public FeedListResponse createFeed(
+            Account account,
+            List<MultipartFile> files,
+            CreateFeedDto dto
+    ) {
         FeedEntity feedEntity = FeedEntity
                 .builder()
                 .contents(dto.getContent())
@@ -83,6 +127,17 @@ public class FeedService {
                 .viewCount(0)
                 .build();
         FeedEntity savedEntity = feedRepository.save(feedEntity);
+        if(dto.getAuctionId()!=null){
+            Auction feedAuction = auctionRepository
+                    .findById(dto.getAuctionId())
+                    .orElseThrow(NotFoundAuctionException::new);
+            feedAuctionRepository.save(
+                    FeedAuctionEntity.builder()
+                            .auction(feedAuction)
+                            .feed(feedEntity)
+                            .build()
+            );
+        }
 
         if (files != null) {
             List<FileProjection> uploadFiles = fileService
@@ -116,8 +171,8 @@ public class FeedService {
     }
 
     @Transactional(readOnly = true)
-    public List<FeedDto> getHotFeed() {
-        List<FeedDto> feedDtoList = new ArrayList<>();
+    public List<FeedDtoLegacy> getHotFeed() {
+        List<FeedDtoLegacy> feedDtoList = new ArrayList<>();
         feedRepository.findTop4ByOrderByCreatedAtDesc().forEach(feed -> {
             feedDtoList.add(getQueryFeedDto(feed));
         });
@@ -132,11 +187,11 @@ public class FeedService {
 
 
     @Transactional
-    public FeedDto getQueryFeedDto(FeedEntity feed) {
+    public FeedDtoLegacy getQueryFeedDto(FeedEntity feed) {
         int commentCount = commentRepository.countByFeedId(feed.getId());
         int likeCount = likeRepository.countByFeedId(feed.getId());
         List<FileEntity> allFiles = fileService.getAllFiles(feed.getId(), FileType.FEED);
-        return new FeedDto(
+        return new FeedDtoLegacy(
                 feed,
                 allFiles,
                 commentCount,
@@ -148,13 +203,13 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedDto getFeedById(Long id) {
+    public FeedDtoLegacy getFeedById(Long id) {
         FeedEntity feedEntity = fetchFeedById(id);
         int commentCount = commentRepository.countByFeedId(id);
         int likeCount = likeRepository.countByFeedId(id);
         List<FileEntity> allFiles = fileService.getAllFiles(id, FileType.FEED);
 
-        return new FeedDto(
+        return new FeedDtoLegacy(
                 feedEntity,
                 allFiles,
                 commentCount,
@@ -164,7 +219,7 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedDto getFeedByIdWithUser(Long id, Account account) {
+    public FeedDtoLegacy getFeedByIdWithUser(Long id, Account account) {
         FeedEntity feedEntity = fetchFeedById(id);
         int commentCount = commentRepository.countByFeedId(id);
         int likeCount = likeRepository.countByFeedId(id);
@@ -176,7 +231,7 @@ public class FeedService {
             isLiked = likeRepository.existsByFeedIdAndAccountId(id, account.getId());
         }
 
-        return new FeedDto(
+        return new FeedDtoLegacy(
                 feedEntity,
                 allFiles,
                 commentCount,
@@ -185,13 +240,13 @@ public class FeedService {
         );
     }
 
-    public List<FeedDto> getTestAllFeed(Account account) {
+    public List<FeedDtoLegacy> getTestAllFeed(Account account) {
         Long userId = null;
         if (account != null) {
             userId = account.getId();
 
         }
-        List<FeedDto> feedDtoList = new ArrayList<>();
+        List<FeedDtoLegacy> feedDtoList = new ArrayList<>();
 
         feedRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).forEach(feed -> {
             feedDtoList.add(getFeedByIdWithUser(feed.getId(), account));
@@ -228,7 +283,7 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedDto updateFeed(Account account, Long feedId, List<MultipartFile> files, CreateFeedDto dto) {
+    public FeedDtoLegacy updateFeed(Account account, Long feedId, List<MultipartFile> files, CreateFeedDto dto) {
         FeedEntity feedEntity = fetchFeedById(feedId);
 
         // 작성자 확인
@@ -246,7 +301,7 @@ public class FeedService {
         if (files != null && !files.isEmpty()) {
             List<SaveFileDto> saveFileDtos = fileService.saveImage(files);
             List<FileEntity> saveFileEntities = fileService.saveFileEntities(saveFileDtos, feedId, account, FileType.FEED);
-            return new FeedDto(
+            return new FeedDtoLegacy(
                     feedEntity,
                     saveFileEntities,
                     commentRepository.countByFeedId(feedId),
@@ -255,7 +310,7 @@ public class FeedService {
             );
         }
 
-        return new FeedDto(
+        return new FeedDtoLegacy(
                 feedEntity,
                 null,
                 commentRepository.countByFeedId(feedId),
@@ -317,6 +372,10 @@ public class FeedService {
     @Transactional
     public List<FeedAuctionProjection> getMyFeedAuction(Account account) {
         return feedRepository.findMyFeedPostedAuction(account.getId());
+    }
+
+    public List<FeedConfirmBidsProjection> getMyConfirmBids(Account account) {
+        return confirmedBidsRepository.findAllMyConfirmedBids(account.getId());
     }
     // FileService 관련 메서드 (FileService에도 추가 필요)
     // public void deleteFilesByFeedId(Long feedId) {

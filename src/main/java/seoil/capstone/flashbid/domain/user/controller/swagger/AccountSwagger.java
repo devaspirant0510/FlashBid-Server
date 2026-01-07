@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
-import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
-import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.feed.dto.response.FeedDtoLegacy;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.user.dto.response.UserDto;
 import seoil.capstone.flashbid.domain.user.entity.Account;
@@ -60,16 +59,16 @@ public interface AccountSwagger {
 
     @Operation(summary = "내 피드 전체 조회", description = "내가 올린 피드를 모두 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공",
-            content = @Content(schema = @Schema(implementation = FeedDto.class)))
-    ApiResult<List<FeedDto>> getAllMyFeed(
+            content = @Content(schema = @Schema(implementation = FeedDtoLegacy.class)))
+    ApiResult<List<FeedDtoLegacy>> getAllMyFeed(
             @Parameter(hidden = true) Account user,
             HttpServletRequest request
     );
 
     @Operation(summary = "특정 유저 피드 조회", description = "해당 유저가 올린 피드를 모두 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공",
-            content = @Content(schema = @Schema(implementation = FeedDto.class)))
-    ApiResult<List<FeedDto>> getAllUserFeed(
+            content = @Content(schema = @Schema(implementation = FeedDtoLegacy.class)))
+    ApiResult<List<FeedDtoLegacy>> getAllUserFeed(
             @Parameter(description = "유저 ID") @PathVariable("id") Long userId,
             HttpServletRequest request
     );

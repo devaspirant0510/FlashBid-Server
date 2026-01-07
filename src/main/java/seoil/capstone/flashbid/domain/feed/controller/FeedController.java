@@ -8,10 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.feed.controller.swagger.FeedSwagger;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateCommentDto;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateFeedDto;
-import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.feed.dto.response.FeedDtoLegacy;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedListResponse;
 import seoil.capstone.flashbid.domain.feed.entity.CommentEntity;
 import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
+import seoil.capstone.flashbid.domain.feed.projection.FeedConfirmBidsProjection;
 import seoil.capstone.flashbid.domain.feed.service.FeedService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
@@ -41,14 +42,14 @@ public class FeedController implements FeedSwagger {
     }
 
     @GetMapping("/hot")
-    public ApiResult<List<FeedDto>> getHotFeed(HttpServletRequest request){
+    public ApiResult<List<FeedDtoLegacy>> getHotFeed(HttpServletRequest request){
         return ApiResult.ok(feedService.getHotFeed(),"성공");
     }
 
     @GetMapping("/{id}")
     @AuthUser
     @Override
-    public ApiResult<FeedDto> getFeedById(
+    public ApiResult<FeedDtoLegacy> getFeedById(
             @PathVariable Long id,
             Account account,
             HttpServletRequest request) {
@@ -57,7 +58,7 @@ public class FeedController implements FeedSwagger {
 
     @GetMapping("/{id}/detail")
     @AuthUser
-    public ApiResult<FeedDto> getFeedByIdWithUser(
+    public ApiResult<FeedDtoLegacy> getFeedByIdWithUser(
             @PathVariable Long id,
             Account account,
             HttpServletRequest request) {
@@ -67,7 +68,7 @@ public class FeedController implements FeedSwagger {
     @GetMapping("/test-all")
     @AuthUser
     @Override
-    public ApiResult<List<FeedDto>> getTestFeedAll(Account account,HttpServletRequest request) {
+    public ApiResult<List<FeedDtoLegacy>> getTestFeedAll(Account account, HttpServletRequest request) {
         log.info("리스트 조회x");
         return ApiResult.ok(feedService.getTestAllFeed(account));
     }
@@ -125,7 +126,7 @@ public class FeedController implements FeedSwagger {
 
     @PatchMapping("/{id}")
     @AuthUser
-    public ApiResult<FeedDto> updateFeed(
+    public ApiResult<FeedDtoLegacy> updateFeed(
             Account account,
             @PathVariable Long id,
             @RequestParam(value = "files", required = false) List<MultipartFile> files,
@@ -151,5 +152,15 @@ public class FeedController implements FeedSwagger {
             Account account
     ){
         return ApiResult.ok(feedService.getMyFeedAuction(account));
+    }
+
+    @GetMapping("/my/confirm-bid")
+    @AuthUser
+    public ApiResult<List<FeedConfirmBidsProjection>> getMyFeedConfirmBids(
+            Account account
+
+    ){
+        return ApiResult.ok(feedService.getMyConfirmBids(account));
+
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.entity.*;
 import seoil.capstone.flashbid.domain.auction.repository.*;
-import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
+import seoil.capstone.flashbid.domain.feed.dto.response.FeedDtoLegacy;
 import seoil.capstone.flashbid.domain.feed.repository.FeedRepository;
 import seoil.capstone.flashbid.domain.feed.service.FeedService;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
@@ -105,8 +105,8 @@ public class UserService {
     }
 
     @Transactional
-    public List<FeedDto> getAllFeedByUserId(Long userId){
-        List<FeedDto> feedDtos = new ArrayList<>();
+    public List<FeedDtoLegacy> getAllFeedByUserId(Long userId){
+        List<FeedDtoLegacy> feedDtos = new ArrayList<>();
         feedRepository.findAllByUserId(userId).forEach(feed->{
             feedDtos.add(feedService.getQueryFeedDto(feed));
         });

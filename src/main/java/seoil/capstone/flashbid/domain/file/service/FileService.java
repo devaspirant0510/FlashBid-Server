@@ -45,7 +45,7 @@ public class FileService {
                             .fileId(domainFileId)
                             .fileType(fileType)
                             .extension(uploadResult.getExtension())
-                            .userId(uploader)
+                            .user(uploader)
                             .build()
             );
         }
@@ -62,7 +62,7 @@ public class FileService {
                             .fileName(file.getFileName())
                             .extension(file.getExtension())
                             .fileId(fileId)
-                            .userId(account)
+                            .user(account)
                             .fileType(fileType)
                             .build()
             );
