@@ -105,8 +105,8 @@ public class UserService {
     }
 
     @Transactional
-    public List<FeedDto> getAllFeedByUserId(Long userId){
-        List<FeedDto> feedDtos = new ArrayList<>();
+    public List<FeedDtoLegacy> getAllFeedByUserId(Long userId){
+        List<FeedDtoLegacy> feedDtos = new ArrayList<>();
         feedRepository.findAllByUserId(userId).forEach(feed->{
             feedDtos.add(feedService.getQueryFeedDto(feed));
         });

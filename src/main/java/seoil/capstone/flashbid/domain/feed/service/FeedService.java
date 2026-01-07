@@ -116,8 +116,8 @@ public class FeedService {
     }
 
     @Transactional(readOnly = true)
-    public List<FeedDto> getHotFeed() {
-        List<FeedDto> feedDtoList = new ArrayList<>();
+    public List<FeedDtoLegacy> getHotFeed() {
+        List<FeedDtoLegacy> feedDtoList = new ArrayList<>();
         feedRepository.findTop4ByOrderByCreatedAtDesc().forEach(feed -> {
             feedDtoList.add(getQueryFeedDto(feed));
         });
@@ -132,11 +132,11 @@ public class FeedService {
 
 
     @Transactional
-    public FeedDto getQueryFeedDto(FeedEntity feed) {
+    public FeedDtoLegacy getQueryFeedDto(FeedEntity feed) {
         int commentCount = commentRepository.countByFeedId(feed.getId());
         int likeCount = likeRepository.countByFeedId(feed.getId());
         List<FileEntity> allFiles = fileService.getAllFiles(feed.getId(), FileType.FEED);
-        return new FeedDto(
+        return new FeedDtoLegacy(
                 feed,
                 allFiles,
                 commentCount,
@@ -148,13 +148,13 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedDto getFeedById(Long id) {
+    public FeedDtoLegacy getFeedById(Long id) {
         FeedEntity feedEntity = fetchFeedById(id);
         int commentCount = commentRepository.countByFeedId(id);
         int likeCount = likeRepository.countByFeedId(id);
         List<FileEntity> allFiles = fileService.getAllFiles(id, FileType.FEED);
 
-        return new FeedDto(
+        return new FeedDtoLegacy(
                 feedEntity,
                 allFiles,
                 commentCount,
@@ -164,7 +164,7 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedDto getFeedByIdWithUser(Long id, Account account) {
+    public FeedDtoLegacy getFeedByIdWithUser(Long id, Account account) {
         FeedEntity feedEntity = fetchFeedById(id);
         int commentCount = commentRepository.countByFeedId(id);
         int likeCount = likeRepository.countByFeedId(id);
@@ -176,7 +176,7 @@ public class FeedService {
             isLiked = likeRepository.existsByFeedIdAndAccountId(id, account.getId());
         }
 
-        return new FeedDto(
+        return new FeedDtoLegacy(
                 feedEntity,
                 allFiles,
                 commentCount,
@@ -185,13 +185,13 @@ public class FeedService {
         );
     }
 
-    public List<FeedDto> getTestAllFeed(Account account) {
+    public List<FeedDtoLegacy> getTestAllFeed(Account account) {
         Long userId = null;
         if (account != null) {
             userId = account.getId();
 
         }
-        List<FeedDto> feedDtoList = new ArrayList<>();
+        List<FeedDtoLegacy> feedDtoList = new ArrayList<>();
 
         feedRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).forEach(feed -> {
             feedDtoList.add(getFeedByIdWithUser(feed.getId(), account));
@@ -228,7 +228,7 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedDto updateFeed(Account account, Long feedId, List<MultipartFile> files, CreateFeedDto dto) {
+    public FeedDtoLegacy updateFeed(Account account, Long feedId, List<MultipartFile> files, CreateFeedDto dto) {
         FeedEntity feedEntity = fetchFeedById(feedId);
 
         // 작성자 확인
@@ -246,7 +246,7 @@ public class FeedService {
         if (files != null && !files.isEmpty()) {
             List<SaveFileDto> saveFileDtos = fileService.saveImage(files);
             List<FileEntity> saveFileEntities = fileService.saveFileEntities(saveFileDtos, feedId, account, FileType.FEED);
-            return new FeedDto(
+            return new FeedDtoLegacy(
                     feedEntity,
                     saveFileEntities,
                     commentRepository.countByFeedId(feedId),
@@ -255,7 +255,7 @@ public class FeedService {
             );
         }
 
-        return new FeedDto(
+        return new FeedDtoLegacy(
                 feedEntity,
                 null,
                 commentRepository.countByFeedId(feedId),

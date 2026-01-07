@@ -26,7 +26,7 @@ public interface FeedSwagger {
 
     @Operation(summary = "피드 생성", description = "이미지 파일과 피드 데이터를 함께 보내 새로운 피드를 생성합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "피드 생성 성공", content = @Content(schema = @Schema(implementation = FeedDto.class))),
+            @ApiResponse(responseCode = "201", description = "피드 생성 성공", content = @Content(schema = @Schema(implementation = FeedDtoLegacy.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
@@ -42,14 +42,14 @@ public interface FeedSwagger {
             @ApiResponse(responseCode = "200", description = "피드 조회 성공"),
             @ApiResponse(responseCode = "404", description = "피드가 존재하지 않음")
     })
-    ApiResult<FeedDto> getFeedById(
+    ApiResult<FeedDtoLegacy> getFeedById(
             @PathVariable Long id,
             Account account,
             HttpServletRequest request
     );
 
     @Operation(summary = "피드 전체 테스트 조회", description = "모든 피드를 테스트용으로 조회합니다.")
-    ApiResult<List<FeedDto>> getTestFeedAll(Account account, HttpServletRequest request);
+    ApiResult<List<FeedDtoLegacy>> getTestFeedAll(Account account, HttpServletRequest request);
 
     @Operation(summary = "피드 좋아요", description = "사용자가 해당 피드에 좋아요를 누릅니다. 이미 좋아요한 경우 자동으로 취소됩니다.")
     @ApiResponses({
