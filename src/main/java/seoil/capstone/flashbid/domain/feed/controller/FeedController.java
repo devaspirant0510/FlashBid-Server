@@ -12,6 +12,7 @@ import seoil.capstone.flashbid.domain.feed.dto.response.FeedDtoLegacy;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedListResponse;
 import seoil.capstone.flashbid.domain.feed.entity.CommentEntity;
 import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
+import seoil.capstone.flashbid.domain.feed.projection.FeedConfirmBidsProjection;
 import seoil.capstone.flashbid.domain.feed.service.FeedService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
@@ -151,5 +152,15 @@ public class FeedController implements FeedSwagger {
             Account account
     ){
         return ApiResult.ok(feedService.getMyFeedAuction(account));
+    }
+
+    @GetMapping("/my/confirm-bid")
+    @AuthUser
+    public ApiResult<List<FeedConfirmBidsProjection>> getMyFeedConfirmBids(
+            Account account
+
+    ){
+        return ApiResult.ok(feedService.getMyConfirmBids(account));
+
     }
 }

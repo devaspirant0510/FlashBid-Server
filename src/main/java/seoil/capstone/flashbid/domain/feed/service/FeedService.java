@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
+import seoil.capstone.flashbid.domain.auction.repository.ConfirmedBidsRepository;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateCommentDto;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateFeedDto;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
@@ -22,6 +23,7 @@ import seoil.capstone.flashbid.domain.feed.entity.FeedAuctionEntity;
 import seoil.capstone.flashbid.domain.feed.entity.FeedEntity;
 import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
 import seoil.capstone.flashbid.domain.feed.projection.FeedAuctionProjection;
+import seoil.capstone.flashbid.domain.feed.projection.FeedConfirmBidsProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedSummaryProjection;
 import seoil.capstone.flashbid.domain.feed.repository.CommentRepository;
@@ -53,6 +55,7 @@ public class FeedService {
     private final FileRepository fileRepository;
     private final FeedAuctionRepository feedAuctionRepository;
     private final AuctionRepository auctionRepository;
+    private final ConfirmedBidsRepository confirmedBidsRepository;
 
     @Transactional(readOnly = true)
     public Slice<FeedDto> getFeedQuery(int page, int size, Account account) {
@@ -369,6 +372,10 @@ public class FeedService {
     @Transactional
     public List<FeedAuctionProjection> getMyFeedAuction(Account account) {
         return feedRepository.findMyFeedPostedAuction(account.getId());
+    }
+
+    public List<FeedConfirmBidsProjection> getMyConfirmBids(Account account) {
+        return confirmedBidsRepository.findAllMyConfirmedBids(account.getId());
     }
     // FileService 관련 메서드 (FileService에도 추가 필요)
     // public void deleteFilesByFeedId(Long feedId) {
