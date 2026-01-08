@@ -32,4 +32,28 @@ public interface FeedSummaryProjection extends FeedProjection {
 
     String getAuctionImageUrl();
 
+    Long getConfirmBidId();
+
+    Long getConfirmBidAuctionId();
+
+    AuctionType getConfirmBidAuctionType();
+
+    String getConfirmBidAuctionTitle();
+
+    String getConfirmBidAuctionDescription();
+
+    String getConfirmBidAuctionCategoryName();
+
+    Integer getConfirmBidAuctionStartPrice();
+
+    LocalDateTime getConfirmBidAuctionStartTime();
+
+    LocalDateTime getConfirmBidAuctionEndTime();
+
+    Long getConfirmedBidPrice();
+    String getConfirmedBidBidderName();
+    String getConfirmedBidBidderProfileImage();
+
+    Integer getConfirmedBidBiddingCount();
+    Integer getConfirmedBidChatCount();
 }

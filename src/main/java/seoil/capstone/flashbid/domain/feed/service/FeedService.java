@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
+import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
 import seoil.capstone.flashbid.domain.auction.repository.ConfirmedBidsRepository;
 import seoil.capstone.flashbid.domain.feed.dto.request.CreateCommentDto;
@@ -18,18 +19,12 @@ import seoil.capstone.flashbid.domain.feed.dto.request.CreateFeedDto;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDto;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDtoLegacy;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedListResponse;
-import seoil.capstone.flashbid.domain.feed.entity.CommentEntity;
-import seoil.capstone.flashbid.domain.feed.entity.FeedAuctionEntity;
-import seoil.capstone.flashbid.domain.feed.entity.FeedEntity;
-import seoil.capstone.flashbid.domain.feed.entity.LikeEntity;
+import seoil.capstone.flashbid.domain.feed.entity.*;
 import seoil.capstone.flashbid.domain.feed.projection.FeedAuctionProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedConfirmBidsProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedProjection;
 import seoil.capstone.flashbid.domain.feed.projection.FeedSummaryProjection;
-import seoil.capstone.flashbid.domain.feed.repository.CommentRepository;
-import seoil.capstone.flashbid.domain.feed.repository.FeedAuctionRepository;
-import seoil.capstone.flashbid.domain.feed.repository.FeedRepository;
-import seoil.capstone.flashbid.domain.feed.repository.LikeRepository;
+import seoil.capstone.flashbid.domain.feed.repository.*;
 import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.projection.FileProjection;
@@ -56,6 +51,7 @@ public class FeedService {
     private final FeedAuctionRepository feedAuctionRepository;
     private final AuctionRepository auctionRepository;
     private final ConfirmedBidsRepository confirmedBidsRepository;
+    private final FeedConfirmBidRepository feedConfirmBidRepository;
 
     @Transactional(readOnly = true)
     public Slice<FeedDto> getFeedQuery(int page, int size, Account account) {
@@ -135,6 +131,20 @@ public class FeedService {
                     FeedAuctionEntity.builder()
                             .auction(feedAuction)
                             .feed(feedEntity)
+                            .build()
+            );
+        }
+        if(dto.getConfirmedBidId()!=null){
+            ConfirmedBidsEntity confirmedBidsEntity = confirmedBidsRepository
+                    .findById(dto.getConfirmedBidId())
+                    .orElseThrow(()->new ApiException(HttpStatus.NOT_FOUND));
+            if(!confirmedBidsEntity.getBidder().getId().equals(account.getId())){
+                throw new ApiException(HttpStatus.BAD_REQUEST,"잘못된 요청입니다.","입찰자 정보가 현재 사용자와 일치하지 않습니다.");
+            }
+            feedConfirmBidRepository.save(
+                    FeedConfirmBidEntity.builder()
+                            .confirmedBids(confirmedBidsEntity)
+                            .feed(savedEntity)
                             .build()
             );
         }
