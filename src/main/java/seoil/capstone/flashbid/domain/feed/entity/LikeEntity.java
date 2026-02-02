@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 public class LikeEntity extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "좋아요 ID", example = "1")
     private Long id;
 

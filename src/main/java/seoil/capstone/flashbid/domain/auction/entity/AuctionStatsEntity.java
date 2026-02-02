@@ -24,7 +24,6 @@ public class AuctionStatsEntity {
     private Long lastBidAmount;
     private LocalDateTime lastBidTime;
     private Long participantsCount;
-    private Long chatCount;
 
     @OneToOne
     private Auction auction;
