@@ -65,7 +65,7 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
                 g.title as auctionTitle,
                 g.description as auctionDescription,
                 awl.count as auctionLikeCount,
-                a.viewCount as auctionViewCount,
+                avc.viewCount as auctionViewCount,
                 a.auctionType as auctionType,
                 a.startPrice as auctionStartPrice,
                 a.auctionStatus as auctionStatus,
@@ -84,6 +84,7 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
             JOIN f.user u
             LEFT JOIN FeedAuction fa ON fa.feed.id = f.id
             LEFT JOIN Auction a ON fa.auction.id = a.id
+            LEFT JOIN AuctionViewCount avc ON avc.id = a.id
             LEFT JOIN category ca on a.category.id = ca.id
             LEFT JOIN AuctionWishlistCount awl ON awl.auction.id = a.id
             LEFT JOIN AuctionStats ast ON a.id = ast.auction.id
@@ -118,7 +119,7 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
                 g.title as auctionTitle,
                 g.description as auctionDescription,
                 awl.count as auctionLikeCount,
-                a.viewCount as auctionViewCount,
+                avc.viewCount as auctionViewCount,
                 a.auctionType as auctionType,
                 a.startPrice as auctionStartPrice,
                 a.auctionStatus as auctionStatus,
@@ -151,6 +152,7 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
             JOIN f.user u
             LEFT JOIN FeedAuction fa ON fa.feed.id = f.id
             LEFT JOIN FeedConfirmBid fcf ON fcf.feed.id = f.id
+            LEFT JOIN AuctionViewCount avc on avc.id = fa.auction.id
             LEFT JOIN fcf.confirmedBids cb
             LEFT JOIN cb.auction cba
             LEFT JOIN cba.goods cbg
