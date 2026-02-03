@@ -11,10 +11,13 @@ import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDt
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
+import seoil.capstone.flashbid.domain.auction.dto.response.AuctionItemDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
 import seoil.capstone.flashbid.domain.auction.entity.*;
 import seoil.capstone.flashbid.domain.auction.projection.*;
-import seoil.capstone.flashbid.domain.auction.repository.*;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.*;
+import seoil.capstone.flashbid.domain.auction.repository.redis.AuctionEventRepository;
+import seoil.capstone.flashbid.domain.auction.repository.redis.AuctionViewCountRepository;
 import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
 import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
 import seoil.capstone.flashbid.domain.dm.service.DMService;
@@ -34,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 
 @Service
@@ -57,6 +61,8 @@ public class AuctionService {
     private final AuctionEventRepository auctionEventRepository;
 
     private final DMService dmService;
+    private final AuctionViewService auctionViewService;
+    private final AuctionViewCountRepository auctionViewCountRepository;
 
     public ConfirmedBidsEntity confirmedBidsEntity(Account account, Long auctionId, Long biddingLogId) {
         Auction auction = getAuctionById(auctionId);
@@ -90,7 +96,7 @@ public class AuctionService {
         return auctionRepository.findAllByLiveAuctionPage(type, categoryName, PageRequest.of(page, size));
     }
 
-    public Page<AuctionProjection> searchAuction(
+    public Page<AuctionItemDto> searchAuction(
             String categoryName,
             Integer auctionType,
             Integer currentPage,
@@ -107,11 +113,19 @@ public class AuctionService {
                 pageSize,
                 offset
         );
+        List<Long> auctionIds = allByAuctionPageV2.stream().map(AuctionProjection::getId).toList();
+        List<Long> viewCounts = auctionViewCountRepository.getViewCounts(auctionIds);
+        List<AuctionItemDto> dtos = IntStream.range(0, allByAuctionPageV2.size())
+                .mapToObj(i -> AuctionItemDto.from(
+                        allByAuctionPageV2.get(i),
+                        viewCounts.get(i)  // index로 가져오기
+                ))
+                .toList();
         System.out.println(pageLimit);
         System.out.println(pageOffset);
         Integer auctionCount = auctionRepository.countByAuctionPageV2(categoryId, auctionType, pageSize*pageGroupSize, pageOffset);
         return new PageImpl<>(
-                allByAuctionPageV2,
+                dtos,
                 PageRequest.of(currentPage, pageSize),
                 auctionCount
         );
@@ -400,6 +414,7 @@ public class AuctionService {
     }
 
     @Transactional
+    @Deprecated
     public void updateAuctionViews(Long auctionId) {
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "존재하지 않는 옥션입니다.", "해당 옥션을 찾을수 없습니다."));
 //        auction.setViewCount(auction.getViewCount() + 1);
