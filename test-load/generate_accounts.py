@@ -10,7 +10,7 @@ from faker import Faker
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import execute_values
-
+import uuid
 # .env 파일 로드
 load_dotenv()
 
@@ -41,9 +41,12 @@ def make_connection():
     conn.set_session(autocommit=False)
     return conn
 
-
+aaid=1
 def generate_account_row(faker_instance, idx):
+    global aaid
     """각 배치마다 새로운 faker 인스턴스 사용"""
+    aid = aaid
+    aaid+=1
     name = faker_instance.first_name()
     verb = random.choice(KOREAN_VERBS)
     # ★ 인덱스 기반 고유성 보장 (메모리 사용 제로)
@@ -72,7 +75,7 @@ def generate_account_row(faker_instance, idx):
     user_type = 0
 
     return (
-        is_verified, point, created_at, deleted_at, updated_at,
+        aid,is_verified, point, created_at, deleted_at, updated_at,
         description, email, nickname, password, profile_url,
         u, login_type, user_status, user_type
     )
@@ -80,7 +83,7 @@ def generate_account_row(faker_instance, idx):
 
 def insert_batch(conn, rows):
     cols = (
-        "is_verified", "point", "created_at", "deleted_at", "updated_at",
+        "id","is_verified", "point", "created_at", "deleted_at", "updated_at",
         "description", "email", "nickname", "password", "profile_url",
         "uuid", "login_type", "user_status", "user_type"
     )

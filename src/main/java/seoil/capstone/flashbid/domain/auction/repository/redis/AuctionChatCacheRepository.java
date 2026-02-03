@@ -1,4 +1,4 @@
-package seoil.capstone.flashbid.domain.auction.repository;
+package seoil.capstone.flashbid.domain.auction.repository.redis;
 
 
 import lombok.RequiredArgsConstructor;

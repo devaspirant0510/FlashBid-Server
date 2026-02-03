@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Deprecated
 public class AuctionDto {
     private Auction auction;
     private List<FileEntity> images;

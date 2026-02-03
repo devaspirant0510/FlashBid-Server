@@ -14,17 +14,21 @@ import seoil.capstone.flashbid.domain.auction.dto.request.CreateConfirmRequestDt
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
+import seoil.capstone.flashbid.domain.auction.dto.response.ViewCountIncreasedDto;
+import seoil.capstone.flashbid.domain.auction.dto.response.ViewCountResultDto;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
 import seoil.capstone.flashbid.domain.auction.entity.ConfirmedBidsEntity;
 import seoil.capstone.flashbid.domain.auction.projection.*;
-import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
-import seoil.capstone.flashbid.domain.auction.repository.AuctionParticipateRepository;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.AuctionBidLogRepository;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.AuctionParticipateRepository;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
+import seoil.capstone.flashbid.domain.auction.service.AuctionViewService;
 import seoil.capstone.flashbid.domain.payment.dto.BidDto;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
 import seoil.capstone.flashbid.global.common.enums.AuctionType;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
+import seoil.capstone.flashbid.global.core.provider.ClientIdentifierProvider;
 
 import java.util.List;
 
@@ -35,8 +39,10 @@ import java.util.List;
 @Slf4j
 public class AuctionController implements AuctionSwagger {
     private final AuctionService auctionService;
+    private final AuctionViewService auctionViewService;
     private final AuctionParticipateRepository auctionParticipateRepository;
     private final AuctionBidLogRepository auctionBidLogRepository;
+    private final ClientIdentifierProvider clientIdentifierProvider;
 
     @Override
     @PostMapping("/confirm/{id}")
@@ -217,9 +223,38 @@ public class AuctionController implements AuctionSwagger {
     }
 
     @PatchMapping("/views/{id}")
+    @Deprecated
     public ApiResult<Boolean> updateAuctionViews(@PathVariable("id") Long auctionId) {
         auctionService.updateAuctionViews(auctionId);
         return ApiResult.ok(true, "경매 조회수 증가 성공");
+    }
+
+    @PatchMapping("{id}/views")
+    @AuthUser
+    public ApiResult<ViewCountIncreasedDto> updateAuctionViews(
+            @PathVariable("id") Long auctionId,
+            Account account,
+            HttpServletRequest request
+    ) {
+        return ApiResult.ok(
+                auctionViewService.increaseView(
+                        auctionId,
+                        account,
+                        request
+                )
+        );
+    }
+
+
+    @GetMapping("{id}/views/count")
+    public ApiResult<ViewCountResultDto> getViewCount(
+            @PathVariable(name = "id") Long auctionId
+    ) {
+        return ApiResult.ok(
+                auctionViewService.getAuctionViewCount(auctionId)
+        );
+
+
     }
 
 }

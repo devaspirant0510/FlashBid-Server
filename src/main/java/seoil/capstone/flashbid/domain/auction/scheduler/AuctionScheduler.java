@@ -7,8 +7,8 @@
 //import org.springframework.transaction.annotation.Transactional;
 //import seoil.capstone.flashbid.domain.auction.entity.Auction;
 //import seoil.capstone.flashbid.domain.auction.entity.BiddingLogEntity;
-//import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
-//import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
+//import seoil.capstone.flashbid.domain.auction.repository.jpa.AuctionRepository;
+//import seoil.capstone.flashbid.domain.auction.repository.jpa.AuctionBidLogRepository;
 //import seoil.capstone.flashbid.domain.auction.service.AuctionService;
 //import seoil.capstone.flashbid.domain.user.entity.Account;
 //import seoil.capstone.flashbid.global.common.error.ApiException;

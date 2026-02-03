@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
-import seoil.capstone.flashbid.domain.auction.repository.AuctionRepository;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.AuctionRepository;
 import seoil.capstone.flashbid.domain.dm.dto.DMChatMessageDto;
 import seoil.capstone.flashbid.domain.dm.dto.DMChatResponseDto;
 import seoil.capstone.flashbid.domain.dm.dto.DMRoomDetailDto;

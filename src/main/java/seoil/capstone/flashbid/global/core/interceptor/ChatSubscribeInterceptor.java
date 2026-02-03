@@ -9,7 +9,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
-import seoil.capstone.flashbid.domain.auction.repository.AuctionParticipateRepository;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.AuctionParticipateRepository;
 import seoil.capstone.flashbid.domain.auth.service.AuthService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.core.provider.JwtProvider;

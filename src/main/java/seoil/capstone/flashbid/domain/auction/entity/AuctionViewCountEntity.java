@@ -1,14 +1,10 @@
 package seoil.capstone.flashbid.domain.auction.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import jakarta.persistence.Entity;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -30,4 +26,10 @@ public class AuctionViewCountEntity {
 
     @Column
     private LocalDateTime backupTime;
+
+    public static AuctionViewCountEntity empty() {
+        return AuctionViewCountEntity.builder()
+                .viewCount(0L)
+                .build();
+    }
 }
