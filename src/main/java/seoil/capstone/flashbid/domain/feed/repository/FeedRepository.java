@@ -65,7 +65,7 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
                 g.title as auctionTitle,
                 g.description as auctionDescription,
                 awl.count as auctionLikeCount,
-                a.viewCount as auctionViewCount,
+                avc.viewCount as auctionViewCount,
                 a.auctionType as auctionType,
                 a.startPrice as auctionStartPrice,
                 a.auctionStatus as auctionStatus,
@@ -84,6 +84,7 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
             JOIN f.user u
             LEFT JOIN FeedAuction fa ON fa.feed.id = f.id
             LEFT JOIN Auction a ON fa.auction.id = a.id
+            LEFT JOIN AuctionViewCount avc ON avc.id = a.id
             LEFT JOIN category ca on a.category.id = ca.id
             LEFT JOIN AuctionWishlistCount awl ON awl.auction.id = a.id
             LEFT JOIN AuctionStats ast ON a.id = ast.auction.id
@@ -118,7 +119,7 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
                 g.title as auctionTitle,
                 g.description as auctionDescription,
                 awl.count as auctionLikeCount,
-                a.viewCount as auctionViewCount,
+                avc.viewCount as auctionViewCount,
                 a.auctionType as auctionType,
                 a.startPrice as auctionStartPrice,
                 a.auctionStatus as auctionStatus,
@@ -132,25 +133,46 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
                     where ff.fileId=a.id
                     and ff.fileType=seoil.capstone.flashbid.global.common.enums.FileType.GOODS
                                 order by ff.id asc
-                    limit 1) as auctionImageUrl
+                    limit 1) as auctionImageUrl,
+                    cb.id AS confirmBidId,
+                    cba.id AS confirmBidAuctionId,
+                    cba.auctionType AS confirmBidAuctionType,
+                    cbg.title AS confirmBidAuctionTitle,
+                    cbg.description AS confirmBidAuctionDescription,
+                    cbca.name AS confirmBidAuctionCategoryName,
+                    cba.startPrice AS confirmBidAuctionStartPrice,
+                    cba.startTime AS confirmBidAuctionStartTime,
+                    cba.endTime AS confirmBidAuctionEndTime,
+                    cbl.price AS confirmedBidPrice,
+                    cbb.nickname AS confirmedBidBidderName,
+                    cbb.profileUrl AS confirmedBidBidderProfileImage,
+                    COUNT(DISTINCT cbl2.id) AS confirmedBidBiddingCount,
+                    COUNT(DISTINCT chat.id) AS confirmedBidChatCount
             FROM feed f
             JOIN f.user u
             LEFT JOIN FeedAuction fa ON fa.feed.id = f.id
+            LEFT JOIN FeedConfirmBid fcf ON fcf.feed.id = f.id
+            LEFT JOIN AuctionViewCount avc on avc.id = fa.auction.id
+            LEFT JOIN fcf.confirmedBids cb
+            LEFT JOIN cb.auction cba
+            LEFT JOIN cba.goods cbg
+            LEFT JOIN cba.category cbca
+            LEFT JOIN cb.biddingLog cbl
+            LEFT JOIN cb.bidder cbb
+            LEFT JOIN bidding_log cbl2 ON cbl2.auction.id = cba.id
+            LEFT JOIN AuctionChat chat ON chat.auction.id = cba.id
             LEFT JOIN Auction a ON fa.auction.id = a.id
-            LEFT JOIN category ca on a.category.id = ca.id
+            LEFT JOIN a.category ca
             LEFT JOIN AuctionWishlistCount awl ON awl.auction.id = a.id
             LEFT JOIN AuctionStats ast ON a.id = ast.auction.id
             LEFT JOIN Goods g ON a.goods.id = g.id
             LEFT JOIN likes l ON l.feed.id = f.id
             LEFT JOIN CommentEntity c ON c.feed.id = f.id
             LEFT JOIN likes ul ON ul.feed.id = f.id AND ul.account.id = :userId
-           
             WHERE (:cursorId IS NULL OR f.id < :cursorId)
-            
             GROUP BY
-                a.id,f.id, u.id, g.id, ul.id,awl.id,ast.id,ca.id
+                a.id,f.id, u.id, g.id, ul.id,awl.id,ast.id,ca.id,cb.id,cba.id,cbg.id,cbca.id,cbl.id,cbb.id
             ORDER BY f.createdAt DESC
-            
             """)
     List<FeedSummaryProjection> findAllFeedQueryCursor(
             @Param("cursorId") Long cursorId,
