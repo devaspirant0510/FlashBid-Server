@@ -392,7 +392,6 @@ def generate_auction_row(idx):
         bid_unit,
         count,
         start_price,
-        view_count,
         category_id,
         created_at,
         None,                # delivery_info_id
@@ -412,7 +411,6 @@ def insert_auction_batch(conn, rows):
         "bid_unit",
         "count",
         "start_price",
-        "view_count",
         "category_id",
         "created_at",
         "delivery_info_id",
@@ -541,16 +539,16 @@ def generate_and_insert_files(total_goods, batch_size=10000):
 
 
 if __name__ == "__main__":      
-    # generate_and_insert_goods(
-    #     total_count=5_000_000,
-    #     commit_unit=50000,
-    #     chunk=1000
-    # )
+#     generate_and_insert_goods(
+#         total_count=5_000_00,
+#         commit_unit=50000,
+#         chunk=1000
+#     )
     generate_and_insert_auction(
-        total_count=5_000_000,
+        total_count=5_000_00,
         chunk=50000
     )
     generate_and_insert_files(
-        total_goods=5_000_000,
+        total_goods=5_000_00,
         batch_size=10000
     )
