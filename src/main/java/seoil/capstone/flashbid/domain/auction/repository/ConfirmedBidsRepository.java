@@ -31,7 +31,7 @@ public interface ConfirmedBidsRepository extends JpaRepository<ConfirmedBidsEnti
                 ac.nickname AS bidderName,
                 ac.profileUrl AS bidderProfileImage,
                 ast.biddingCount as biddingCount,
-                ast.chatCount as chatCount
+                acc.chatCount as chatCount
             FROM confirm_bids cb
                 JOIN cb.auction a
                 JOIN cb.biddingLog bl
@@ -39,6 +39,7 @@ public interface ConfirmedBidsRepository extends JpaRepository<ConfirmedBidsEnti
                 JOIN a.category c
                 JOIN cb.bidder ac
                 LEFT JOIN AuctionStats ast ON ast.auction.id = a.id
+                LEFT JOIN AuctionChatCount  acc ON acc.id = a.id
             WHERE ac.id = :userId
             """)
     List<FeedConfirmBidsProjection> findAllMyConfirmedBids(@Param("userId") Long userId);

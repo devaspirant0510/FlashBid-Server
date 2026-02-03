@@ -35,7 +35,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
                     acc.nickname AS bidderName,
                     c.name AS categoryName,
                     a.startPrice AS startPrice,
-                    a.viewCount AS viewCount,
+                    avc.viewCount AS viewCount,
                     a.startTime AS startTime,
                     a.endTime AS endTime,
                     a.auctionStatus AS status,
@@ -50,6 +50,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
                     JOIN a.category c
                     LEFT JOIN AuctionWishlistCount w ON w.auction.id = a.id
                     LEFT JOIN AuctionStats aus on aus.auction.id = a.id
+                    LEFT JOIN AuctionViewCount  avc on avc.id = a.id
                 WHERE a.auctionType = :auctionType
                   AND c.root IS NULL
                   AND a.endTime > CURRENT_TIMESTAMP
@@ -86,14 +87,14 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
                              LIMIT 1
                            ) AS goodsImageUrl,
                            a.start_price AS startPrice,
-                           a.view_count AS viewCount,
+                           avc.view_count AS viewCount,
                            a.start_time AS startTime,
                            a.end_time AS endTime,
                            a.auction_status AS status,
                            c.name AS categoryName,
                            COALESCE(awc.count, 0) AS likeCount,
                            COALESCE(ast.bidding_count, 0) AS biddingCount,
-                           COALESCE(ast.chat_count, 0) AS chatMessagingCount,
+                           COALESCE(acc.chat_count, 0) AS chatMessagingCount,
                            COALESCE(ast.last_bid_amount, 0) AS lastBidAmount
                     FROM auction a
                     JOIN (
@@ -110,6 +111,8 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
                     JOIN category c ON c.id = a.category_id
                     LEFT JOIN auction_wishlist_count awc ON awc.id = a.id
                     LEFT JOIN auction_stats ast ON ast.auction_id = a.id
+                    LEFT JOIN auction_view_count avc ON avc.auction_id = a.id
+                    LEFT JOIN auction_chat_count acc ON acc.auction_id = a.id
                     ORDER BY a.id DESC;
                     """,
             nativeQuery = true

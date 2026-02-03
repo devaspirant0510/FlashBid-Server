@@ -1,9 +1,10 @@
 package seoil.capstone.flashbid.domain.user.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
 import seoil.capstone.flashbid.global.common.enums.UserStatus;
 import seoil.capstone.flashbid.global.common.enums.UserType;
@@ -20,7 +21,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Account extends BaseTimeEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated

@@ -28,21 +28,20 @@ spring:
       max-request-size: 10MB
   datasource:
     url: ${DB_URL}
- #   url : jdbc:postgresql://localhost:5432/flash_bid
     driver-class-name: org.postgresql.Driver
-    username: ${USERNAME}
+    username: ${DB_USER}
     password: ${PASSWORD}
-#    username: postgres
-#    password: 4628
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         highlight_sql: true
+  flyway:
+    enabled: true
   web:
     resources:
       static-locations: file:/Users/kotlinandnode/seungho/uploads/

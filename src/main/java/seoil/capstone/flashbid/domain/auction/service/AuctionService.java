@@ -131,7 +131,6 @@ public class AuctionService {
                 .goods(goodsDto.getGoods())
                 .category(category)
                 .user(user)
-                .viewCount(0)
                 .auctionStatus(AuctionStatus.BEFORE_START)
                 .build();
 
@@ -403,7 +402,7 @@ public class AuctionService {
     @Transactional
     public void updateAuctionViews(Long auctionId) {
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "존재하지 않는 옥션입니다.", "해당 옥션을 찾을수 없습니다."));
-        auction.setViewCount(auction.getViewCount() + 1);
+//        auction.setViewCount(auction.getViewCount() + 1);
 
     }
 

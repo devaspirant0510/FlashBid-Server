@@ -27,10 +27,12 @@ public class FeedDto {
     private Boolean liked;
     private List<FileProjection> images;
     private FeedAuctionDto feedAuction;
+    private FeedConfirmBidDto feedConfirmBid;
 
     public static FeedDto from(FeedSummaryProjection summaryProjection, List<FileProjection> images) {
         FeedDto feedDto = new FeedDto();
         feedDto.feedAuction = FeedAuctionDto.from(summaryProjection);
+        feedDto.feedConfirmBid = FeedConfirmBidDto.from(summaryProjection);
         feedDto.images = images;
         feedDto.setId(summaryProjection.getId());
         feedDto.setContents(summaryProjection.getContents());
@@ -89,5 +91,58 @@ class FeedAuctionDto {
 
         return fa;
 
+    }
+}
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+ class FeedConfirmBidDto {
+
+    private Long confirmBidId;
+
+    private Long auctionId;
+    private AuctionType auctionType;
+    private String categoryName;
+    private String title;
+    private String description;
+    private Integer startPrice;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
+    private Long confirmedBidPrice;
+    private String bidderName;
+    private String bidderProfileImage;
+
+    private Integer biddingCount;
+    private Integer chatCount;
+
+    public static FeedConfirmBidDto from(FeedSummaryProjection projection) {
+        if (projection == null || projection.getConfirmBidId() == null) {
+            return null;
+        }
+
+        FeedConfirmBidDto dto = new FeedConfirmBidDto();
+        dto.setConfirmBidId(projection.getConfirmBidId());
+
+        dto.setAuctionId(projection.getConfirmBidAuctionId());
+        dto.setAuctionType(projection.getConfirmBidAuctionType());
+        dto.setCategoryName(projection.getConfirmBidAuctionCategoryName());
+        dto.setTitle(projection.getConfirmBidAuctionTitle());
+        dto.setDescription(projection.getConfirmBidAuctionDescription());
+        dto.setStartPrice(projection.getConfirmBidAuctionStartPrice());
+        dto.setStartTime(projection.getConfirmBidAuctionStartTime());
+        dto.setEndTime(projection.getConfirmBidAuctionEndTime());
+
+        dto.setConfirmedBidPrice(projection.getConfirmedBidPrice());
+        dto.setBidderName(projection.getConfirmedBidBidderName());
+        dto.setBidderProfileImage(projection.getConfirmedBidBidderProfileImage());
+
+        dto.setBiddingCount(projection.getConfirmedBidBiddingCount());
+        dto.setChatCount(projection.getConfirmedBidChatCount());
+
+        return dto;
     }
 }

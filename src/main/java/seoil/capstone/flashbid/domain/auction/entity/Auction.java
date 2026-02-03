@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 public class Auction extends BaseTimeEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -28,9 +27,6 @@ public class Auction extends BaseTimeEntity {
 
     @ManyToOne
     private Goods goods;
-
-    @Column
-    private int viewCount;
 
     @Column
     private LocalDateTime startTime;

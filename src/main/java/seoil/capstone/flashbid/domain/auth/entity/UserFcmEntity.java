@@ -10,7 +10,8 @@ import seoil.capstone.flashbid.domain.user.entity.Account;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Table(name = "user_fcm")
+@Entity(name = "UserFcm")
 public class UserFcmEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -30,5 +30,4 @@ public interface FeedConfirmBidsProjection {
 
     Integer getBiddingCount();
     Integer getChatCount();
-
 }
