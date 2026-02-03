@@ -1,4 +1,4 @@
-package seoil.capstone.flashbid.domain.auction.repository;
+package seoil.capstone.flashbid.domain.auction.repository.jpa;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

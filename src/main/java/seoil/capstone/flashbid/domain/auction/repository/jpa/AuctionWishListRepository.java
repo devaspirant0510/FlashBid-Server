@@ -1,4 +1,4 @@
-package seoil.capstone.flashbid.domain.auction.repository;
+package seoil.capstone.flashbid.domain.auction.repository.jpa;
 
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
