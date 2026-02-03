@@ -81,6 +81,8 @@ public class SecurityConfig {
                                 "/api/admin/notices/**",
                                 "/api/v1/category",
                                 "/api/v1/feed/test-all",
+                                "/api/v1/auction/*/views",
+                                "/api/v1/auction/*/views/count",
                                 "/api/v2/feed",
                                 "/api/dm/**",
                                 "/api/v1/admin/**",
@@ -92,6 +94,8 @@ public class SecurityConfig {
                         ).authenticated()
                         .requestMatchers(
                                 HttpMethod.GET,
+                                "/api/v2/auction/live",
+                                "/api/v2/auction/blind",
                                 "/api/v1/auction/live",
                                 "/api/v1/auction/blind",
                                 "/api/v1/auction/*",
