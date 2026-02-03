@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import seoil.capstone.flashbid.domain.auction.projection.AuctionProjection;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.AuctionRepository;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
 
 @SpringBootTest

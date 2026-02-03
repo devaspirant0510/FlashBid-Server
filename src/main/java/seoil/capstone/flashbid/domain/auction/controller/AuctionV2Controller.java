@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import seoil.capstone.flashbid.domain.auction.projection.AuctionProjection;
+import seoil.capstone.flashbid.domain.auction.dto.response.AuctionItemDto;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 
@@ -20,12 +20,12 @@ public class AuctionV2Controller {
     private final AuctionService auctionService;
 
     @GetMapping("live")
-    public ApiResult<Page<AuctionProjection>> getAuctionList(
+    public ApiResult<Page<AuctionItemDto>> getAuctionList(
             @RequestParam(name = "page", defaultValue = "1") Integer page,
             @RequestParam(name = "size", defaultValue = "10") Integer size,
             @RequestParam(name = "category", required = false) String categoryName
     ){
-        Page<AuctionProjection> auctionProjections = auctionService.searchAuction(
+        Page<AuctionItemDto> auctionProjections = auctionService.searchAuction(
                 categoryName,
                 0,
                 page,

@@ -16,7 +16,7 @@ import seoil.capstone.flashbid.domain.admin.projection.*;
 import seoil.capstone.flashbid.domain.admin.repository.jpa.AccountAdminRepository;
 import seoil.capstone.flashbid.domain.admin.repository.jpa.AuctionAdminRepository;
 import seoil.capstone.flashbid.domain.admin.repository.jpa.BidLogAdminRepository;
-import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.AuctionBidLogRepository;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
 import seoil.capstone.flashbid.domain.category.service.CategoryService;
 import seoil.capstone.flashbid.domain.user.dto.response.AccountDetailDto;

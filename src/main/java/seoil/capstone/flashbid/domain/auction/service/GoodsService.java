@@ -8,8 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
 import seoil.capstone.flashbid.domain.auction.entity.Goods;
-import seoil.capstone.flashbid.domain.auction.repository.GoodsRepository;
-import seoil.capstone.flashbid.domain.file.dto.SaveFileDto;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.GoodsRepository;
 import seoil.capstone.flashbid.domain.file.entity.FileEntity;
 import seoil.capstone.flashbid.domain.file.repository.FileRepository;
 import seoil.capstone.flashbid.domain.file.service.FileService;
@@ -18,7 +17,6 @@ import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 

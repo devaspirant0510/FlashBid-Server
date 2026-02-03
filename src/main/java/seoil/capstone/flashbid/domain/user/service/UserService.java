@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
 import seoil.capstone.flashbid.domain.auction.entity.*;
-import seoil.capstone.flashbid.domain.auction.repository.*;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.*;
 import seoil.capstone.flashbid.domain.feed.dto.response.FeedDtoLegacy;
 import seoil.capstone.flashbid.domain.feed.repository.FeedRepository;
 import seoil.capstone.flashbid.domain.feed.service.FeedService;

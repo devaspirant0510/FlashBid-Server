@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
-import seoil.capstone.flashbid.domain.auction.repository.*;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.*;
 import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
 import seoil.capstone.flashbid.domain.file.service.FileService;
 

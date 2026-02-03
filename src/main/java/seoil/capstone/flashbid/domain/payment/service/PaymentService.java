@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import seoil.capstone.flashbid.domain.auction.entity.BiddingLogEntity;
-import seoil.capstone.flashbid.domain.auction.repository.AuctionBidLogRepository;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.AuctionBidLogRepository;
 import seoil.capstone.flashbid.domain.payment.dto.PaymentSuccessDto;
 import seoil.capstone.flashbid.domain.payment.entity.PaymentEntity;
 import seoil.capstone.flashbid.domain.payment.entity.PointHistoryEntity;
