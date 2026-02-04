@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import seoil.capstone.flashbid.domain.auction.entity.Auction;
+import seoil.capstone.flashbid.domain.auction.projection.AuctionDetailProjection;
 import seoil.capstone.flashbid.domain.auction.projection.AuctionProjection;
 import seoil.capstone.flashbid.global.common.enums.AuctionType;
 
@@ -134,6 +135,44 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
             nativeQuery = true
     )
     Integer countByAuctionPageV2(Long categoryId,Integer auctionType, Integer limit, Integer offset);
+
+
+    @Query("""
+                SELECT
+                    a.id AS id,
+                    g.title AS title,
+                    c.name AS categoryName,
+                    g.description AS description,
+                    COALESCE(ast.lastBidAmount, a.startPrice) AS currentPrice,
+                    a.startPrice AS startPrice,
+                    COALESCE(ast.participantsCount, 0) AS participateCount,
+                    COALESCE(ast.biddingCount, 0) AS biddingCount,
+                    COALESCE(awc.count, 0) AS likeCount,
+                    COALESCE(accChat.chatCount, 0) AS chatMessagingCount,
+                    a.startTime AS startTime,
+                    a.endTime AS endTime,
+                    a.auctionStatus AS status,
+                    CASE WHEN :accountId IS NOT NULL AND EXISTS (
+                        SELECT 1
+                        FROM AuctionWishList aw 
+                        WHERE aw.auction.id = a.id AND aw.user.id = :accountId
+                    ) THEN TRUE ELSE FALSE END AS isLiked,
+                    u.id AS bidderId,
+                    u.nickname AS bidderNickname,
+                    COALESCE(0) AS bidderFollower,
+                    COALESCE(0) AS bidderFollowing,
+                    COALESCE(0) AS bidderConfirmBidCount,
+                    COALESCE(0) AS bidderSaleCount
+                FROM Auction a
+                JOIN a.goods g
+                JOIN a.user u
+                JOIN a.category c 
+                LEFT JOIN AuctionWishlistCount awc ON awc.auction.id = a.id
+                LEFT JOIN AuctionStats ast ON ast.auction.id = a.id
+                LEFT JOIN AuctionChatCount accChat ON accChat.id = a.id
+                WHERE a.id = :auctionId
+            """)
+    AuctionDetailProjection findAuctionDetailById(Long auctionId, Long accountId);
 
 
 }

@@ -9,10 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDto;
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
-import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDto;
-import seoil.capstone.flashbid.domain.auction.dto.response.AuctionInfoDto;
-import seoil.capstone.flashbid.domain.auction.dto.response.AuctionItemDto;
-import seoil.capstone.flashbid.domain.auction.dto.response.GoodsDto;
+import seoil.capstone.flashbid.domain.auction.dto.response.*;
 import seoil.capstone.flashbid.domain.auction.entity.*;
 import seoil.capstone.flashbid.domain.auction.projection.*;
 import seoil.capstone.flashbid.domain.auction.repository.jpa.*;
@@ -32,6 +29,7 @@ import seoil.capstone.flashbid.global.common.enums.AuctionType;
 import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
+import seoil.capstone.flashbid.global.common.error.NotFoundAuctionException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -178,6 +176,17 @@ public class AuctionService {
     }
 
     @Transactional
+    public AuctionDetailDto getAuctionDetail(Long auctionId,Account account){
+        if(!auctionRepository.existsById(auctionId)){
+            throw new NotFoundAuctionException();
+        }
+        AuctionDetailProjection auctionDetail = auctionRepository.findAuctionDetailById(auctionId, account == null ? null : account.getId());
+        Long viewCount = auctionViewCountRepository.getViewCount(auctionId);
+        return AuctionDetailDto.from(auctionDetail, viewCount);
+    }
+
+    @Transactional
+    @Deprecated
     public AuctionInfoDto getAuctionInfoByIdToDto(Long id, Long userId) {
         Auction auction = auctionRepository.findById(id).orElseThrow(() ->
                 new ApiException(HttpStatus.NOT_FOUND, "", "")
