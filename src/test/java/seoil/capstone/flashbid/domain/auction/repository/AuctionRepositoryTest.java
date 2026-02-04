@@ -1,44 +1,87 @@
 package seoil.capstone.flashbid.domain.auction.repository;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import seoil.capstone.flashbid.domain.auction.projection.AuctionProjection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDetailDto;
+import seoil.capstone.flashbid.domain.auction.entity.Auction;
+import seoil.capstone.flashbid.domain.auction.entity.Goods;
+import seoil.capstone.flashbid.domain.auction.projection.AuctionDetailProjection;
 import seoil.capstone.flashbid.domain.auction.repository.jpa.AuctionRepository;
-import seoil.capstone.flashbid.domain.auction.service.AuctionService;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.GoodsRepository;
+import seoil.capstone.flashbid.domain.category.entity.CategoryEntity;
+import seoil.capstone.flashbid.domain.category.repository.CategoryRepository;
+import seoil.capstone.flashbid.domain.user.entity.Account;
+import seoil.capstone.flashbid.domain.user.repository.AccountRepository;
+import seoil.capstone.flashbid.global.common.enums.*;
+import seoil.capstone.flashbid.global.configuration.QueryDSLConfig;
 
-@SpringBootTest
+@DataJpaTest
+@Import(QueryDSLConfig.class)
+@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class AuctionRepositoryTest {
     @Autowired
     private AuctionRepository auctionRepository;
     @Autowired
-    private AuctionService auctionService;
+    private AccountRepository accountRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private GoodsRepository goodsRepository;
 
     @Test
-    void findAllByAuctionPageV2() {
-//        List<AuctionProjection> allByAuctionPageV2 = auctionRepository.findAllByAuctionPageV2(1L,10,10);
-//        System.out.println(allByAuctionPageV2);
-//        allByAuctionPageV2.forEach(v->{
-//            System.out.println(v.getBidderName());
-//        });
-//        assertThat(allByAuctionPageV2.size()).isEqualTo(10);
+    @DisplayName("경매 상세조회 쿼리 테스트")
+    @Transactional
+    public void auctionInfoQueryTest(){
+        Account account = Account.builder()
+                .id(1L)
+                .uuid("uuid")
+                .userType(UserType.CUSTOMER)
+                .userStatus(UserStatus.ACTIVE)
+                .loginType(LoginType.EMAIL)
+                .nickname("chodan")
+                .password("chodan")
+                .isVerified(true)
+                .email("test@test.com")
+                .description("test")
+                .point(0)
+                .build();
+        accountRepository.save(account);
+        Goods goods = Goods.builder()
+                .title("title")
+                .description("description")
+                .deliveryType(DeliveryType.PARCEL)
+                .build();
+        goodsRepository.save(goods);
+        CategoryEntity category = CategoryEntity.builder()
+                .id(1L)
+                .name("category")
+                .root(null)
+                .build();
+        categoryRepository.save(category);
+        Auction auction  = Auction.builder()
+                .id(1L)
+                .goods(goods)
+                .user(account)
+                .auctionStatus(AuctionStatus.BEFORE_START)
+                .auctionType(AuctionType.LIVE)
+                .bidUnit(0)
+                .category(category)
+                .startPrice(100)
+                .build();
+        auctionRepository.save(auction);
+
+        AuctionDetailProjection result = auctionRepository.findAuctionDetailById(1L, 1L);
+        AuctionDetailDto from = AuctionDetailDto.from(result, 10L);
+        System.out.println(from);
+
     }
 
-    @Test
-    void findByAuctionPageModel(){
-        Page<AuctionProjection> auctionProjectionPagingModel = auctionService.searchAuction(
-                "test",
-                0,
-                1,
-                10,
-                10
-        );
-        System.out.println(auctionProjectionPagingModel);
-        auctionProjectionPagingModel.getContent().forEach(v->{
-            System.out.println(v.getBidderName());
-            System.out.println(v.getGoodsTitle());
-        });
 
-    }
 }
