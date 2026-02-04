@@ -114,6 +114,9 @@ public class ApiExceptionHandler implements ResponseBodyAdvice<Object> {
 
     private void sendErrorToDiscord(HttpServletRequest request, HttpServletResponse response, String title, Exception e) {
         try {
+            if(request.getMethod().equals("POST") && request.getRequestURI().endsWith("/")) {
+                return;
+            }
             String ip = request.getHeader("X-Forwarded-For");
             if (ip == null) ip = request.getRemoteAddr();
 
