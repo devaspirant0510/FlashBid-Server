@@ -7,6 +7,8 @@ import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import seoil.capstone.flashbid.domain.auction.repository.jpa.BackUpAuctionViewCountRepository;
 import seoil.capstone.flashbid.global.base.BaseRedisTemplate;
 
 import java.util.List;
@@ -15,18 +17,32 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class AuctionViewCountRepository extends BaseRedisTemplate {
-    private static final String KEY_FORMAT = "auction:%s:view:count";
+    private static final String KEY_FORMAT = "auction:view:count";
+    private static final Integer BACKUP_THRESHOLD = 100;
     private final StringRedisTemplate redisTemplate;
+    private final BackUpAuctionViewCountRepository backUpAuctionViewCountRepository;
 
+
+    @Transactional
     public void increase(Long auctionId) {
         Long currentView = getViewCount(auctionId);
-        redisTemplate.opsForValue().set(generateKey(auctionId), currentView==null?"1":currentView.toString());
+        if (currentView!=null && currentView % BACKUP_THRESHOLD == 0) {
+            backUpAuctionViewCountRepository.updateViewCountAuctionId(auctionId, currentView);
+        }
+        redisTemplate.opsForHash().increment(generateKey(), auctionId.toString(),1);
     }
 
     public Long getViewCount(Long auctionId) {
         // 레디스에 조회수 정보 존재시 리턴
-        String viewCount = redisTemplate.opsForValue().get(generateKey(auctionId));
-        return viewCount == null ? null : Long.parseLong(viewCount);
+        Object viewCount = redisTemplate.opsForHash().get(generateKey(),auctionId.toString());
+        return viewCount == null ? null : Long.parseLong(viewCount.toString());
+    }
+
+    public List<Long> getKeysByAuctionView(){
+        return redisTemplate.keys(generateKey()).stream()
+                .map(Object::toString)
+                .map(Long::valueOf)
+                .toList();
     }
 
     public List<Long> getViewCounts(List<Long> auctionIds) {
@@ -34,8 +50,7 @@ public class AuctionViewCountRepository extends BaseRedisTemplate {
             StringRedisConnection stringRedisConn = (StringRedisConnection) connection;
 
             for (Long auctionId : auctionIds) {
-                String key = String.format(generateKey(auctionId), auctionId);
-                stringRedisConn.get(key);
+                stringRedisConn.hGet(generateKey(),auctionId.toString());
             }
             return null;
         });
