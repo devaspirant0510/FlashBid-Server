@@ -13,6 +13,6 @@ public interface AuctionWishListRepository extends JpaRepository<AuctionWishList
     boolean existsByUserIdAndAuctionId(Long userId, Long auctionId);
     void deleteByUserIdAndAuctionId(Long userId, Long auctionId);
 
-    @Query("SELECT awl FROM AuctionWishListEntity awl JOIN FETCH awl.auction WHERE awl.user.id = :userId")
+    @Query("SELECT awl FROM AuctionWishList awl JOIN FETCH awl.auction WHERE awl.user.id = :userId")
     List<AuctionWishListEntity> findAllByUserId(@Param("userId") Long userId);
 }

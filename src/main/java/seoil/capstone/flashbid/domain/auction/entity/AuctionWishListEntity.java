@@ -11,7 +11,7 @@ import seoil.capstone.flashbid.global.core.BaseTimeOnlyCreated;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Entity(name = "AuctionWishList")
 @Table(
         name = "auction_wishlist",
         uniqueConstraints = {
