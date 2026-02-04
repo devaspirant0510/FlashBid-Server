@@ -144,6 +144,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
                     c.name AS categoryName,
                     g.description AS description,
                     COALESCE(ast.lastBidAmount, a.startPrice) AS currentPrice,
+                    a.auctionType as auctionType,
                     a.startPrice AS startPrice,
                     COALESCE(ast.participantsCount, 0) AS participateCount,
                     COALESCE(ast.biddingCount, 0) AS biddingCount,

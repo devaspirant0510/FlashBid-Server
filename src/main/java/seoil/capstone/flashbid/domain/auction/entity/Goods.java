@@ -1,10 +1,11 @@
 package seoil.capstone.flashbid.domain.auction.entity;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 
 @Getter
@@ -15,7 +16,6 @@ import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 @Entity
 public class Goods {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id ;
 
     @Column(length = 500)

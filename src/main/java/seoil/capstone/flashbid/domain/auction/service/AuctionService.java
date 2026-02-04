@@ -24,12 +24,10 @@ import seoil.capstone.flashbid.domain.payment.dto.BidDto;
 import seoil.capstone.flashbid.domain.payment.entity.PointHistoryEntity;
 import seoil.capstone.flashbid.domain.payment.repository.PointHistoryRepository;
 import seoil.capstone.flashbid.domain.user.entity.Account;
-import seoil.capstone.flashbid.global.common.enums.AuctionStatus;
-import seoil.capstone.flashbid.global.common.enums.AuctionType;
-import seoil.capstone.flashbid.global.common.enums.DeliveryType;
-import seoil.capstone.flashbid.global.common.enums.FileType;
+import seoil.capstone.flashbid.global.common.enums.*;
 import seoil.capstone.flashbid.global.common.error.ApiException;
 import seoil.capstone.flashbid.global.common.error.NotFoundAuctionException;
+import seoil.capstone.flashbid.infrastructure.id.SnowflakeGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -61,6 +59,10 @@ public class AuctionService {
     private final DMService dmService;
     private final AuctionViewService auctionViewService;
     private final AuctionViewCountRepository auctionViewCountRepository;
+    private final SnowflakeGenerator snowflakeGenerator;
+    private final AuctionStatsRepository auctionStatsRepository;
+    private final BackUpAuctionViewCountRepository backUpAuctionViewCountRepository;
+    private final AuctionEventLogRepository auctionEventLogRepository;
 
     public ConfirmedBidsEntity confirmedBidsEntity(Account account, Long auctionId, Long biddingLogId) {
         Auction auction = getAuctionById(auctionId);
@@ -131,9 +133,12 @@ public class AuctionService {
 
     @Transactional
     public Auction saveAuction(Account user, CreateAuctionRequestDto dto, List<MultipartFile> images, AuctionType auctionType) {
+        // TODO : 로직 검토
         GoodsDto goodsDto = goodsService.uploadGoods(user, images, dto.getTitle(), dto.getDescription(), dto.getDeliveryType());
         CategoryEntity category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "", ""));
+
         Auction auction = Auction.builder()
+                .id(snowflakeGenerator.nextId())
                 .count(0)
                 .bidUnit(dto.getBidUnit())
                 .endTime(dto.getEndTime())
@@ -146,9 +151,10 @@ public class AuctionService {
                 .auctionStatus(AuctionStatus.BEFORE_START)
                 .build();
 
-        Auction savedAuction = auctionRepository.save(auction);
+        auction = auctionRepository.save(auction);
+
         auctionEventRepository.registerAuctionTTLs(
-                savedAuction.getId(),
+                auction.getId(),
                 auctionType,
                 dto.getStartTime(),
                 dto.getEndTime()
@@ -158,9 +164,8 @@ public class AuctionService {
             DeliveryInfoEntity deliveryInfo = DeliveryInfoEntity.builder()
                     .deliveryFee(dto.getDeliveryInfo().getDeliveryFee())
                     .build();
-            DeliveryInfoEntity save = deliveryInfoRepository.saveAndFlush(deliveryInfo);
-            log.info("saved {}", save);
-            savedAuction.setDeliveryInfo(save);
+            DeliveryInfoEntity save = deliveryInfoRepository.save(deliveryInfo);
+            auction.setDeliveryInfo(save);
         } else if (dto.getDeliveryType() == DeliveryType.DIRECT && dto.getTradingArea() != null) {
             TradingAreaEntity tradingArea = TradingAreaEntity.builder()
                     .latitude(dto.getTradingArea().getLatitude())
@@ -168,11 +173,42 @@ public class AuctionService {
                     .radius(dto.getTradingArea().getRadius())
                     .address(dto.getTradingArea().getAddress())
                     .build();
-            TradingAreaEntity save = tradingAreaRepository.saveAndFlush(tradingArea);
-            savedAuction.setTradingArea(save);
+            TradingAreaEntity save = tradingAreaRepository.save(tradingArea);
+            auction.setTradingArea(save);
         }
 
-        return savedAuction;
+        auctionStatsRepository.save(
+                AuctionStatsEntity.init(auction)
+        );
+
+        backUpAuctionViewCountRepository.save(
+                AuctionViewCountEntity.builder()
+                        .id(auction.getId())
+                        .viewCount(0L)
+                        .build()
+        );
+
+        auctionEventLogRepository.save(
+                AuctionEventLogEntity.builder()
+                        .auction(auction)
+                        .auctionEventType(AuctionEventType.START_EVENT)
+                        .eventTime(dto.getStartTime())
+                        .isProcessed(false)
+                        .id(snowflakeGenerator.nextId())
+                        .build()
+        );
+
+        auctionEventLogRepository.save(
+                AuctionEventLogEntity.builder()
+                        .auction(auction)
+                        .auctionEventType(AuctionEventType.END_EVENT)
+                        .eventTime(dto.getEndTime())
+                        .isProcessed(false)
+                        .id(snowflakeGenerator.nextId())
+                        .build()
+        );
+
+        return auction;
     }
 
     @Transactional

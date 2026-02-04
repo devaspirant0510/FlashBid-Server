@@ -23,6 +23,7 @@ import seoil.capstone.flashbid.global.common.enums.UserStatus;
 import seoil.capstone.flashbid.global.common.enums.UserType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
 import seoil.capstone.flashbid.global.core.provider.JwtProvider;
+import seoil.capstone.flashbid.infrastructure.id.SnowflakeGenerator;
 import seoil.capstone.flashbid.infrastructure.mail.EmailTemplate;
 import seoil.capstone.flashbid.infrastructure.mail.MailService;
 
@@ -41,6 +42,7 @@ public class AuthService {
     private final UserFcmRepository userFcmRepository;
     private final FcmCacheRepository fcmCacheRepository;
     private final PointHistoryRepository pointHistoryRepository;
+    private final SnowflakeGenerator snowflakeGenerator;
 
     public Account authorizationTokenWithUser(String token) {
         log.info(token);

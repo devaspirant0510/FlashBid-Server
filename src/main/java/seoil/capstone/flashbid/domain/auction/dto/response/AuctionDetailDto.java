@@ -3,6 +3,8 @@ package seoil.capstone.flashbid.domain.auction.dto.response;
 import lombok.*;
 import seoil.capstone.flashbid.domain.auction.projection.AuctionDetailProjection;
 import seoil.capstone.flashbid.global.common.enums.AuctionStatus;
+import seoil.capstone.flashbid.global.common.enums.AuctionType;
+import seoil.capstone.flashbid.global.common.enums.EnumConvertor;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuctionDetailDto {
-    private Long id;
+    private String id;
     private String title;
     private String categoryName;
     private String description;
@@ -27,13 +29,14 @@ public class AuctionDetailDto {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private AuctionStatus status;
+    private AuctionType auctionType;
     private Boolean isLiked;
     private Bidder bidder;
 
     @Getter
     @ToString
     public static class Bidder {
-        private Long id;
+        private String id;
         private String nickname;
         private Integer follower;
         private Integer following;
@@ -43,10 +46,13 @@ public class AuctionDetailDto {
 
     public static AuctionDetailDto from(AuctionDetailProjection projection, Long viewCount) {
         AuctionDetailDto dto = new AuctionDetailDto();
-        dto.id = projection.getId();
+
+        dto.status = EnumConvertor.fromCode(AuctionStatus.class,projection.getStatus());
+        dto.auctionType = EnumConvertor.fromCode(AuctionType.class,projection.getAuctionType());
+        dto.id = projection.getId().toString();
         dto.title = projection.getTitle();
         dto.description = projection.getDescription();
-        dto.currentPrice = projection.getCurrentPrice();
+        dto.currentPrice = dto.auctionType==AuctionType.LIVE?projection.getCurrentPrice():-1;
         dto.startPrice = projection.getStartPrice();
         dto.participateCount = projection.getParticipateCount();
         dto.biddingCount = projection.getBiddingCount();
@@ -55,11 +61,10 @@ public class AuctionDetailDto {
         dto.chatMessagingCount = projection.getChatMessagingCount();
         dto.startTime = projection.getStartTime();
         dto.endTime = projection.getEndTime();
-        dto.status = projection.getStatus();
         dto.categoryName = projection.getCategoryName();
         dto.isLiked = projection.getIsLiked();
         dto.bidder = new Bidder();
-        dto.bidder.id = projection.getBidderId();
+        dto.bidder.id = projection.getBidderId().toString();
         dto.bidder.nickname = projection.getBidderNickname();
         dto.bidder.confirmBidCount = projection.getBidderConfirmBidCount();
         dto.bidder.saleCount = projection.getBidderSaleCount();

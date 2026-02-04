@@ -14,6 +14,7 @@ import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.enums.LoginType;
 import seoil.capstone.flashbid.global.common.enums.UserStatus;
 import seoil.capstone.flashbid.global.common.enums.UserType;
+import seoil.capstone.flashbid.infrastructure.id.SnowflakeGenerator;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -27,6 +28,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final PointHistoryRepository pointHistoryRepository;
+    private final SnowflakeGenerator snowflakeGenerator;
 
     // 이메일로 가입한 유저의 이메일을 디비에서 조회하여 가입한적이 있는지 확인
     public boolean isRegisteredEmail(String email) {
@@ -51,6 +53,7 @@ public class AccountService {
     @Transactional
     public Account registerAccount(String email, String uuid, LoginType loginType) {
         Account createAccount = Account.builder()
+                .id(snowflakeGenerator.nextId())
                 .email(email)
                 .uuid(uuid)
                 .isVerified(false)
@@ -59,6 +62,7 @@ public class AccountService {
                 .userStatus(UserStatus.UN_LINK)
                 .build();
         createAccount.setPoint(1000000);
+        Account save = accountRepository.save(createAccount);
         PointHistoryEntity pointHistory = PointHistoryEntity.builder()
                 .chargeType(PointHistoryEntity.ChargeType.GIFT)
                 .contents("가입 축하 포인트 지급")
@@ -68,7 +72,7 @@ public class AccountService {
                 .build();
         pointHistoryRepository.save(pointHistory);
 
-        return accountRepository.save(createAccount);
+        return save;
     }
 
     public void updateUserProfile(Long userId, String newNickname, MultipartFile profileImage) throws IOException {

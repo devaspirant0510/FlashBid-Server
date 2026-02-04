@@ -1,7 +1,5 @@
 package seoil.capstone.flashbid.domain.auction.projection;
 
-import seoil.capstone.flashbid.global.common.enums.AuctionStatus;
-
 import java.time.LocalDateTime;
 
 public interface AuctionDetailProjection {
@@ -18,7 +16,8 @@ public interface AuctionDetailProjection {
     Long getChatMessagingCount();
     LocalDateTime getStartTime();
     LocalDateTime getEndTime();
-    AuctionStatus getStatus();
+    Short getStatus();
+    Short getAuctionType();
     Boolean getIsLiked();
 
     Long getBidderId();
