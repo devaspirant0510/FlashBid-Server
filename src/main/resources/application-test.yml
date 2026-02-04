@@ -6,10 +6,12 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: create-drop # 테스트 후 자동 삭제
+      ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
   h2:
     console:
       enabled: true
