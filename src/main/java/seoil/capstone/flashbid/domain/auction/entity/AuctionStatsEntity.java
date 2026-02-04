@@ -27,4 +27,16 @@ public class AuctionStatsEntity {
 
     @OneToOne
     private Auction auction;
+
+    public static AuctionStatsEntity init(Auction auction) {
+        return AuctionStatsEntity.builder()
+                .id(auction.getId())
+                .auction(auction)
+                .biddingCount(0L)
+                .lastBidAmount(0L)
+                .lastBidTime(null)
+                .participantsCount(0L)
+                .build();
+
+    }
 }

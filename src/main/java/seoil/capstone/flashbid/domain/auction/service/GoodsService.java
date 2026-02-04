@@ -16,6 +16,7 @@ import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.common.enums.DeliveryType;
 import seoil.capstone.flashbid.global.common.enums.FileType;
 import seoil.capstone.flashbid.global.common.error.ApiException;
+import seoil.capstone.flashbid.infrastructure.id.SnowflakeGenerator;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class GoodsService {
     private final FileService fileService;
     private final GoodsRepository goodsRepository;
     private final FileRepository fileRepository;
+    private final SnowflakeGenerator generator;
 
     @Transactional
     public GoodsDto getGoodsById(Long goodsId) {
@@ -40,6 +42,7 @@ public class GoodsService {
     public GoodsDto uploadGoods(Account account, List<MultipartFile> files, String title, String description,DeliveryType deliveryType) {
         Goods createGoods = Goods
                 .builder()
+                .id(generator.nextId())
                 .description(description)
                 .title(title)
                 .deliveryType(deliveryType)
