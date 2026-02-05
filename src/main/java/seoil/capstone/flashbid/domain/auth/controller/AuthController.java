@@ -78,6 +78,10 @@ public class AuthController {
         if (refreshToken == null || !jwtProvider.validateToken(refreshToken)) {
             throw new TokenUnAuthorized("토큰 인증 실패", "리프레시 토큰이 유효하지 않습니다.", "TOKEN_UNAUTHORIZED");
         }
+
+        // validateToken() 내부에서 케이스별 ApiException(JWT 관련 커스텀 예외)을 throw 합니다.
+        jwtProvider.validateToken(refreshToken);
+
         Claims claims = jwtProvider.parseClaims(refreshToken);
         String uid = claims.getSubject();
         Account account = accountService.getUserByUuid(uid);

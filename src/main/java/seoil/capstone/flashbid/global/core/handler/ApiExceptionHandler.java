@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import seoil.capstone.flashbid.global.common.error.ApiException;
+import seoil.capstone.flashbid.global.common.error.TokenUnAuthorized;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
 import seoil.capstone.flashbid.global.common.response.ErrorDetails;
 import seoil.capstone.flashbid.infrastructure.webhook.DiscordNotifier;
@@ -82,6 +83,23 @@ public class ApiExceptionHandler implements ResponseBodyAdvice<Object> {
                 .timestamp(LocalDateTime.now())
                 .error(error)
                 .build();
+    }
+    @ExceptionHandler(TokenUnAuthorized.class)
+    public ApiResult<?> handleTokenUnAuthorized(TokenUnAuthorized e, HttpServletRequest request, HttpServletResponse response) {
+        ErrorDetails error = e.getError();
+        if (error.getInstance() == null) {
+            error.setInstance(request.getRequestURI());
+        }
+
+        response.setStatus(error.getStatus());
+        return ApiResult.builder()
+                .message(error.getTitle())
+                .success(false)
+                .timestamp(LocalDateTime.now())
+                .error(error)
+                .build();
+
+
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

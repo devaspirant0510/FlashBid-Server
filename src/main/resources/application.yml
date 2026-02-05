@@ -65,3 +65,13 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
