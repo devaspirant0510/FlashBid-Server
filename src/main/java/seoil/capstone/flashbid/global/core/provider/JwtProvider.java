@@ -10,6 +10,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import seoil.capstone.flashbid.domain.user.entity.Account;
+import seoil.capstone.flashbid.global.common.error.JwtEmptyClaimsException;
+import seoil.capstone.flashbid.global.common.error.JwtExpiredTokenException;
+import seoil.capstone.flashbid.global.common.error.JwtInvalidSignatureException;
+import seoil.capstone.flashbid.global.common.error.JwtMalformedTokenException;
+import seoil.capstone.flashbid.global.common.error.JwtUnsupportedTokenException;
 
 import javax.crypto.SecretKey;
 import java.util.Base64;
@@ -95,7 +100,6 @@ public class JwtProvider {
 
     public boolean validateToken(String token) {
         try {
-
             Jwts.parserBuilder()
                     .setSigningKey(hashUtils.getSignedKey(jwtSecretKey))
                     .build()
@@ -103,16 +107,20 @@ public class JwtProvider {
             return true;
         } catch (SecurityException e) {
             log.warn("Invalid JWT signature: {}", e.getMessage());
+            throw new JwtInvalidSignatureException();
         } catch (MalformedJwtException e) {
             log.warn("Invalid JWT token: {}", e.getMessage());
+            throw new JwtMalformedTokenException();
         } catch (ExpiredJwtException e) {
             log.warn("JWT token is expired: {}", e.getMessage());
+            throw new JwtExpiredTokenException();
         } catch (UnsupportedJwtException e) {
             log.warn("JWT token is unsupported: {}", e.getMessage());
+            throw new JwtUnsupportedTokenException();
         } catch (IllegalArgumentException e) {
             log.warn("JWT claims string is empty: {}", e.getMessage());
+            throw new JwtEmptyClaimsException();
         }
-        return false;
     }
 
     public Claims parseClaims(String token) {

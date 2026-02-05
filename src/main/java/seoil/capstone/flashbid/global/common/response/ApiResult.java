@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -81,6 +80,15 @@ public class ApiResult<T> {
     public ApiResult<T> data(T data) {
         this.data = data;
         this.timestamp = LocalDateTime.now();
+        this.success = true;
+        return this;
+    }
+
+    public ApiResult<T> data(T data,String message) {
+        this.data = data;
+        this.timestamp = LocalDateTime.now();
+        this.success = true;
+        this.message = message;
         return this;
     }
 
