@@ -1,47 +1,17 @@
-version: '3.8'
-
 services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: zookeeper
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+      - "9090:9090"
 
-  kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: kafka
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
     ports:
-      - "9092:9092"
+      - "3000:3000"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    depends_on:
-      - zookeeper
-#  app:
-#    build: .
-#    container_name: spring_app
-#    depends_on:
-#      - postgres
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/flash_bid
-#      SPRING_DATASOURCE_USERNAME: root
-#      SPRING_DATASOURCE_PASSWORD: 1234
-#      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
-#    ports:
-#      - "8081:8080"
-#
-#  postgres:
-#    image: postgres
-#    container_name: postgres
-#    restart: always
-#    environment:
-#      POSTGRES_DB: flash_bid
-#      POSTGRES_USER: root
-#      POSTGRES_PASSWORD: 1234
-#    ports:
-#      - "5432:5432"
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin

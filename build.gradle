@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'seoil.capstone'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2'
 
 java {
 	toolchain {
@@ -75,6 +75,10 @@ dependencies {
     // flyway
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
+
+    // monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 
 }
 
