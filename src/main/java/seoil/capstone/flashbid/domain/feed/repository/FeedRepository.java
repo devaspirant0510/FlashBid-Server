@@ -171,7 +171,7 @@ public interface FeedRepository extends JpaRepository<FeedEntity,Long> {
             LEFT JOIN likes ul ON ul.feed.id = f.id AND ul.account.id = :userId
             WHERE (:cursorId IS NULL OR f.id < :cursorId)
             GROUP BY
-                a.id,f.id, u.id, g.id, ul.id,awl.id,ast.id,ca.id,cb.id,cba.id,cbg.id,cbca.id,cbl.id,cbb.id
+                a.id,f.id, u.id, g.id, ul.id,awl.id,ast.id,ca.id,cb.id,cba.id,cbg.id,cbca.id,cbl.id,cbb.id,avc.id
             ORDER BY f.createdAt DESC
             """)
     List<FeedSummaryProjection> findAllFeedQueryCursor(
