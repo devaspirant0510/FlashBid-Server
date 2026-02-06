@@ -11,6 +11,7 @@ import seoil.capstone.flashbid.domain.auction.dto.request.CreateAuctionRequestDt
 import seoil.capstone.flashbid.domain.auction.dto.request.ParticipateAuctionDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.*;
 import seoil.capstone.flashbid.domain.auction.entity.*;
+import seoil.capstone.flashbid.domain.auction.infra.SimpleCounter;
 import seoil.capstone.flashbid.domain.auction.projection.*;
 import seoil.capstone.flashbid.domain.auction.repository.jpa.*;
 import seoil.capstone.flashbid.domain.auction.repository.redis.AuctionEventRepository;
@@ -63,6 +64,7 @@ public class AuctionService {
     private final AuctionStatsRepository auctionStatsRepository;
     private final BackUpAuctionViewCountRepository backUpAuctionViewCountRepository;
     private final AuctionEventLogRepository auctionEventLogRepository;
+    private final SimpleCounter counter;
 
     public ConfirmedBidsEntity confirmedBidsEntity(Account account, Long auctionId, Long biddingLogId) {
         Auction auction = getAuctionById(auctionId);
@@ -337,20 +339,7 @@ public class AuctionService {
                 .auction(auction)
                 .build();
         AuctionWishListEntity savedWishList = auctionWishListRepository.save(wishList);
-        AuctionWishListCountEntity countEntity = auctionWishListCountRepository.findById(auctionId).orElse(null);
-        // 찜 카운트 업데이트
-        if (countEntity != null) {
-            countEntity.setCount(countEntity.getCount() + 1);
-            auctionWishListCountRepository.save(countEntity);
-
-        } else {
-            // 찜 카운트가 없으면 새로 생성
-            AuctionWishListCountEntity newCountEntity = AuctionWishListCountEntity.builder()
-                    .auction(auction)
-                    .count(1L)
-                    .build();
-            auctionWishListCountRepository.save(newCountEntity);
-        }
+        counter.increase(auctionId);
         return savedWishList;
 
     }
@@ -366,14 +355,7 @@ public class AuctionService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "WishList not found", "찜 목록에 해당 경매가 없습니다."));
         auctionWishListRepository.deleteByUserIdAndAuctionId(user.getId(), auction.getId());
         // 찜 카운트 업데이트
-        AuctionWishListCountEntity countEntity = auctionWishListCountRepository.findById(auctionId)
-                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "WishListCount not found", "찜 카운트가 존재하지 않습니다."));
-        if (countEntity.getCount() > 0) {
-            countEntity.setCount(countEntity.getCount() - 1);
-            auctionWishListCountRepository.save(countEntity);
-        } else {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "찜 카운트가 0 이하입니다.", "찜 카운트가 0 이하입니다.");
-        }
+        counter.decrease(auctionId);
 
     }
 
