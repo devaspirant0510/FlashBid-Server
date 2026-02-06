@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionDetailDto;
 import seoil.capstone.flashbid.domain.auction.dto.response.AuctionItemDto;
 import seoil.capstone.flashbid.domain.auction.service.AuctionService;
+import seoil.capstone.flashbid.domain.auction.service.AuctionWishListService;
 import seoil.capstone.flashbid.domain.user.entity.Account;
 import seoil.capstone.flashbid.global.aop.annotation.AuthUser;
 import seoil.capstone.flashbid.global.common.response.ApiResult;
@@ -18,6 +19,7 @@ import seoil.capstone.flashbid.global.common.response.ApiResult;
 @Slf4j
 public class AuctionV2Controller {
     private final AuctionService auctionService;
+    private final AuctionWishListService auctionWishListService;
 
     @GetMapping("live")
     public ApiResult<Page<AuctionItemDto>> getAuctionList(
@@ -45,6 +47,20 @@ public class AuctionV2Controller {
             Account account
     ) {
         return ApiResult.ok(auctionService.getAuctionDetail(auctionId, account));
+    }
+
+    @AuthUser
+    @PatchMapping("/wishlist/{id}")
+    public ApiResult<Boolean> wishAuction(Account user, @PathVariable("id") Long auctionId) {
+        auctionWishListService.increase(user, auctionId);
+        return ApiResult.ok(true, "경매 찜하기 성공");
+    }
+
+    @AuthUser
+    @DeleteMapping("/wishlist/{id}")
+    public ApiResult<Boolean> cancelWishAuction(Account user, @PathVariable("id") Long auctionId) {
+        auctionWishListService.decrease(user, auctionId);
+        return ApiResult.ok(true, "경매 찜하기 취소 성공");
     }
 
 

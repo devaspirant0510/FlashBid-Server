@@ -22,4 +22,11 @@ public class AuctionWishListCountEntity {
 
     private Long count;
 
+    public static AuctionWishListCountEntity init(Auction auction) {
+        AuctionWishListCountEntity entity = new AuctionWishListCountEntity();
+        entity.setAuction(auction);
+        entity.setCount(0L);
+        return entity;
+    }
+
 }
