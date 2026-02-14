@@ -66,6 +66,8 @@ server:
       enabled: true
       force: true
 management:
+  server:
+    port: 8911
   endpoints:
     web:
       exposure:
