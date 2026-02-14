@@ -1,8 +1,7 @@
 global:
-  scrape_interval: 15s # 15초마다 데이터 긁어오기 (수집 주기)
+  scrape_interval: 15s
 
 scrape_configs:
-  # 1. 프로메테우스 자기 자신 모니터링 (기본)
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
@@ -11,4 +10,4 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['host.docker.internal:8080']
+      - targets: ['host.docker.internal:8911']
