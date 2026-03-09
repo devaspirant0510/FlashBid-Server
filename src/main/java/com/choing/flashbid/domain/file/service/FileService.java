@@ -1,0 +1,122 @@
+package com.choing.flashbid.domain.file.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import com.choing.flashbid.domain.file.dto.SaveFileDto;
+import com.choing.flashbid.domain.file.entity.FileEntity;
+import com.choing.flashbid.domain.file.repository.FileRepository;
+import com.choing.flashbid.domain.user.entity.Account;
+import com.choing.flashbid.global.common.enums.FileType;
+import com.choing.flashbid.global.common.error.ApiException;
+import com.choing.flashbid.infrastructure.file.FileUploader;
+import com.choing.flashbid.infrastructure.file.UploadResult;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class FileService {
+    private final String uploadDir = System.getProperty("user.home") + "/seungho/uploads/";
+    private final FileRepository repository;
+    private final FileRepository fileRepository;
+    private final FileUploader fileUploader;
+
+    public List<FileEntity> getAllFiles(Long domainId, FileType fileType) {
+        return repository.findAllByFileIdAndFileType(domainId, fileType);
+    }
+
+    public List<FileEntity> uploadAllFiles(List<MultipartFile> files, Account uploader, Long domainFileId, FileType fileType) {
+        List<FileEntity> fileEntities = new ArrayList<>();
+        for (MultipartFile file : files) {
+            UploadResult uploadResult = fileUploader.uploadFile(file);
+            log.info("file upload result : {}", uploadResult);
+            fileEntities.add(
+                    FileEntity.builder()
+                            .url(uploadResult.getUrl())
+                            .fileName(uploadResult.getStoredName())
+                            .fileId(domainFileId)
+                            .fileType(fileType)
+                            .extension(uploadResult.getExtension())
+                            .user(uploader)
+                            .build()
+            );
+        }
+        return fileRepository.saveAll(fileEntities);
+    }
+
+    @Deprecated
+    public List<FileEntity> saveFileEntities(List<SaveFileDto> files, Long fileId, Account account, FileType fileType) {
+        List<FileEntity> fileEntities = new ArrayList<>();
+        for (SaveFileDto file : files) {
+            fileEntities.add(
+                    FileEntity.builder()
+                            .url(file.getUrl())
+                            .fileName(file.getFileName())
+                            .extension(file.getExtension())
+                            .fileId(fileId)
+                            .user(account)
+                            .fileType(fileType)
+                            .build()
+            );
+        }
+        return fileRepository.saveAll(fileEntities);
+    }
+
+    @Deprecated
+    public List<SaveFileDto> saveImage(List<MultipartFile> files) {
+        List<SaveFileDto> fileNames = new ArrayList<>();
+        createOrGetDirectory();
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 읽기 에러", "500E001");
+            }
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String fileName = timestamp + file.getOriginalFilename();
+            String[] extension = fileName.split("\\.");
+
+            System.out.println(Arrays.toString(extension));
+            System.out.println(uploadDir + fileName);
+            String accessUrl = "/uploads/" + fileName;
+
+            fileNames.add(SaveFileDto
+                    .builder()
+                    .url(accessUrl)
+                    .fileName(fileName)
+                    .extension(extension[extension.length - 1])
+                    .build());
+            try {
+                file.transferTo(new File(uploadDir + fileName));
+            } catch (Exception e) {
+                log.error("file upload error");
+                e.printStackTrace();
+                throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 에러", "500E001");
+            }
+        }
+        return fileNames;
+    }
+
+    private void createOrGetDirectory() {
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러", "500E001");
+            }
+        }
+    }
+
+    /**
+     * 특정 피드의 모든 파일을 삭제합니다.
+     * @param fileId 삭제할 파일의 ID (feedId)
+     */
+    public void deleteFilesByFeedId(Long fileId) {
+        fileRepository.deleteByFileId(fileId);
+    }
+}

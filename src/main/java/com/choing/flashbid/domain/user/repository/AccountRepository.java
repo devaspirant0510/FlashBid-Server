@@ -1,0 +1,30 @@
+package com.choing.flashbid.domain.user.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import com.choing.flashbid.domain.user.entity.Account;
+import com.choing.flashbid.domain.user.projection.AccountStatusInfoProjection;
+import com.choing.flashbid.global.common.enums.UserType;
+
+import java.util.Optional;
+
+public interface AccountRepository extends JpaRepository<Account, Long> {
+    Optional<Account> findByUuid(String uuid);
+    boolean existsByEmail(String email);
+    boolean existsByEmailAndUserType(String email, UserType userType);
+    boolean existsByNickname(String nickname);
+    Optional<Account> findByEmail(String email);
+    @Query("""
+            select 
+            (select count(*) from FollowEntity f where f.follower.id = a.id) as followerCount,
+            (select count(*) from FollowEntity f where f.following.id = a.id) as followingCount,
+            (select count(*) from confirm_bids  b where b.bidder.id = a.id) as biddingCount,
+            (select count(*) from confirm_bids  b where b.seller.id = a.id) as sellCount,
+            (select count(w) from AuctionWishList w where w.user.id = a.id) as wishListCount,
+            a.nickname as nickname,
+            a.profileUrl as profileUrl
+            from Account a
+            where a.id = :id 
+    """)
+    AccountStatusInfoProjection findAccountStatusInfoById(Long id);
+}

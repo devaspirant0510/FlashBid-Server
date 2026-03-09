@@ -1,0 +1,31 @@
+package com.choing.flashbid.domain.auction.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import com.choing.flashbid.domain.user.entity.Account;
+import com.choing.flashbid.global.core.BaseTimeOnlyCreated;
+
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity(name = "AuctionWishList")
+@Table(
+        name = "auction_wishlist",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"auction_id", "user_id"})
+        }
+)
+public class AuctionWishListEntity extends BaseTimeOnlyCreated {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Account user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Auction auction;
+}

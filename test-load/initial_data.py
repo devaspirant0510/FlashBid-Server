@@ -249,6 +249,7 @@ def generate_goods_row(faker_instance, idx):
     like_count = random.randint(0, 200)
 
     return (
+        idx,
         title,
         description,
         delivery_type
@@ -259,6 +260,7 @@ def insert_goods_batch(conn, rows):
     """goods 배치 삽입"""
 
     cols = (
+        "id",
         "title",
         "description",
         "delivery_type"
@@ -541,8 +543,8 @@ def generate_and_insert_files(total_goods, batch_size=10000):
 if __name__ == "__main__":      
 #     generate_and_insert_goods(
 #         total_count=5_000_00,
-#         commit_unit=50000,
-#         chunk=1000
+#         commit_unit=20000,
+#         chunk=5000
 #     )
     generate_and_insert_auction(
         total_count=5_000_00,

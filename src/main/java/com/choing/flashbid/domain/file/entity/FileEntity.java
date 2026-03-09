@@ -1,0 +1,41 @@
+package com.choing.flashbid.domain.file.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import com.choing.flashbid.domain.user.entity.Account;
+import com.choing.flashbid.global.common.enums.FileType;
+import com.choing.flashbid.global.core.BaseTimeEntity;
+
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity(name = "file")
+public class FileEntity extends BaseTimeEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    private Account user;
+
+    @Column
+    private String fileName;
+
+    @Column
+    private String extension;
+
+    @Column
+    private String url;
+
+    @Enumerated()
+    @Column(name = "file_type", nullable = false, length = 20)
+    private FileType fileType;
+
+    @Column
+    private Long fileId;
+
+
+}

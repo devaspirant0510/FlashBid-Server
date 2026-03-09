@@ -1,0 +1,30 @@
+package com.choing.flashbid.global.core.security;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import com.choing.flashbid.domain.user.entity.Account;
+import com.choing.flashbid.domain.user.repository.AccountRepository;
+
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class CustomUserDetailService implements UserDetailsService {
+    private final AccountRepository accountRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // 3. 유저네임(이메일) 조회후 패스워드 검증
+        log.info("UserDetailsService loadUserByUsername: {}", username);
+        Account findUser = accountRepository.findByEmail(username).orElseThrow();
+        return User.withUsername(username)
+                .password(findUser.getPassword())
+                .authorities(findUser.getUserType().toString())
+                .build();
+    }
+}
